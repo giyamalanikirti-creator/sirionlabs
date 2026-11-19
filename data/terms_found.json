@@ -1,0 +1,22 @@
+{
+  "windowMonths": 6,
+  "totalTerms": 214,
+  "split": [
+    {
+      "source": "Word versions",
+      "pct": 58
+    },
+    {
+      "source": "Supplier email text",
+      "pct": 27
+    },
+    {
+      "source": "Side threads",
+      "pct": 9
+    },
+    {
+      "source": "Call notes",
+      "pct": 6
+    }
+  ]
+}

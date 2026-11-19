@@ -1,0 +1,22 @@
+{
+  "northStar": [
+    {
+      "quarter": "Jan–Mar 2026",
+      "clean": 9,
+      "audited": 18
+    },
+    {
+      "quarter": "Apr–Jun 2026",
+      "clean": 11,
+      "audited": 19
+    },
+    {
+      "quarter": "Jul–Sep 2026",
+      "clean": 13,
+      "audited": 20
+    }
+  ],
+  "nextAudit": "Jan 2027",
+  "signedSinceLastAudit": 3,
+  "prePilotMedianDays": 9
+}

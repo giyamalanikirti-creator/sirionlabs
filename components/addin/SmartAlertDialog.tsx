@@ -1,0 +1,109 @@
+'use client';
+
+/**
+ * Smart Alerts — BUILD_SPEC §4E.
+ * Modelled on Microsoft's onMessageSend behaviour in new Outlook and Outlook
+ * on the web: a short progress dialog while the check runs, then a modal whose
+ * title is the add-in name, whose message is capped at 500 characters, and
+ * whose three buttons are the Take Action button (our own label, ≤ 20 chars),
+ * Don't Send, and Send Anyway.
+ */
+import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogBody,
+  DialogContent,
+  DialogSurface,
+  DialogTitle,
+  FluentProvider,
+  Spinner,
+  tokens,
+} from '@fluentui/react-components';
+import ReactMarkdown from 'react-markdown';
+import { Mark } from '@/components/sirion/Mark';
+import { dealLedgerTheme } from '@/lib/fluentTheme';
+import { AiBadge } from './PaneFrame';
+import type { AiSource } from '@/lib/types';
+
+export function ProgressDialog({ open }: { open: boolean }) {
+  return (
+    <Dialog open={open} modalType="non-modal">
+      <DialogSurface style={{ maxWidth: 360 }}>
+        <DialogBody>
+          <DialogContent>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <Spinner size="tiny" />
+              <span style={{ fontSize: 13.5 }}>Deal Ledger is checking your message…</span>
+            </div>
+          </DialogContent>
+        </DialogBody>
+      </DialogSurface>
+    </Dialog>
+  );
+}
+
+export function SmartAlertDialog({
+  open,
+  markdown,
+  takeActionLabel,
+  source,
+  onTakeAction,
+  onDontSend,
+  onSendAnyway,
+}: {
+  open: boolean;
+  markdown: string;
+  takeActionLabel: string;
+  source: AiSource;
+  onTakeAction: () => void;
+  onDontSend: () => void;
+  onSendAnyway: () => void;
+}) {
+  return (
+    <Dialog open={open} modalType="alert">
+      <DialogSurface style={{ maxWidth: 480 }}>
+        <FluentProvider theme={dealLedgerTheme}>
+          <DialogBody>
+            <DialogTitle>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <Mark size={18} tone="dark" />
+                <span style={{ fontSize: 16 }}>Deal Ledger</span>
+              </span>
+            </DialogTitle>
+            <DialogContent>
+              <div
+                style={{ fontSize: 13.5, lineHeight: '20px', color: tokens.colorNeutralForeground1 }}
+              >
+                <ReactMarkdown
+                  components={{
+                    p: ({ children }) => <p style={{ margin: '0 0 10px' }}>{children}</p>,
+                    strong: ({ children }) => (
+                      <strong style={{ fontWeight: 600 }}>{children}</strong>
+                    ),
+                  }}
+                >
+                  {markdown}
+                </ReactMarkdown>
+              </div>
+              <div style={{ marginTop: 6 }}>
+                <AiBadge source={source} />
+              </div>
+            </DialogContent>
+            <DialogActions>
+              <Button appearance="subtle" onClick={onSendAnyway}>
+                Send Anyway
+              </Button>
+              <Button appearance="secondary" onClick={onDontSend}>
+                Don&apos;t Send
+              </Button>
+              <Button appearance="primary" onClick={onTakeAction}>
+                {takeActionLabel}
+              </Button>
+            </DialogActions>
+          </DialogBody>
+        </FluentProvider>
+      </DialogSurface>
+    </Dialog>
+  );
+}

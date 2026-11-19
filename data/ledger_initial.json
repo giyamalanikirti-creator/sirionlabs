@@ -1,0 +1,426 @@
+[
+  {
+    "id": "R-term",
+    "dealId": "D-CLOUDDESK",
+    "termKey": "term",
+    "label": "Term",
+    "position": {
+      "kind": "term",
+      "years": 3
+    },
+    "state": "agreed",
+    "source": {
+      "kind": "email",
+      "messageId": "M5",
+      "quote": "OK on 60 days if you sign for 3 years",
+      "at": "2026-11-10T09:15:00+05:30",
+      "byPersonId": "rohan"
+    },
+    "reason": "Traded for 60-day payment",
+    "approvedBy": {
+      "personId": "neha",
+      "source": {
+        "kind": "email",
+        "messageId": "M6",
+        "quote": "provided the price is fixed for the term",
+        "at": "2026-11-12T17:30:00+05:30",
+        "byPersonId": "neha"
+      },
+      "condition": "provided the price is fixed for the term"
+    },
+    "history": [
+      {
+        "at": "2026-11-03T16:05:00+05:30",
+        "text": "We offered a 3-year term if the price is fixed.",
+        "source": {
+          "kind": "email",
+          "messageId": "M2",
+          "quote": "We could look at a 3-year term if the price is fixed",
+          "at": "2026-11-03T16:05:00+05:30",
+          "byPersonId": "ananya"
+        }
+      },
+      {
+        "at": "2026-11-10T09:15:00+05:30",
+        "text": "CloudDesk agreed: 3 years, traded for 60-day payment.",
+        "source": {
+          "kind": "email",
+          "messageId": "M5",
+          "quote": "OK on 60 days if you sign for 3 years",
+          "at": "2026-11-10T09:15:00+05:30",
+          "byPersonId": "rohan"
+        }
+      },
+      {
+        "at": "2026-11-12T17:30:00+05:30",
+        "text": "Neha Kapoor approved the commitment, on condition the price is fixed.",
+        "source": {
+          "kind": "email",
+          "messageId": "M6",
+          "quote": "provided the price is fixed for the term",
+          "at": "2026-11-12T17:30:00+05:30",
+          "byPersonId": "neha"
+        }
+      }
+    ],
+    "threats": [],
+    "supplierNote": "Reflects the 3-year term agreed in your email of 10 Nov.",
+    "owner": "commercial"
+  },
+  {
+    "id": "R-price",
+    "dealId": "D-CLOUDDESK",
+    "termKey": "price",
+    "label": "Annual price",
+    "position": {
+      "kind": "price",
+      "wording": "fixed"
+    },
+    "state": "open",
+    "source": {
+      "kind": "email",
+      "messageId": "M2",
+      "quote": "We'd like the price fixed for the term",
+      "at": "2026-11-03T16:05:00+05:30",
+      "byPersonId": "ananya"
+    },
+    "history": [
+      {
+        "at": "2026-11-01T11:20:00+05:30",
+        "text": "CloudDesk opened with its standard yearly revision.",
+        "source": {
+          "kind": "email",
+          "messageId": "M1",
+          "quote": "Pricing moves to our standard yearly revision",
+          "at": "2026-11-01T11:20:00+05:30",
+          "byPersonId": "rohan"
+        }
+      },
+      {
+        "at": "2026-11-03T16:05:00+05:30",
+        "text": "We asked for the price to be fixed for the term.",
+        "source": {
+          "kind": "email",
+          "messageId": "M2",
+          "quote": "We'd like the price fixed for the term",
+          "at": "2026-11-03T16:05:00+05:30",
+          "byPersonId": "ananya"
+        }
+      },
+      {
+        "at": "2026-11-06T12:40:00+05:30",
+        "text": "CloudDesk held its position in v3, clause 9.1.",
+        "source": {
+          "kind": "version",
+          "versionId": "v3",
+          "clauseNo": "9.1",
+          "quote": "Supplier may revise the Fees once in each contract year by written notice.",
+          "at": "2026-11-06T12:40:00+05:30",
+          "byPersonId": "rohan"
+        }
+      }
+    ],
+    "threats": [
+      {
+        "id": "TH-price-v3",
+        "kind": "supplier_ask",
+        "value": {
+          "kind": "price",
+          "wording": "open_yearly",
+          "fromYear": 2
+        },
+        "source": {
+          "kind": "version",
+          "versionId": "v3",
+          "clauseNo": "9.1",
+          "quote": "Supplier may revise the Fees once in each contract year by written notice.",
+          "at": "2026-11-06T12:40:00+05:30",
+          "byPersonId": "rohan"
+        },
+        "active": true
+      }
+    ],
+    "supplierNote": "Reflects the fixed pricing agreed in your email of 14 Nov.",
+    "owner": "commercial"
+  },
+  {
+    "id": "R-payment",
+    "dealId": "D-CLOUDDESK",
+    "termKey": "payment",
+    "label": "Payment terms",
+    "position": {
+      "kind": "payment",
+      "days": 60
+    },
+    "state": "agreed",
+    "source": {
+      "kind": "email",
+      "messageId": "M5",
+      "quote": "OK on 60 days if you sign for 3 years",
+      "at": "2026-11-10T09:15:00+05:30",
+      "byPersonId": "rohan"
+    },
+    "reason": "Traded for the 3-year term",
+    "approvedBy": {
+      "personId": "ananya",
+      "source": {
+        "kind": "manual",
+        "quote": "Within the procurement lead's own limit",
+        "at": "2026-11-10T09:20:00+05:30",
+        "byPersonId": "ananya"
+      }
+    },
+    "history": [
+      {
+        "at": "2026-11-03T16:05:00+05:30",
+        "text": "We asked for payment in 60 days.",
+        "source": {
+          "kind": "email",
+          "messageId": "M2",
+          "quote": "payment in 60 days",
+          "at": "2026-11-03T16:05:00+05:30",
+          "byPersonId": "ananya"
+        }
+      },
+      {
+        "at": "2026-11-10T09:15:00+05:30",
+        "text": "CloudDesk agreed to 60 days against a 3-year term.",
+        "source": {
+          "kind": "email",
+          "messageId": "M5",
+          "quote": "OK on 60 days if you sign for 3 years",
+          "at": "2026-11-10T09:15:00+05:30",
+          "byPersonId": "rohan"
+        }
+      }
+    ],
+    "threats": [],
+    "supplierNote": "Reflects the 60-day payment terms agreed in your email of 10 Nov.",
+    "owner": "commercial"
+  },
+  {
+    "id": "R-credit",
+    "dealId": "D-CLOUDDESK",
+    "termKey": "service_credit",
+    "label": "Service credit",
+    "position": {
+      "kind": "service_credit",
+      "pct": 10,
+      "uptimeTarget": 99.5
+    },
+    "state": "open",
+    "source": {
+      "kind": "email",
+      "messageId": "M7",
+      "quote": "we need 10% of the monthly fee for any month below 99.5% uptime",
+      "at": "2026-11-13T10:10:00+05:30",
+      "byPersonId": "ananya"
+    },
+    "history": [
+      {
+        "at": "2026-11-03T16:05:00+05:30",
+        "text": "We asked for 10% credits below 99.5% uptime.",
+        "source": {
+          "kind": "email",
+          "messageId": "M2",
+          "quote": "10% service credits for any month below 99.5% uptime",
+          "at": "2026-11-03T16:05:00+05:30",
+          "byPersonId": "ananya"
+        }
+      },
+      {
+        "at": "2026-11-13T10:10:00+05:30",
+        "text": "We restated 10% after v3 came back at 5%.",
+        "source": {
+          "kind": "email",
+          "messageId": "M7",
+          "quote": "we need 10% of the monthly fee for any month below 99.5% uptime",
+          "at": "2026-11-13T10:10:00+05:30",
+          "byPersonId": "ananya"
+        }
+      }
+    ],
+    "threats": [
+      {
+        "id": "TH-credit-v3",
+        "kind": "supplier_ask",
+        "value": {
+          "kind": "service_credit",
+          "pct": 5,
+          "uptimeTarget": 99.5
+        },
+        "source": {
+          "kind": "version",
+          "versionId": "v3",
+          "clauseNo": "11.2",
+          "quote": "Supplier shall credit 5 percent (5%) of that month's Fees against the next invoice.",
+          "at": "2026-11-06T12:40:00+05:30",
+          "byPersonId": "rohan"
+        },
+        "active": true
+      }
+    ],
+    "supplierNote": "Reflects the 10% service credit confirmed on 16 Nov.",
+    "owner": "commercial"
+  },
+  {
+    "id": "R-liability",
+    "dealId": "D-CLOUDDESK",
+    "termKey": "liability_cap",
+    "label": "Liability cap",
+    "position": {
+      "kind": "liability_cap",
+      "months": 12
+    },
+    "state": "agreed",
+    "source": {
+      "kind": "version",
+      "versionId": "v3",
+      "clauseNo": "12.1",
+      "quote": "shall not exceed the Fees paid or payable in the 12 (twelve) months before the claim",
+      "at": "2026-11-06T12:40:00+05:30",
+      "byPersonId": "rohan"
+    },
+    "reason": "Legal standard",
+    "approvedBy": {
+      "personId": "arjun",
+      "source": {
+        "kind": "email",
+        "messageId": "M4",
+        "quote": "Liability cap at 12 months' fees is fine from Legal",
+        "at": "2026-11-07T15:10:00+05:30",
+        "byPersonId": "arjun"
+      }
+    },
+    "history": [
+      {
+        "at": "2026-11-03T16:05:00+05:30",
+        "text": "We marked the cap up from 6 to 12 months in v2.",
+        "source": {
+          "kind": "version",
+          "versionId": "v2",
+          "clauseNo": "12.1",
+          "quote": "shall not exceed the Fees paid or payable in the 12 (twelve) months before the claim",
+          "at": "2026-11-03T16:05:00+05:30",
+          "byPersonId": "ananya"
+        }
+      },
+      {
+        "at": "2026-11-07T15:10:00+05:30",
+        "text": "Legal approved the 12-month cap.",
+        "source": {
+          "kind": "email",
+          "messageId": "M4",
+          "quote": "Liability cap at 12 months' fees is fine from Legal",
+          "at": "2026-11-07T15:10:00+05:30",
+          "byPersonId": "arjun"
+        }
+      }
+    ],
+    "threats": [],
+    "supplierNote": "Reflects the liability cap in your draft of 6 Nov.",
+    "owner": "legal"
+  },
+  {
+    "id": "R-notice",
+    "dealId": "D-CLOUDDESK",
+    "termKey": "renewal_notice",
+    "label": "Renewal notice",
+    "position": {
+      "kind": "renewal_notice",
+      "days": 30
+    },
+    "state": "agreed",
+    "source": {
+      "kind": "version",
+      "versionId": "v3",
+      "clauseNo": "14.2",
+      "quote": "unless either party gives 30 (thirty) days' written notice",
+      "at": "2026-11-06T12:40:00+05:30",
+      "byPersonId": "rohan"
+    },
+    "reason": "Keeps the exit window short. Unchanged since v1 and the same as the current contract.",
+    "approvedBy": {
+      "personId": "ananya",
+      "source": {
+        "kind": "manual",
+        "quote": "Within the procurement lead's own limit",
+        "at": "2026-11-06T13:00:00+05:30",
+        "byPersonId": "ananya"
+      }
+    },
+    "history": [
+      {
+        "at": "2026-11-01T11:20:00+05:30",
+        "text": "v1 carried the 30-day notice from the current contract.",
+        "source": {
+          "kind": "version",
+          "versionId": "v1",
+          "clauseNo": "14.2",
+          "quote": "unless either party gives 30 (thirty) days' written notice",
+          "at": "2026-11-01T11:20:00+05:30",
+          "byPersonId": "rohan"
+        }
+      },
+      {
+        "at": "2026-11-06T12:40:00+05:30",
+        "text": "Unchanged in v3.",
+        "source": {
+          "kind": "version",
+          "versionId": "v3",
+          "clauseNo": "14.2",
+          "quote": "unless either party gives 30 (thirty) days' written notice",
+          "at": "2026-11-06T12:40:00+05:30",
+          "byPersonId": "rohan"
+        }
+      }
+    ],
+    "threats": [],
+    "supplierNote": "Restores the 30-day notice in your drafts of 1 Nov and 6 Nov.",
+    "owner": "commercial"
+  },
+  {
+    "id": "R-exit",
+    "dealId": "D-CLOUDDESK",
+    "termKey": "exit_support",
+    "label": "Exit support",
+    "position": {
+      "kind": "exit_support",
+      "days": 30,
+      "free": true
+    },
+    "state": "agreed",
+    "source": {
+      "kind": "email",
+      "messageId": "M5",
+      "quote": "30 days of exit support at no charge works for us",
+      "at": "2026-11-10T09:15:00+05:30",
+      "byPersonId": "rohan"
+    },
+    "approvedBy": {
+      "personId": "ananya",
+      "source": {
+        "kind": "manual",
+        "quote": "Within the procurement lead's own limit",
+        "at": "2026-11-10T09:20:00+05:30",
+        "byPersonId": "ananya"
+      }
+    },
+    "history": [
+      {
+        "at": "2026-11-10T09:15:00+05:30",
+        "text": "CloudDesk agreed to 30 days of free exit support.",
+        "source": {
+          "kind": "email",
+          "messageId": "M5",
+          "quote": "30 days of exit support at no charge works for us",
+          "at": "2026-11-10T09:15:00+05:30",
+          "byPersonId": "rohan"
+        }
+      }
+    ],
+    "threats": [],
+    "supplierNote": "Reflects the exit support agreed in your email of 10 Nov.",
+    "owner": "commercial"
+  }
+]

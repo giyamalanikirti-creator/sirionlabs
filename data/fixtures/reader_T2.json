@@ -1,0 +1,40 @@
+{
+  "updates": [
+    {
+      "messageId": "M9",
+      "termKey": "service_credit",
+      "action": "proposes",
+      "byPersonId": "rohan",
+      "value": { "kind": "service_credit", "pct": 5, "uptimeTarget": 99.5 },
+      "quote": "would 5% work for you",
+      "confidence": 0.88,
+      "reason": "CloudDesk asks the business owner for 5% instead of 10%"
+    },
+    {
+      "messageId": "M10",
+      "termKey": "service_credit",
+      "action": "proposes",
+      "byPersonId": "vikram",
+      "value": { "kind": "service_credit", "pct": 5, "uptimeTarget": 99.5 },
+      "quote": "5% would be fine from our side",
+      "confidence": 0.9,
+      "reason": "Our business owner offered 5% in a side thread"
+    },
+    {
+      "messageId": "M12",
+      "termKey": "service_credit",
+      "action": "unclear",
+      "byPersonId": "rohan",
+      "value": { "kind": "service_credit", "pct": 10, "uptimeTarget": 99.5 },
+      "alternatives": [
+        { "kind": "service_credit", "pct": 10, "uptimeTarget": 99.5 },
+        { "kind": "service_credit", "pct": 5, "uptimeTarget": 99.5 }
+      ],
+      "quote": "On service credits, fine with that",
+      "confidence": 0.5,
+      "reason": "Could refer to our 10% or to the 5% offered in the side thread"
+    }
+  ],
+  "mentions": ["vikram"],
+  "statements": []
+}

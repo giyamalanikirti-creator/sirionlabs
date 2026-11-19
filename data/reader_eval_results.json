@@ -1,0 +1,4 @@
+{
+  "notRun": true,
+  "reason": "Run `ANTHROPIC_API_KEY=... npm run eval:reader` to score the reader against the 32-item set."
+}

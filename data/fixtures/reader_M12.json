@@ -1,0 +1,15 @@
+{
+  "updates": [
+    {
+      "messageId": "M12",
+      "termKey": "service_credit",
+      "action": "unclear",
+      "byPersonId": "rohan",
+      "quote": "On service credits, fine with that",
+      "confidence": 0.5,
+      "reason": "Agreement words, but no number and more than one offer is live"
+    }
+  ],
+  "mentions": ["vikram"],
+  "statements": []
+}

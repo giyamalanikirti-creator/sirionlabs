@@ -1,0 +1,204 @@
+[
+  {
+    "id": "T1",
+    "subject": "CloudDesk renewal 2026–29",
+    "dealId": "D-CLOUDDESK",
+    "participants": [
+      "ananya",
+      "rohan",
+      "priya"
+    ],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "T2",
+    "subject": "CloudDesk uptime in October",
+    "participants": [
+      "vikram",
+      "rohan"
+    ],
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "T3",
+    "subject": "CloudDesk liability cap: Legal OK?",
+    "dealId": "D-CLOUDDESK",
+    "participants": [
+      "ananya",
+      "arjun"
+    ],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "T4",
+    "subject": "CloudDesk 3-year commitment: approval",
+    "dealId": "D-CLOUDDESK",
+    "participants": [
+      "ananya",
+      "neha"
+    ],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "D1",
+    "subject": "Team offsite plan",
+    "participants": [
+      "vikram"
+    ],
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "D2",
+    "subject": "Laptop refresh quotes",
+    "participants": [
+      "vikram"
+    ],
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "D3",
+    "subject": "SwiftShip: revised lane rates",
+    "dealId": "D-SWIFTSHIP",
+    "participants": [
+      "ananya"
+    ],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "D4",
+    "subject": "Q3 spend review",
+    "participants": [
+      "ananya",
+      "neha"
+    ],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "TH-F-A1",
+    "subject": "Procurement weekly: open requisitions",
+    "participants": [],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "TH-F-A2",
+    "subject": "Policy update: travel claims from December",
+    "participants": [],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "TH-F-A3",
+    "subject": "Your SpendWise digest for November",
+    "participants": [],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "TH-F-A4",
+    "subject": "Invoice approval pending: CleanCo Facilities",
+    "participants": [],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "TH-F-A5",
+    "subject": "Nimbus HR Cloud: renewal questionnaire",
+    "participants": [],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "TH-F-A6",
+    "subject": "Reminder: supplier risk training due",
+    "participants": [],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "TH-F-A7",
+    "subject": "Canteen vendor: new menu from Monday",
+    "participants": [],
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "TH-F-V1",
+    "subject": "Change window Saturday 02:00–05:00",
+    "participants": [],
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "TH-F-V2",
+    "subject": "Ticket volumes last week",
+    "participants": [],
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "TH-F-V3",
+    "subject": "DataVault: scheduled maintenance notice",
+    "participants": [],
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "TH-F-V4",
+    "subject": "New starter kit: 6 joiners in December",
+    "participants": [],
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "TH-F-V5",
+    "subject": "Security patch rollout: phase 2 complete",
+    "participants": [],
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "TH-F-V6",
+    "subject": "Your weekly CloudOps Suite summary",
+    "participants": [],
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "TH-F-V7",
+    "subject": "Asset audit: laptops pending return",
+    "participants": [],
+    "mailboxes": [
+      "vikram"
+    ]
+  }
+]

@@ -1,0 +1,16 @@
+{
+  "updates": [
+    {
+      "messageId": "M8",
+      "termKey": "price",
+      "action": "accepts",
+      "byPersonId": "rohan",
+      "value": { "kind": "price", "wording": "fixed" },
+      "quote": "we can hold the price at ₹12,000 a seat for the full three years",
+      "confidence": 0.93,
+      "reason": "CloudDesk agrees to hold the price for the whole term"
+    }
+  ],
+  "mentions": [],
+  "statements": []
+}

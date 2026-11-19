@@ -1,0 +1,65 @@
+[
+  {
+    "id": "ananya",
+    "name": "Ananya Rao",
+    "email": "ananya.rao@meridian.example",
+    "org": "meridian",
+    "role": "Procurement lead"
+  },
+  {
+    "id": "vikram",
+    "name": "Vikram Shah",
+    "email": "vikram.shah@meridian.example",
+    "org": "meridian",
+    "role": "Head of IT"
+  },
+  {
+    "id": "neha",
+    "name": "Neha Kapoor",
+    "email": "neha.kapoor@meridian.example",
+    "org": "meridian",
+    "role": "CFO"
+  },
+  {
+    "id": "arjun",
+    "name": "Arjun Mehta",
+    "email": "arjun.mehta@meridian.example",
+    "org": "meridian",
+    "role": "Legal counsel"
+  },
+  {
+    "id": "karan",
+    "name": "Karan Malhotra",
+    "email": "karan.malhotra@meridian.example",
+    "org": "meridian",
+    "role": "Procurement"
+  },
+  {
+    "id": "meera",
+    "name": "Meera Pillai",
+    "email": "meera.pillai@meridian.example",
+    "org": "meridian",
+    "role": "Procurement"
+  },
+  {
+    "id": "rohan",
+    "name": "Rohan Iyer",
+    "email": "rohan.iyer@clouddesk.example",
+    "org": "clouddesk",
+    "role": "Account director"
+  },
+  {
+    "id": "priya",
+    "name": "Priya Nair",
+    "email": "priya.nair@clouddesk.example",
+    "org": "clouddesk",
+    "role": "Contracts manager"
+  },
+  {
+    "id": "deals",
+    "name": "Deal Ledger capture",
+    "email": "deals@meridian.example",
+    "org": "meridian",
+    "role": "Shared mailbox"
+  }
+]

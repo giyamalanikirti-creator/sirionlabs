@@ -1,0 +1,12 @@
+{
+  "term": "The Initial Term is {n} ({words}) year(s) from 1 December 2026.",
+  "price_fixed": "The Fees are INR 12,000 per Seat per year for 500 Seats (INR 60,00,000 per year) and are fixed for the Initial Term.",
+  "price_open_yearly": "The Fees are INR 12,000 per Seat per year for 500 Seats (INR 60,00,000 per year). Supplier may revise the Fees once in each contract year by written notice.",
+  "price_capped": "The Fees are INR 12,000 per Seat per year for 500 Seats (INR 60,00,000 per year). Supplier may revise the Fees once in each contract year from the start of contract year {fromYear} by no more than {capPct} percent ({capPct}%).",
+  "payment": "Customer shall pay each undisputed invoice within {n} ({words}) days of receipt.",
+  "service_credit": "If Availability in any month falls below {target}%, Supplier shall credit {p} percent ({p}%) of that month's Fees against the next invoice.",
+  "liability_cap": "Each party's total liability under this Agreement shall not exceed the Fees paid or payable in the {n} ({words}) months before the claim.",
+  "renewal_notice": "This Agreement renews for successive one (1) year terms unless either party gives {n} ({words}) days' written notice before the end of the then-current term.",
+  "exit_support_free": "On expiry or termination, Supplier shall provide up to thirty (30) days of exit support, including data export, at no additional charge.",
+  "exit_support_paid": "On expiry or termination, Supplier shall provide up to thirty (30) days of exit support, including data export, at Supplier's then-current daily rates."
+}

@@ -1,0 +1,271 @@
+[
+  {
+    "id": "D-CLOUDDESK",
+    "supplier": "CloudDesk",
+    "supplierDomain": "clouddesk.example",
+    "supplierType": "software",
+    "annualFeeInr": 6000000,
+    "seats": 500,
+    "termYears": 3,
+    "termStart": "2026-12-01",
+    "ownerId": "ananya",
+    "businessOwnerId": "vikram",
+    "stage": "rounds",
+    "interactive": true,
+    "dealIdTag": "DL-CLOUDDESK-2026"
+  },
+  {
+    "id": "D-SWIFTSHIP",
+    "supplier": "SwiftShip Logistics",
+    "supplierDomain": "swiftship.example",
+    "supplierType": "logistics",
+    "annualFeeInr": 3600000,
+    "termYears": 2,
+    "termStart": "2027-01-01",
+    "ownerId": "ananya",
+    "stage": "rounds",
+    "interactive": false,
+    "dealIdTag": "DL-SWIFTSHIP-2026",
+    "display": {
+      "round": 3,
+      "threads": 4,
+      "rows": {
+        "agreed": 4,
+        "open": 2,
+        "needs": 1,
+        "reopened": 0
+      },
+      "atRiskLakh": 3.6
+    }
+  },
+  {
+    "id": "D-NIMBUS",
+    "supplier": "Nimbus HR Cloud",
+    "supplierDomain": "nimbushr.example",
+    "supplierType": "software",
+    "annualFeeInr": 2400000,
+    "termYears": 2,
+    "termStart": "2027-02-01",
+    "ownerId": "ananya",
+    "stage": "rounds",
+    "interactive": false,
+    "display": {
+      "round": 2,
+      "threads": 3,
+      "rows": {
+        "agreed": 3,
+        "open": 3,
+        "needs": 0,
+        "reopened": 1
+      },
+      "atRiskLakh": 2.9
+    }
+  },
+  {
+    "id": "D-BRIGHTSTAFF",
+    "supplier": "BrightStaff Services",
+    "supplierDomain": "brightstaff.example",
+    "supplierType": "staffing",
+    "annualFeeInr": 8500000,
+    "termYears": 2,
+    "termStart": "2026-12-15",
+    "ownerId": "karan",
+    "stage": "signing",
+    "interactive": false,
+    "display": {
+      "round": 5,
+      "threads": 6,
+      "rows": {
+        "agreed": 6,
+        "open": 0,
+        "needs": 0,
+        "reopened": 0
+      },
+      "atRiskLakh": 4.2
+    }
+  },
+  {
+    "id": "D-CLEANCO",
+    "supplier": "CleanCo Facilities",
+    "supplierDomain": "cleanco.example",
+    "supplierType": "facilities",
+    "annualFeeInr": 1800000,
+    "termYears": 3,
+    "termStart": "2027-01-01",
+    "ownerId": "karan",
+    "stage": "rounds",
+    "interactive": false,
+    "display": {
+      "round": 4,
+      "threads": 2,
+      "rows": {
+        "agreed": 5,
+        "open": 1,
+        "needs": 0,
+        "reopened": 0
+      },
+      "atRiskLakh": 0.9
+    }
+  },
+  {
+    "id": "D-DATAVAULT",
+    "supplier": "DataVault",
+    "supplierDomain": "datavault.example",
+    "supplierType": "software",
+    "annualFeeInr": 3000000,
+    "termYears": 3,
+    "termStart": "2027-03-01",
+    "ownerId": "ananya",
+    "stage": "rounds",
+    "interactive": false,
+    "display": {
+      "round": 1,
+      "threads": 2,
+      "rows": {
+        "agreed": 1,
+        "open": 5,
+        "needs": 0,
+        "reopened": 0
+      },
+      "atRiskLakh": 2.4
+    }
+  },
+  {
+    "id": "D-HELPHUB",
+    "supplier": "HelpHub",
+    "supplierDomain": "helphub.example",
+    "supplierType": "software",
+    "annualFeeInr": 1200000,
+    "termYears": 2,
+    "termStart": "2026-12-01",
+    "ownerId": "meera",
+    "stage": "signing",
+    "interactive": false,
+    "display": {
+      "round": 4,
+      "threads": 3,
+      "rows": {
+        "agreed": 5,
+        "open": 0,
+        "needs": 1,
+        "reopened": 0
+      },
+      "atRiskLakh": 0.8
+    }
+  },
+  {
+    "id": "D-CLOUDOPS",
+    "supplier": "CloudOps Suite",
+    "supplierDomain": "cloudops.example",
+    "supplierType": "software",
+    "annualFeeInr": 4200000,
+    "termYears": 3,
+    "termStart": "2027-04-01",
+    "ownerId": "meera",
+    "stage": "rounds",
+    "interactive": false,
+    "display": {
+      "round": 2,
+      "threads": 3,
+      "rows": {
+        "agreed": 2,
+        "open": 4,
+        "needs": 0,
+        "reopened": 0
+      },
+      "atRiskLakh": 3.1
+    }
+  },
+  {
+    "id": "D-PIXELFORGE",
+    "supplier": "PixelForge Agency",
+    "supplierDomain": "pixelforge.example",
+    "supplierType": "marketing",
+    "annualFeeInr": 2800000,
+    "termYears": 1,
+    "termStart": "2027-01-01",
+    "ownerId": "karan",
+    "stage": "rounds",
+    "interactive": false,
+    "display": {
+      "round": 3,
+      "threads": 2,
+      "rows": {
+        "agreed": 3,
+        "open": 2,
+        "needs": 0,
+        "reopened": 1
+      },
+      "atRiskLakh": 1.6
+    }
+  },
+  {
+    "id": "D-TRANSITONE",
+    "supplier": "TransitOne Fleet",
+    "supplierDomain": "transitone.example",
+    "supplierType": "logistics",
+    "annualFeeInr": 2200000,
+    "termYears": 2,
+    "termStart": "2027-02-01",
+    "ownerId": "meera",
+    "stage": "rounds",
+    "interactive": false,
+    "display": {
+      "round": 2,
+      "threads": 2,
+      "rows": {
+        "agreed": 2,
+        "open": 3,
+        "needs": 0,
+        "reopened": 0
+      },
+      "atRiskLakh": 1.1
+    }
+  },
+  {
+    "id": "D-KAVERI",
+    "supplier": "Kaveri Consulting",
+    "supplierDomain": "kaveri.example",
+    "supplierType": "consultants",
+    "annualFeeInr": 1500000,
+    "termYears": 1,
+    "termStart": "2026-12-01",
+    "ownerId": "karan",
+    "stage": "signing",
+    "interactive": false,
+    "display": {
+      "round": 4,
+      "threads": 2,
+      "rows": {
+        "agreed": 4,
+        "open": 0,
+        "needs": 0,
+        "reopened": 0
+      },
+      "atRiskLakh": 0.5
+    }
+  },
+  {
+    "id": "D-SECUREGATE",
+    "supplier": "SecureGate Facilities",
+    "supplierDomain": "securegate.example",
+    "supplierType": "facilities",
+    "annualFeeInr": 900000,
+    "termYears": 2,
+    "termStart": "2027-03-01",
+    "ownerId": "meera",
+    "stage": "rounds",
+    "interactive": false,
+    "display": {
+      "round": 1,
+      "threads": 1,
+      "rows": {
+        "agreed": 1,
+        "open": 3,
+        "needs": 0,
+        "reopened": 0
+      },
+      "atRiskLakh": 0.3
+    }
+  }
+]

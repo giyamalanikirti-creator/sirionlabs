@@ -1,0 +1,184 @@
+[
+  {
+    "id": "R-001",
+    "contractId": "C-001",
+    "supplier": "Nimbus HR Cloud",
+    "renewedAt": "2024-02-01",
+    "noticeDays": 60,
+    "reviewed": false,
+    "unusedShare": 0.12
+  },
+  {
+    "id": "R-002",
+    "contractId": "C-002",
+    "supplier": "DataVault",
+    "renewedAt": "2024-04-01",
+    "noticeDays": 90,
+    "reviewed": false,
+    "unusedShare": 0.15
+  },
+  {
+    "id": "R-003",
+    "contractId": "C-003",
+    "supplier": "CloudOps Suite",
+    "renewedAt": "2024-06-01",
+    "noticeDays": 60,
+    "reviewed": false,
+    "unusedShare": 0.18
+  },
+  {
+    "id": "R-004",
+    "contractId": "C-004",
+    "supplier": "HelpHub",
+    "renewedAt": "2024-07-01",
+    "noticeDays": 90,
+    "reviewed": false,
+    "unusedShare": 0.21
+  },
+  {
+    "id": "R-005",
+    "contractId": "C-005",
+    "supplier": "Larkfield CRM",
+    "renewedAt": "2024-09-01",
+    "noticeDays": 75,
+    "reviewed": false,
+    "unusedShare": 0.24
+  },
+  {
+    "id": "R-006",
+    "contractId": "C-006",
+    "supplier": "Meridian Payroll Cloud",
+    "renewedAt": "2024-10-01",
+    "noticeDays": 60,
+    "reviewed": true
+  },
+  {
+    "id": "R-007",
+    "contractId": "C-007",
+    "supplier": "Orbit Analytics",
+    "renewedAt": "2025-01-01",
+    "noticeDays": 90,
+    "reviewed": true
+  },
+  {
+    "id": "R-008",
+    "contractId": "C-008",
+    "supplier": "Tessellate BI",
+    "renewedAt": "2025-02-01",
+    "noticeDays": 60,
+    "reviewed": true
+  },
+  {
+    "id": "R-009",
+    "contractId": "C-009",
+    "supplier": "Quillmark Docs",
+    "renewedAt": "2025-04-01",
+    "noticeDays": 90,
+    "reviewed": true
+  },
+  {
+    "id": "R-010",
+    "contractId": "C-010",
+    "supplier": "Fernpath Security",
+    "renewedAt": "2025-05-01",
+    "noticeDays": 60,
+    "reviewed": true
+  },
+  {
+    "id": "R-011",
+    "contractId": "C-011",
+    "supplier": "Blueline ERP",
+    "renewedAt": "2025-07-01",
+    "noticeDays": 75,
+    "reviewed": true
+  },
+  {
+    "id": "R-012",
+    "contractId": "C-012",
+    "supplier": "Sandbar Testing Cloud",
+    "renewedAt": "2025-08-01",
+    "noticeDays": 90,
+    "reviewed": true
+  },
+  {
+    "id": "R-013",
+    "contractId": "C-013",
+    "supplier": "Northwind Warehouse Suite",
+    "renewedAt": "2025-09-01",
+    "noticeDays": 30,
+    "reviewed": false,
+    "unusedShare": 0.18
+  },
+  {
+    "id": "R-014",
+    "contractId": "C-014",
+    "supplier": "Kestrel Expense",
+    "renewedAt": "2025-10-01",
+    "noticeDays": 30,
+    "reviewed": true
+  },
+  {
+    "id": "R-015",
+    "contractId": "C-015",
+    "supplier": "Ridgeview Monitoring",
+    "renewedAt": "2025-11-01",
+    "noticeDays": 15,
+    "reviewed": true
+  },
+  {
+    "id": "R-016",
+    "contractId": "C-016",
+    "supplier": "Palette Design Cloud",
+    "renewedAt": "2026-01-01",
+    "noticeDays": 30,
+    "reviewed": true
+  },
+  {
+    "id": "R-017",
+    "contractId": "C-017",
+    "supplier": "CloudDesk",
+    "renewedAt": "2026-02-01",
+    "noticeDays": 30,
+    "reviewed": true
+  },
+  {
+    "id": "R-018",
+    "contractId": "C-018",
+    "supplier": "Junction API Gateway",
+    "renewedAt": "2026-03-01",
+    "noticeDays": 20,
+    "reviewed": true
+  },
+  {
+    "id": "R-019",
+    "contractId": "C-019",
+    "supplier": "Marlowe Learning",
+    "renewedAt": "2026-04-01",
+    "noticeDays": 30,
+    "reviewed": true
+  },
+  {
+    "id": "R-020",
+    "contractId": "C-020",
+    "supplier": "Ashgrove Invoicing",
+    "renewedAt": "2026-05-01",
+    "noticeDays": 30,
+    "reviewed": true
+  },
+  {
+    "id": "R-021",
+    "contractId": "C-021",
+    "supplier": "Tidepool Storage",
+    "renewedAt": "2026-06-01",
+    "noticeDays": 25,
+    "reviewed": true
+  },
+  {
+    "id": "R-022",
+    "contractId": "C-022",
+    "supplier": "Clearwater Email Suite",
+    "renewedAt": "2026-07-01",
+    "noticeDays": 30,
+    "reviewed": true
+  }
+]

@@ -1,0 +1,1 @@
+{ "concedes": true, "termKey": "payment", "value": { "kind": "payment", "days": 45 }, "quote": "Sure, we can pay in 45 days.", "confidence": 0.9 }

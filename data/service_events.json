@@ -1,0 +1,62 @@
+[
+  {
+    "contractId": "C-017",
+    "month": "2025-11",
+    "uptimePct": 99.85
+  },
+  {
+    "contractId": "C-017",
+    "month": "2025-12",
+    "uptimePct": 99.6
+  },
+  {
+    "contractId": "C-017",
+    "month": "2026-01",
+    "uptimePct": 99.65
+  },
+  {
+    "contractId": "C-017",
+    "month": "2026-02",
+    "uptimePct": 99.7
+  },
+  {
+    "contractId": "C-017",
+    "month": "2026-03",
+    "uptimePct": 99.31
+  },
+  {
+    "contractId": "C-017",
+    "month": "2026-04",
+    "uptimePct": 99.98
+  },
+  {
+    "contractId": "C-017",
+    "month": "2026-05",
+    "uptimePct": 99.78
+  },
+  {
+    "contractId": "C-017",
+    "month": "2026-06",
+    "uptimePct": 99.66
+  },
+  {
+    "contractId": "C-017",
+    "month": "2026-07",
+    "uptimePct": 99.96
+  },
+  {
+    "contractId": "C-017",
+    "month": "2026-08",
+    "uptimePct": 99.75
+  },
+  {
+    "contractId": "C-017",
+    "month": "2026-09",
+    "uptimePct": 99.72
+  },
+  {
+    "contractId": "C-017",
+    "month": "2026-10",
+    "uptimePct": 99.12
+  }
+]

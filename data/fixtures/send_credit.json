@@ -1,0 +1,1 @@
+{ "concedes": true, "termKey": "service_credit", "value": { "kind": "service_credit", "pct": 5, "uptimeTarget": 99.5 }, "quote": "A 5% service credit is fine.", "confidence": 0.89 }

@@ -1,0 +1,598 @@
+[
+  {
+    "id": "M1",
+    "threadId": "T1",
+    "from": "rohan.iyer@clouddesk.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [
+      "priya.nair@clouddesk.example"
+    ],
+    "subject": "CloudDesk renewal 2026–29",
+    "sentAt": "2026-11-01T11:20:00+05:30",
+    "attachments": [
+      {
+        "fileName": "CloudDesk_MSA_v1.docx",
+        "sizeKb": 84,
+        "versionId": "v1",
+        "fingerprint": "fp-v1",
+        "dealIdTag": null
+      }
+    ],
+    "body": "Hi Ananya, attached is our renewal draft for the next term. Pricing moves to our standard yearly revision and payment stays at 45 days. Happy to discuss. Rohan",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "M2",
+    "threadId": "T1",
+    "from": "ananya.rao@meridian.example",
+    "to": [
+      "rohan.iyer@clouddesk.example"
+    ],
+    "cc": [
+      "priya.nair@clouddesk.example"
+    ],
+    "subject": "RE: CloudDesk renewal 2026–29",
+    "sentAt": "2026-11-03T16:05:00+05:30",
+    "attachments": [
+      {
+        "fileName": "CloudDesk_MSA_v2.docx",
+        "sizeKb": 88,
+        "versionId": "v2",
+        "fingerprint": "fp-v2",
+        "dealIdTag": "DL-CLOUDDESK-2026"
+      }
+    ],
+    "body": "Thanks Rohan. Our markup is attached. We'd like the price fixed for the term, payment in 60 days and 10% service credits for any month below 99.5% uptime. We could look at a 3-year term if the price is fixed. Ananya",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "M3",
+    "threadId": "T1",
+    "from": "rohan.iyer@clouddesk.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [
+      "priya.nair@clouddesk.example"
+    ],
+    "subject": "RE: CloudDesk renewal 2026–29",
+    "sentAt": "2026-11-06T12:40:00+05:30",
+    "attachments": [
+      {
+        "fileName": "CloudDesk_MSA_v3.docx",
+        "sizeKb": 89,
+        "versionId": "v3",
+        "fingerprint": "fp-v3",
+        "dealIdTag": "DL-CLOUDDESK-2026"
+      }
+    ],
+    "body": "Revised draft attached. A yearly revision is standard for us, but we can look at 60 days if you commit to three years. Rohan",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "M4",
+    "threadId": "T3",
+    "from": "arjun.mehta@meridian.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [
+      "deals@meridian.example"
+    ],
+    "subject": "CloudDesk liability cap: Legal OK?",
+    "sentAt": "2026-11-07T15:10:00+05:30",
+    "attachments": [],
+    "body": "Liability cap at 12 months' fees is fine from Legal. Approved. Arjun",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "M5",
+    "threadId": "T1",
+    "from": "rohan.iyer@clouddesk.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [
+      "priya.nair@clouddesk.example"
+    ],
+    "subject": "RE: CloudDesk renewal 2026–29",
+    "sentAt": "2026-11-10T09:15:00+05:30",
+    "attachments": [],
+    "body": "OK on 60 days if you sign for 3 years. And yes, 30 days of exit support at no charge works for us. Rohan",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "D4-1",
+    "threadId": "D4",
+    "from": "neha.kapoor@meridian.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Q3 spend review",
+    "sentAt": "2026-11-11T09:05:00+05:30",
+    "attachments": [],
+    "body": "Can we go through Q3 spend on Monday?",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "F-V7",
+    "threadId": "TH-F-V7",
+    "from": "itam@meridian.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Asset audit: laptops pending return",
+    "sentAt": "2026-11-12T11:15:00+05:30",
+    "attachments": [],
+    "body": "Nine laptops are still showing as assigned to leavers.",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "F-A7",
+    "threadId": "TH-F-A7",
+    "from": "admin@meridian.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Canteen vendor: new menu from Monday",
+    "sentAt": "2026-11-12T13:05:00+05:30",
+    "attachments": [],
+    "body": "The new winter menu starts Monday. Feedback form is at the bottom.",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "M6",
+    "threadId": "T4",
+    "from": "neha.kapoor@meridian.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [
+      "deals@meridian.example"
+    ],
+    "subject": "CloudDesk 3-year commitment: approval",
+    "sentAt": "2026-11-12T17:30:00+05:30",
+    "attachments": [],
+    "body": "Approved: 3-year commitment with CloudDesk up to ₹1.8 crore, provided the price is fixed for the term. Neha",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "F-A6",
+    "threadId": "TH-F-A6",
+    "from": "learning@meridian.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Reminder: supplier risk training due",
+    "sentAt": "2026-11-13T09:20:00+05:30",
+    "attachments": [],
+    "body": "The supplier risk module takes about 20 minutes and is due Friday.",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "M7",
+    "threadId": "T1",
+    "from": "ananya.rao@meridian.example",
+    "to": [
+      "rohan.iyer@clouddesk.example"
+    ],
+    "cc": [
+      "priya.nair@clouddesk.example"
+    ],
+    "subject": "RE: CloudDesk renewal 2026–29",
+    "sentAt": "2026-11-13T10:10:00+05:30",
+    "attachments": [],
+    "body": "Great. On service credits, we need 10% of the monthly fee for any month below 99.5% uptime. Ananya",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "D1-1",
+    "threadId": "D1",
+    "from": "priyanka.das@meridian.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Team offsite plan",
+    "sentAt": "2026-11-13T12:15:00+05:30",
+    "attachments": [],
+    "body": "Venue shortlist for the offsite is in the sheet.",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "F-V6",
+    "threadId": "TH-F-V6",
+    "from": "reports@cloudops.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Your weekly CloudOps Suite summary",
+    "sentAt": "2026-11-14T07:30:00+05:30",
+    "attachments": [],
+    "body": "Uptime, incidents and spend for the week ending 13 November.",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "M8",
+    "threadId": "T1",
+    "from": "rohan.iyer@clouddesk.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [
+      "priya.nair@clouddesk.example"
+    ],
+    "subject": "RE: CloudDesk renewal 2026–29",
+    "sentAt": "2026-11-14T10:05:00+05:30",
+    "attachments": [
+      {
+        "fileName": "CloudDesk_MSA_v4.docx",
+        "sizeKb": 91,
+        "versionId": "v4",
+        "fingerprint": "fp-v4",
+        "dealIdTag": "DL-CLOUDDESK-2026"
+      }
+    ],
+    "body": "Good news: we can hold the price at ₹12,000 a seat for the full three years. Updated draft attached. Rohan",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "F-A5",
+    "threadId": "TH-F-A5",
+    "from": "accounts@nimbushr.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Nimbus HR Cloud: renewal questionnaire",
+    "sentAt": "2026-11-14T15:55:00+05:30",
+    "attachments": [],
+    "body": "Please complete the short questionnaire before the renewal call.",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "M9",
+    "threadId": "T2",
+    "from": "rohan.iyer@clouddesk.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "CloudDesk uptime in October",
+    "sentAt": "2026-11-15T09:40:00+05:30",
+    "attachments": [],
+    "body": "Sorry again about the October outages, Vikram. On credits, would 5% work for you? Ananya asked for 10%. Rohan",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "M10",
+    "threadId": "T2",
+    "from": "vikram.shah@meridian.example",
+    "to": [
+      "rohan.iyer@clouddesk.example"
+    ],
+    "cc": [],
+    "subject": "RE: CloudDesk uptime in October",
+    "sentAt": "2026-11-15T10:02:00+05:30",
+    "attachments": [],
+    "body": "5% would be fine from our side, the main thing for us is uptime. Vikram",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "M11",
+    "threadId": "T1",
+    "from": "ananya.rao@meridian.example",
+    "to": [
+      "rohan.iyer@clouddesk.example"
+    ],
+    "cc": [
+      "priya.nair@clouddesk.example"
+    ],
+    "subject": "RE: CloudDesk renewal 2026–29",
+    "sentAt": "2026-11-15T15:30:00+05:30",
+    "attachments": [
+      {
+        "fileName": "CloudDesk_MSA_v5.docx",
+        "sizeKb": 92,
+        "versionId": "v5",
+        "fingerprint": "fp-v5",
+        "dealIdTag": "DL-CLOUDDESK-2026"
+      }
+    ],
+    "body": "Rohan, v4 changes the renewal notice in 14.2 to 90 days. We agreed 30, so I've put it back in the attached. Ananya",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "F-V5",
+    "threadId": "TH-F-V5",
+    "from": "infosec@meridian.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Security patch rollout: phase 2 complete",
+    "sentAt": "2026-11-15T16:50:00+05:30",
+    "attachments": [],
+    "body": "Phase 2 completed overnight with no rollbacks.",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "F-A4",
+    "threadId": "TH-F-A4",
+    "from": "ap@meridian.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Invoice approval pending: CleanCo Facilities",
+    "sentAt": "2026-11-16T10:12:00+05:30",
+    "attachments": [],
+    "body": "Invoice 4471 is waiting on your approval since Thursday.",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "D2-1",
+    "threadId": "D2",
+    "from": "sales@bytekart.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Laptop refresh quotes",
+    "sentAt": "2026-11-16T11:05:00+05:30",
+    "attachments": [
+      {
+        "fileName": "ByteKart_Quote_40.pdf",
+        "sizeKb": 212,
+        "dealIdTag": null
+      }
+    ],
+    "body": "Quote for 40 laptops attached.",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "F-V4",
+    "threadId": "TH-F-V4",
+    "from": "people@meridian.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "New starter kit: 6 joiners in December",
+    "sentAt": "2026-11-16T14:35:00+05:30",
+    "attachments": [],
+    "body": "Six joiners start on 1 December. Kit requests are in the sheet.",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "M12",
+    "threadId": "T1",
+    "from": "rohan.iyer@clouddesk.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [
+      "priya.nair@clouddesk.example",
+      "vikram.shah@meridian.example"
+    ],
+    "subject": "RE: CloudDesk renewal 2026–29",
+    "sentAt": "2026-11-16T17:45:00+05:30",
+    "attachments": [],
+    "body": "Spoke to Vikram yesterday. On service credits, fine with that. Clean signing copy to follow this week. Rohan",
+    "mailboxes": [
+      "ananya",
+      "vikram"
+    ]
+  },
+  {
+    "id": "F-V3",
+    "threadId": "TH-F-V3",
+    "from": "status@datavault.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "DataVault: scheduled maintenance notice",
+    "sentAt": "2026-11-17T06:45:00+05:30",
+    "attachments": [],
+    "body": "Maintenance on 22 November, 01:00–03:00 IST. No action needed.",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "F-A3",
+    "threadId": "TH-F-A3",
+    "from": "digest@spendwise.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Your SpendWise digest for November",
+    "sentAt": "2026-11-17T07:00:00+05:30",
+    "attachments": [],
+    "body": "Your category spend moved 4% against last month. Full digest inside.",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "D3-1",
+    "threadId": "D3",
+    "from": "rates@swiftship.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [],
+    "subject": "SwiftShip: revised lane rates",
+    "sentAt": "2026-11-17T14:20:00+05:30",
+    "attachments": [
+      {
+        "fileName": "SwiftShip_Lane_Rates_Q1.xlsx",
+        "sizeKb": 46,
+        "dealIdTag": "DL-SWIFTSHIP-2026"
+      }
+    ],
+    "body": "Revised lane rates for Q1 attached.",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "F-A2",
+    "threadId": "TH-F-A2",
+    "from": "people@meridian.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Policy update: travel claims from December",
+    "sentAt": "2026-11-17T17:40:00+05:30",
+    "attachments": [],
+    "body": "From 1 December, claims go through the new form. Nothing else changes.",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "F-V2",
+    "threadId": "TH-F-V2",
+    "from": "servicedesk@meridian.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Ticket volumes last week",
+    "sentAt": "2026-11-17T18:25:00+05:30",
+    "attachments": [],
+    "body": "Volumes are down 8% week on week. Backlog is steady at 34 tickets.",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "F-A1",
+    "threadId": "TH-F-A1",
+    "from": "ops.desk@meridian.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Procurement weekly: open requisitions",
+    "sentAt": "2026-11-18T08:30:00+05:30",
+    "attachments": [],
+    "body": "Eleven requisitions are waiting for a second approver this week.",
+    "mailboxes": [
+      "ananya"
+    ]
+  },
+  {
+    "id": "F-V1",
+    "threadId": "TH-F-V1",
+    "from": "noc@meridian.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "Change window Saturday 02:00–05:00",
+    "sentAt": "2026-11-18T09:10:00+05:30",
+    "attachments": [],
+    "body": "Core switches will be unavailable for roughly 40 minutes.",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "M13",
+    "threadId": "T2",
+    "from": "rohan.iyer@clouddesk.example",
+    "to": [
+      "vikram.shah@meridian.example"
+    ],
+    "cc": [],
+    "subject": "RE: CloudDesk uptime in October",
+    "sentAt": "2026-11-18T10:50:00+05:30",
+    "attachments": [],
+    "body": "One more thing, Vikram: could we keep a yearly price review in the contract? Our hosting costs move every year. Rohan",
+    "mailboxes": [
+      "vikram"
+    ]
+  },
+  {
+    "id": "M14",
+    "threadId": "T1",
+    "from": "priya.nair@clouddesk.example",
+    "to": [
+      "ananya.rao@meridian.example"
+    ],
+    "cc": [
+      "rohan.iyer@clouddesk.example"
+    ],
+    "subject": "CloudDesk signing copy",
+    "sentAt": "2026-11-19T09:30:00+05:30",
+    "attachments": [
+      {
+        "fileName": "CloudDesk_MSA_v6.docx",
+        "sizeKb": 94,
+        "versionId": "v6",
+        "fingerprint": "fp-v6",
+        "dealIdTag": "DL-CLOUDDESK-2026"
+      }
+    ],
+    "body": "Please find the signing copy attached. We've accepted your changes and tidied the draft. Kindly sign by 25 Nov. Priya",
+    "mailboxes": [
+      "ananya"
+    ]
+  }
+]

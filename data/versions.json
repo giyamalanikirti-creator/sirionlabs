@@ -1,0 +1,632 @@
+[
+  {
+    "id": "v1",
+    "fileName": "CloudDesk_MSA_v1.docx",
+    "author": "supplier",
+    "sentAt": "2026-11-01T11:20:00+05:30",
+    "dealIdTag": null,
+    "declaredTrackedChanges": [],
+    "clauses": [
+      {
+        "no": "1.1",
+        "title": "Definitions",
+        "text": "In this Agreement, \"Seat\" means one named user permitted to sign in to the Service; \"Availability\" means the percentage of minutes in a calendar month during which the Service responds to a sign-in request; \"Initial Term\" has the meaning given in clause 3.1; and \"Working Day\" means a day other than a Saturday, Sunday or public holiday in Maharashtra. Words in the singular include the plural and the other way round. Headings are for reading convenience only and do not affect meaning. A reference to a clause is a reference to a clause of this Agreement, and a reference to writing includes email."
+      },
+      {
+        "no": "2.1",
+        "title": "The Service",
+        "text": "Supplier shall make the CloudDesk helpdesk service available to Customer over the internet for the Initial Term and any renewal term. Supplier shall provide the service in line with the description in Schedule 1 and shall not reduce any material feature during a contract year without Customer's written consent. Supplier shall give Customer at least thirty (30) days' written notice before it changes the way the service is hosted, and shall keep all Customer data within India for the duration of this Agreement. Planned maintenance shall take place outside Customer's published business hours wherever reasonably possible, and Supplier shall give at least five (5) Working Days' notice of it."
+      },
+      {
+        "no": "3.1",
+        "title": "Term",
+        "text": "The Initial Term is 1 (one) year(s) from 1 December 2026. The Initial Term begins on the commencement date set out in the order form.",
+        "termKey": "term"
+      },
+      {
+        "no": "4.1",
+        "title": "Seats and usage",
+        "text": "Customer may add Seats at any time at the rate set out in clause 9.1, charged pro rata for the remainder of the contract year. Customer may reduce Seats at the start of any contract year on thirty (30) days' written notice, provided the total does not fall below four hundred (400) Seats. Supplier shall not charge a fee for reassigning a Seat from one named user to another, and shall not count a user who has left Customer's organisation as occupying a Seat once Customer has deactivated that user. Supplier shall make usage reporting available to Customer at no additional charge."
+      },
+      {
+        "no": "5.1",
+        "title": "Data protection",
+        "text": "Each party shall comply with applicable data protection law. Supplier processes Customer personal data only on Customer's documented instructions and for the purpose of providing the service, and shall not use that data to train any model or to develop any other product. Supplier shall notify Customer without undue delay, and in any event within seventy-two (72) hours, after becoming aware of a personal data breach affecting Customer data. Supplier shall impose on each of its sub-processors terms no less protective than those in this clause, and shall remain responsible to Customer for the acts and omissions of each sub-processor."
+      },
+      {
+        "no": "6.1",
+        "title": "Confidentiality",
+        "text": "Each party shall keep the other party's confidential information in confidence and shall not disclose it to any third party except to its own staff and advisers who need it to perform this Agreement and who are bound by obligations of confidence. This clause does not apply to information that is public through no fault of the receiving party, that the receiving party already held without restriction, or that a party is required by law or by a regulator to disclose, provided that party gives the other as much notice of the requirement as it lawfully can. This clause survives the end of this Agreement for three (3) years."
+      },
+      {
+        "no": "7.1",
+        "title": "Warranties",
+        "text": "Supplier warrants that it has the right to grant the rights it grants under this Agreement, that it shall provide the service with reasonable skill and care and in line with good industry practice, and that the service does not and will not infringe the intellectual property rights of any third party. Supplier further warrants that it shall not knowingly introduce any virus or disabling code into the service, and that it holds and shall maintain the certifications listed in Schedule 2 for the duration of this Agreement."
+      },
+      {
+        "no": "8.1",
+        "title": "Support and escalation",
+        "text": "Supplier shall provide support between 09:00 and 19:00 India Standard Time on Working Days, and shall acknowledge a priority one incident within thirty (30) minutes at any hour. Supplier shall name an account contact and an escalation contact, and shall tell Customer in writing within five (5) Working Days if either changes. Where an incident remains unresolved after four (4) hours, Supplier shall escalate it to its head of service delivery and shall give Customer a written update at least once every two (2) hours until it is resolved."
+      },
+      {
+        "no": "9.1",
+        "title": "Fees",
+        "text": "The Fees are INR 12,000 per Seat per year for 500 Seats (INR 60,00,000 per year). Supplier may revise the Fees once in each contract year by written notice. All Fees are exclusive of goods and services tax, which Customer shall pay at the rate in force at the time of supply.",
+        "termKey": "price"
+      },
+      {
+        "no": "9.3",
+        "title": "Payment",
+        "text": "Customer shall pay each undisputed invoice within 45 (forty-five) days of receipt. Customer shall raise any dispute about an invoice within fifteen (15) days of receipt, and the parties shall settle a disputed amount within thirty (30) days of agreeing it.",
+        "termKey": "payment"
+      },
+      {
+        "no": "11.2",
+        "title": "Service credits",
+        "text": "If Availability in any month falls below 99.5%, Supplier shall credit 5 percent (5%) of that month's Fees against the next invoice. Supplier shall apply the credit without Customer having to claim it, and shall set it out as a separate line on the next invoice.",
+        "termKey": "service_credit"
+      },
+      {
+        "no": "12.1",
+        "title": "Limitation of liability",
+        "text": "Each party's total liability under this Agreement shall not exceed the Fees paid or payable in the 6 (six) months before the claim. Nothing in this Agreement limits either party's liability for death or personal injury caused by negligence, for fraud, or for any other liability that cannot lawfully be limited.",
+        "termKey": "liability_cap"
+      },
+      {
+        "no": "13.1",
+        "title": "Force majeure",
+        "text": "Neither party is liable for a failure to perform caused by an event beyond its reasonable control, including flood, fire, earthquake, war, civil unrest, strike other than by its own staff, or the failure of a public telecommunications network. The affected party shall tell the other as soon as it reasonably can, shall take reasonable steps to limit the effect, and shall resume performance as soon as the event allows. If the event continues for more than thirty (30) consecutive days, either party may end this Agreement on written notice without liability for that termination."
+      },
+      {
+        "no": "14.2",
+        "title": "Renewal and notice",
+        "text": "This Agreement renews for successive one (1) year terms unless either party gives 30 (thirty) days' written notice before the end of the then-current term. Customer may give notice by email to the address set out in the order form, and Supplier shall acknowledge that notice within two (2) Working Days.",
+        "termKey": "renewal_notice"
+      },
+      {
+        "no": "15.1",
+        "title": "Exit support",
+        "text": "On expiry or termination, Supplier shall provide up to thirty (30) days of exit support, including data export, at Supplier's then-current daily rates. Supplier shall provide the export in a documented, machine-readable format and shall delete Customer data within sixty (60) days of the end of the exit period.",
+        "termKey": "exit_support"
+      },
+      {
+        "no": "16.1",
+        "title": "Notices",
+        "text": "A notice under this Agreement must be in writing and sent to the address or email address set out in the order form, or to any address notified in writing after the date of this Agreement. A notice sent by email is treated as received on the next Working Day in the place of receipt, and a notice sent by hand is treated as received when it is delivered. A notice of termination or of a claim must also be sent by courier to the recipient's registered office."
+      },
+      {
+        "no": "17.1",
+        "title": "Governing law and disputes",
+        "text": "This Agreement is governed by the laws of India. The courts of Mumbai have exclusive jurisdiction over any dispute arising out of or in connection with it, and each party submits to that jurisdiction. Before either party starts proceedings, the parties shall refer the dispute to a senior representative of each of them, who shall meet within ten (10) Working Days and try in good faith to settle it. This clause does not prevent either party from seeking an injunction at any time."
+      }
+    ]
+  },
+  {
+    "id": "v2",
+    "fileName": "CloudDesk_MSA_v2.docx",
+    "author": "buyer",
+    "sentAt": "2026-11-03T16:05:00+05:30",
+    "dealIdTag": "DL-CLOUDDESK-2026",
+    "declaredTrackedChanges": [
+      "3.1",
+      "9.1",
+      "9.3",
+      "11.2",
+      "12.1",
+      "15.1"
+    ],
+    "clauses": [
+      {
+        "no": "1.1",
+        "title": "Definitions",
+        "text": "In this Agreement, \"Seat\" means one named user permitted to sign in to the Service; \"Availability\" means the percentage of minutes in a calendar month during which the Service responds to a sign-in request; \"Initial Term\" has the meaning given in clause 3.1; and \"Working Day\" means a day other than a Saturday, Sunday or public holiday in Maharashtra. Words in the singular include the plural and the other way round. Headings are for reading convenience only and do not affect meaning. A reference to a clause is a reference to a clause of this Agreement, and a reference to writing includes email."
+      },
+      {
+        "no": "2.1",
+        "title": "The Service",
+        "text": "Supplier shall make the CloudDesk helpdesk service available to Customer over the internet for the Initial Term and any renewal term. Supplier shall provide the service in line with the description in Schedule 1 and shall not reduce any material feature during a contract year without Customer's written consent. Supplier shall give Customer at least thirty (30) days' written notice before it changes the way the service is hosted, and shall keep all Customer data within India for the duration of this Agreement. Planned maintenance shall take place outside Customer's published business hours wherever reasonably possible, and Supplier shall give at least five (5) Working Days' notice of it."
+      },
+      {
+        "no": "3.1",
+        "title": "Term",
+        "text": "The Initial Term is 3 (three) year(s) from 1 December 2026. The Initial Term begins on the commencement date set out in the order form.",
+        "termKey": "term"
+      },
+      {
+        "no": "4.1",
+        "title": "Seats and usage",
+        "text": "Customer may add Seats at any time at the rate set out in clause 9.1, charged pro rata for the remainder of the contract year. Customer may reduce Seats at the start of any contract year on thirty (30) days' written notice, provided the total does not fall below four hundred (400) Seats. Supplier shall not charge a fee for reassigning a Seat from one named user to another, and shall not count a user who has left Customer's organisation as occupying a Seat once Customer has deactivated that user. Supplier shall make usage reporting available to Customer at no additional charge."
+      },
+      {
+        "no": "5.1",
+        "title": "Data protection",
+        "text": "Each party shall comply with applicable data protection law. Supplier processes Customer personal data only on Customer's documented instructions and for the purpose of providing the service, and shall not use that data to train any model or to develop any other product. Supplier shall notify Customer without undue delay, and in any event within seventy-two (72) hours, after becoming aware of a personal data breach affecting Customer data. Supplier shall impose on each of its sub-processors terms no less protective than those in this clause, and shall remain responsible to Customer for the acts and omissions of each sub-processor."
+      },
+      {
+        "no": "6.1",
+        "title": "Confidentiality",
+        "text": "Each party shall keep the other party's confidential information in confidence and shall not disclose it to any third party except to its own staff and advisers who need it to perform this Agreement and who are bound by obligations of confidence. This clause does not apply to information that is public through no fault of the receiving party, that the receiving party already held without restriction, or that a party is required by law or by a regulator to disclose, provided that party gives the other as much notice of the requirement as it lawfully can. This clause survives the end of this Agreement for three (3) years."
+      },
+      {
+        "no": "7.1",
+        "title": "Warranties",
+        "text": "Supplier warrants that it has the right to grant the rights it grants under this Agreement, that it shall provide the service with reasonable skill and care and in line with good industry practice, and that the service does not and will not infringe the intellectual property rights of any third party. Supplier further warrants that it shall not knowingly introduce any virus or disabling code into the service, and that it holds and shall maintain the certifications listed in Schedule 2 for the duration of this Agreement."
+      },
+      {
+        "no": "8.1",
+        "title": "Support and escalation",
+        "text": "Supplier shall provide support between 09:00 and 19:00 India Standard Time on Working Days, and shall acknowledge a priority one incident within thirty (30) minutes at any hour. Supplier shall name an account contact and an escalation contact, and shall tell Customer in writing within five (5) Working Days if either changes. Where an incident remains unresolved after four (4) hours, Supplier shall escalate it to its head of service delivery and shall give Customer a written update at least once every two (2) hours until it is resolved."
+      },
+      {
+        "no": "9.1",
+        "title": "Fees",
+        "text": "The Fees are INR 12,000 per Seat per year for 500 Seats (INR 60,00,000 per year) and are fixed for the Initial Term. All Fees are exclusive of goods and services tax, which Customer shall pay at the rate in force at the time of supply.",
+        "termKey": "price"
+      },
+      {
+        "no": "9.3",
+        "title": "Payment",
+        "text": "Customer shall pay each undisputed invoice within 60 (sixty) days of receipt. Customer shall raise any dispute about an invoice within fifteen (15) days of receipt, and the parties shall settle a disputed amount within thirty (30) days of agreeing it.",
+        "termKey": "payment"
+      },
+      {
+        "no": "11.2",
+        "title": "Service credits",
+        "text": "If Availability in any month falls below 99.5%, Supplier shall credit 10 percent (10%) of that month's Fees against the next invoice. Supplier shall apply the credit without Customer having to claim it, and shall set it out as a separate line on the next invoice.",
+        "termKey": "service_credit"
+      },
+      {
+        "no": "12.1",
+        "title": "Limitation of liability",
+        "text": "Each party's total liability under this Agreement shall not exceed the Fees paid or payable in the 12 (twelve) months before the claim. Nothing in this Agreement limits either party's liability for death or personal injury caused by negligence, for fraud, or for any other liability that cannot lawfully be limited.",
+        "termKey": "liability_cap"
+      },
+      {
+        "no": "13.1",
+        "title": "Force majeure",
+        "text": "Neither party is liable for a failure to perform caused by an event beyond its reasonable control, including flood, fire, earthquake, war, civil unrest, strike other than by its own staff, or the failure of a public telecommunications network. The affected party shall tell the other as soon as it reasonably can, shall take reasonable steps to limit the effect, and shall resume performance as soon as the event allows. If the event continues for more than thirty (30) consecutive days, either party may end this Agreement on written notice without liability for that termination."
+      },
+      {
+        "no": "14.2",
+        "title": "Renewal and notice",
+        "text": "This Agreement renews for successive one (1) year terms unless either party gives 30 (thirty) days' written notice before the end of the then-current term. Customer may give notice by email to the address set out in the order form, and Supplier shall acknowledge that notice within two (2) Working Days.",
+        "termKey": "renewal_notice"
+      },
+      {
+        "no": "15.1",
+        "title": "Exit support",
+        "text": "On expiry or termination, Supplier shall provide up to thirty (30) days of exit support, including data export, at no additional charge. Supplier shall provide the export in a documented, machine-readable format and shall delete Customer data within sixty (60) days of the end of the exit period.",
+        "termKey": "exit_support"
+      },
+      {
+        "no": "16.1",
+        "title": "Notices",
+        "text": "A notice under this Agreement must be in writing and sent to the address or email address set out in the order form, or to any address notified in writing after the date of this Agreement. A notice sent by email is treated as received on the next Working Day in the place of receipt, and a notice sent by hand is treated as received when it is delivered. A notice of termination or of a claim must also be sent by courier to the recipient's registered office."
+      },
+      {
+        "no": "17.1",
+        "title": "Governing law and disputes",
+        "text": "This Agreement is governed by the laws of India. The courts of Mumbai have exclusive jurisdiction over any dispute arising out of or in connection with it, and each party submits to that jurisdiction. Before either party starts proceedings, the parties shall refer the dispute to a senior representative of each of them, who shall meet within ten (10) Working Days and try in good faith to settle it. This clause does not prevent either party from seeking an injunction at any time."
+      }
+    ]
+  },
+  {
+    "id": "v3",
+    "fileName": "CloudDesk_MSA_v3.docx",
+    "author": "supplier",
+    "sentAt": "2026-11-06T12:40:00+05:30",
+    "dealIdTag": "DL-CLOUDDESK-2026",
+    "declaredTrackedChanges": [
+      "9.1",
+      "9.3",
+      "11.2",
+      "15.1"
+    ],
+    "clauses": [
+      {
+        "no": "1.1",
+        "title": "Definitions",
+        "text": "In this Agreement, \"Seat\" means one named user permitted to sign in to the Service; \"Availability\" means the percentage of minutes in a calendar month during which the Service responds to a sign-in request; \"Initial Term\" has the meaning given in clause 3.1; and \"Working Day\" means a day other than a Saturday, Sunday or public holiday in Maharashtra. Words in the singular include the plural and the other way round. Headings are for reading convenience only and do not affect meaning. A reference to a clause is a reference to a clause of this Agreement, and a reference to writing includes email."
+      },
+      {
+        "no": "2.1",
+        "title": "The Service",
+        "text": "Supplier shall make the CloudDesk helpdesk service available to Customer over the internet for the Initial Term and any renewal term. Supplier shall provide the service in line with the description in Schedule 1 and shall not reduce any material feature during a contract year without Customer's written consent. Supplier shall give Customer at least thirty (30) days' written notice before it changes the way the service is hosted, and shall keep all Customer data within India for the duration of this Agreement. Planned maintenance shall take place outside Customer's published business hours wherever reasonably possible, and Supplier shall give at least five (5) Working Days' notice of it."
+      },
+      {
+        "no": "3.1",
+        "title": "Term",
+        "text": "The Initial Term is 3 (three) year(s) from 1 December 2026. The Initial Term begins on the commencement date set out in the order form.",
+        "termKey": "term"
+      },
+      {
+        "no": "4.1",
+        "title": "Seats and usage",
+        "text": "Customer may add Seats at any time at the rate set out in clause 9.1, charged pro rata for the remainder of the contract year. Customer may reduce Seats at the start of any contract year on thirty (30) days' written notice, provided the total does not fall below four hundred (400) Seats. Supplier shall not charge a fee for reassigning a Seat from one named user to another, and shall not count a user who has left Customer's organisation as occupying a Seat once Customer has deactivated that user. Supplier shall make usage reporting available to Customer at no additional charge."
+      },
+      {
+        "no": "5.1",
+        "title": "Data protection",
+        "text": "Each party shall comply with applicable data protection law. Supplier processes Customer personal data only on Customer's documented instructions and for the purpose of providing the service, and shall not use that data to train any model or to develop any other product. Supplier shall notify Customer without undue delay, and in any event within seventy-two (72) hours, after becoming aware of a personal data breach affecting Customer data. Supplier shall impose on each of its sub-processors terms no less protective than those in this clause, and shall remain responsible to Customer for the acts and omissions of each sub-processor."
+      },
+      {
+        "no": "6.1",
+        "title": "Confidentiality",
+        "text": "Each party shall keep the other party's confidential information in confidence and shall not disclose it to any third party except to its own staff and advisers who need it to perform this Agreement and who are bound by obligations of confidence. This clause does not apply to information that is public through no fault of the receiving party, that the receiving party already held without restriction, or that a party is required by law or by a regulator to disclose, provided that party gives the other as much notice of the requirement as it lawfully can. This clause survives the end of this Agreement for three (3) years."
+      },
+      {
+        "no": "7.1",
+        "title": "Warranties",
+        "text": "Supplier warrants that it has the right to grant the rights it grants under this Agreement, that it shall provide the service with reasonable skill and care and in line with good industry practice, and that the service does not and will not infringe the intellectual property rights of any third party. Supplier further warrants that it shall not knowingly introduce any virus or disabling code into the service, and that it holds and shall maintain the certifications listed in Schedule 2 for the duration of this Agreement."
+      },
+      {
+        "no": "8.1",
+        "title": "Support and escalation",
+        "text": "Supplier shall provide support between 09:00 and 19:00 India Standard Time on Working Days, and shall acknowledge a priority one incident within thirty (30) minutes at any hour. Supplier shall name an account contact and an escalation contact, and shall tell Customer in writing within five (5) Working Days if either changes. Where an incident remains unresolved after four (4) hours, Supplier shall escalate it to its head of service delivery and shall give Customer a written update at least once every two (2) hours until it is resolved."
+      },
+      {
+        "no": "9.1",
+        "title": "Fees",
+        "text": "The Fees are INR 12,000 per Seat per year for 500 Seats (INR 60,00,000 per year). Supplier may revise the Fees once in each contract year by written notice. All Fees are exclusive of goods and services tax, which Customer shall pay at the rate in force at the time of supply.",
+        "termKey": "price"
+      },
+      {
+        "no": "9.3",
+        "title": "Payment",
+        "text": "Customer shall pay each undisputed invoice within 45 (forty-five) days of receipt. Customer shall raise any dispute about an invoice within fifteen (15) days of receipt, and the parties shall settle a disputed amount within thirty (30) days of agreeing it.",
+        "termKey": "payment"
+      },
+      {
+        "no": "11.2",
+        "title": "Service credits",
+        "text": "If Availability in any month falls below 99.5%, Supplier shall credit 5 percent (5%) of that month's Fees against the next invoice. Supplier shall apply the credit without Customer having to claim it, and shall set it out as a separate line on the next invoice.",
+        "termKey": "service_credit"
+      },
+      {
+        "no": "12.1",
+        "title": "Limitation of liability",
+        "text": "Each party's total liability under this Agreement shall not exceed the Fees paid or payable in the 12 (twelve) months before the claim. Nothing in this Agreement limits either party's liability for death or personal injury caused by negligence, for fraud, or for any other liability that cannot lawfully be limited.",
+        "termKey": "liability_cap"
+      },
+      {
+        "no": "13.1",
+        "title": "Force majeure",
+        "text": "Neither party is liable for a failure to perform caused by an event beyond its reasonable control, including flood, fire, earthquake, war, civil unrest, strike other than by its own staff, or the failure of a public telecommunications network. The affected party shall tell the other as soon as it reasonably can, shall take reasonable steps to limit the effect, and shall resume performance as soon as the event allows. If the event continues for more than thirty (30) consecutive days, either party may end this Agreement on written notice without liability for that termination."
+      },
+      {
+        "no": "14.2",
+        "title": "Renewal and notice",
+        "text": "This Agreement renews for successive one (1) year terms unless either party gives 30 (thirty) days' written notice before the end of the then-current term. Customer may give notice by email to the address set out in the order form, and Supplier shall acknowledge that notice within two (2) Working Days.",
+        "termKey": "renewal_notice"
+      },
+      {
+        "no": "15.1",
+        "title": "Exit support",
+        "text": "On expiry or termination, Supplier shall provide up to thirty (30) days of exit support, including data export, at Supplier's then-current daily rates. Supplier shall provide the export in a documented, machine-readable format and shall delete Customer data within sixty (60) days of the end of the exit period.",
+        "termKey": "exit_support"
+      },
+      {
+        "no": "16.1",
+        "title": "Notices",
+        "text": "A notice under this Agreement must be in writing and sent to the address or email address set out in the order form, or to any address notified in writing after the date of this Agreement. A notice sent by email is treated as received on the next Working Day in the place of receipt, and a notice sent by hand is treated as received when it is delivered. A notice of termination or of a claim must also be sent by courier to the recipient's registered office."
+      },
+      {
+        "no": "17.1",
+        "title": "Governing law and disputes",
+        "text": "This Agreement is governed by the laws of India. The courts of Mumbai have exclusive jurisdiction over any dispute arising out of or in connection with it, and each party submits to that jurisdiction. Before either party starts proceedings, the parties shall refer the dispute to a senior representative of each of them, who shall meet within ten (10) Working Days and try in good faith to settle it. This clause does not prevent either party from seeking an injunction at any time."
+      }
+    ]
+  },
+  {
+    "id": "v4",
+    "fileName": "CloudDesk_MSA_v4.docx",
+    "author": "supplier",
+    "sentAt": "2026-11-14T10:05:00+05:30",
+    "dealIdTag": "DL-CLOUDDESK-2026",
+    "declaredTrackedChanges": [
+      "9.1"
+    ],
+    "clauses": [
+      {
+        "no": "1.1",
+        "title": "Definitions",
+        "text": "In this Agreement, \"Seat\" means one named user permitted to sign in to the Service; \"Availability\" means the percentage of minutes in a calendar month during which the Service responds to a sign-in request; \"Initial Term\" has the meaning given in clause 3.1; and \"Working Day\" means a day other than a Saturday, Sunday or public holiday in Maharashtra. Words in the singular include the plural and the other way round. Headings are for reading convenience only and do not affect meaning. A reference to a clause is a reference to a clause of this Agreement, and a reference to writing includes email."
+      },
+      {
+        "no": "2.1",
+        "title": "The Service",
+        "text": "Supplier shall make the CloudDesk helpdesk service available to Customer over the internet for the Initial Term and any renewal term. Supplier shall provide the service in line with the description in Schedule 1 and shall not reduce any material feature during a contract year without Customer's written consent. Supplier shall give Customer at least thirty (30) days' written notice before it changes the way the service is hosted, and shall keep all Customer data within India for the duration of this Agreement. Planned maintenance shall take place outside Customer's published business hours wherever reasonably possible, and Supplier shall give at least five (5) Working Days' notice of it."
+      },
+      {
+        "no": "3.1",
+        "title": "Term",
+        "text": "The Initial Term is 3 (three) year(s) from 1 December 2026. The Initial Term begins on the commencement date set out in the order form.",
+        "termKey": "term"
+      },
+      {
+        "no": "4.1",
+        "title": "Seats and usage",
+        "text": "Customer may add Seats at any time at the rate set out in clause 9.1, charged pro rata for the remainder of the contract year. Customer may reduce Seats at the start of any contract year on thirty (30) days' written notice, provided the total does not fall below four hundred (400) Seats. Supplier shall not charge a fee for reassigning a Seat from one named user to another, and shall not count a user who has left Customer's organisation as occupying a Seat once Customer has deactivated that user. Supplier shall make usage reporting available to Customer at no additional charge."
+      },
+      {
+        "no": "5.1",
+        "title": "Data protection",
+        "text": "Each party shall comply with applicable data protection law. Supplier processes Customer personal data only on Customer's documented instructions and for the purpose of providing the service, and shall not use that data to train any model or to develop any other product. Supplier shall notify Customer without undue delay, and in any event within seventy-two (72) hours, after becoming aware of a personal data breach affecting Customer data. Supplier shall impose on each of its sub-processors terms no less protective than those in this clause, and shall remain responsible to Customer for the acts and omissions of each sub-processor."
+      },
+      {
+        "no": "6.1",
+        "title": "Confidentiality",
+        "text": "Each party shall keep the other party's confidential information in confidence and shall not disclose it to any third party except to its own staff and advisers who need it to perform this Agreement and who are bound by obligations of confidence. This clause does not apply to information that is public through no fault of the receiving party, that the receiving party already held without restriction, or that a party is required by law or by a regulator to disclose, provided that party gives the other as much notice of the requirement as it lawfully can. This clause survives the end of this Agreement for three (3) years."
+      },
+      {
+        "no": "7.1",
+        "title": "Warranties",
+        "text": "Supplier warrants that it has the right to grant the rights it grants under this Agreement, that it shall provide the service with reasonable skill and care and in line with good industry practice, and that the service does not and will not infringe the intellectual property rights of any third party. Supplier further warrants that it shall not knowingly introduce any virus or disabling code into the service, and that it holds and shall maintain the certifications listed in Schedule 2 for the duration of this Agreement."
+      },
+      {
+        "no": "8.1",
+        "title": "Support and escalation",
+        "text": "Supplier shall provide support between 09:00 and 19:00 India Standard Time on Working Days, and shall acknowledge a priority one incident within thirty (30) minutes at any hour. Supplier shall name an account contact and an escalation contact, and shall tell Customer in writing within five (5) Working Days if either changes. Where an incident remains unresolved after four (4) hours, Supplier shall escalate it to its head of service delivery and shall give Customer a written update at least once every two (2) hours until it is resolved."
+      },
+      {
+        "no": "9.1",
+        "title": "Fees",
+        "text": "The Fees are INR 12,000 per Seat per year for 500 Seats (INR 60,00,000 per year) and are fixed for the Initial Term. All Fees are exclusive of goods and services tax, which Customer shall pay at the rate in force at the time of supply.",
+        "termKey": "price"
+      },
+      {
+        "no": "9.3",
+        "title": "Payment",
+        "text": "Customer shall pay each undisputed invoice within 60 (sixty) days of receipt. Customer shall raise any dispute about an invoice within fifteen (15) days of receipt, and the parties shall settle a disputed amount within thirty (30) days of agreeing it.",
+        "termKey": "payment"
+      },
+      {
+        "no": "11.2",
+        "title": "Service credits",
+        "text": "If Availability in any month falls below 99.5%, Supplier shall credit 10 percent (10%) of that month's Fees against the next invoice. Supplier shall apply the credit without Customer having to claim it, and shall set it out as a separate line on the next invoice.",
+        "termKey": "service_credit"
+      },
+      {
+        "no": "12.1",
+        "title": "Limitation of liability",
+        "text": "Each party's total liability under this Agreement shall not exceed the Fees paid or payable in the 12 (twelve) months before the claim. Nothing in this Agreement limits either party's liability for death or personal injury caused by negligence, for fraud, or for any other liability that cannot lawfully be limited.",
+        "termKey": "liability_cap"
+      },
+      {
+        "no": "13.1",
+        "title": "Force majeure",
+        "text": "Neither party is liable for a failure to perform caused by an event beyond its reasonable control, including flood, fire, earthquake, war, civil unrest, strike other than by its own staff, or the failure of a public telecommunications network. The affected party shall tell the other as soon as it reasonably can, shall take reasonable steps to limit the effect, and shall resume performance as soon as the event allows. If the event continues for more than thirty (30) consecutive days, either party may end this Agreement on written notice without liability for that termination."
+      },
+      {
+        "no": "14.2",
+        "title": "Renewal and notice",
+        "text": "This Agreement renews for successive one (1) year terms unless either party gives 90 (ninety) days' written notice before the end of the then-current term. Customer may give notice by email to the address set out in the order form, and Supplier shall acknowledge that notice within two (2) Working Days.",
+        "termKey": "renewal_notice"
+      },
+      {
+        "no": "15.1",
+        "title": "Exit support",
+        "text": "On expiry or termination, Supplier shall provide up to thirty (30) days of exit support, including data export, at no additional charge. Supplier shall provide the export in a documented, machine-readable format and shall delete Customer data within sixty (60) days of the end of the exit period.",
+        "termKey": "exit_support"
+      },
+      {
+        "no": "16.1",
+        "title": "Notices",
+        "text": "A notice under this Agreement must be in writing and sent to the address or email address set out in the order form, or to any address notified in writing after the date of this Agreement. A notice sent by email is treated as received on the next Working Day in the place of receipt, and a notice sent by hand is treated as received when it is delivered. A notice of termination or of a claim must also be sent by courier to the recipient's registered office."
+      },
+      {
+        "no": "17.1",
+        "title": "Governing law and disputes",
+        "text": "This Agreement is governed by the laws of India. The courts of Mumbai have exclusive jurisdiction over any dispute arising out of or in connection with it, and each party submits to that jurisdiction. Before either party starts proceedings, the parties shall refer the dispute to a senior representative of each of them, who shall meet within ten (10) Working Days and try in good faith to settle it. This clause does not prevent either party from seeking an injunction at any time."
+      }
+    ]
+  },
+  {
+    "id": "v5",
+    "fileName": "CloudDesk_MSA_v5.docx",
+    "author": "buyer",
+    "sentAt": "2026-11-15T15:30:00+05:30",
+    "dealIdTag": "DL-CLOUDDESK-2026",
+    "declaredTrackedChanges": [
+      "14.2"
+    ],
+    "clauses": [
+      {
+        "no": "1.1",
+        "title": "Definitions",
+        "text": "In this Agreement, \"Seat\" means one named user permitted to sign in to the Service; \"Availability\" means the percentage of minutes in a calendar month during which the Service responds to a sign-in request; \"Initial Term\" has the meaning given in clause 3.1; and \"Working Day\" means a day other than a Saturday, Sunday or public holiday in Maharashtra. Words in the singular include the plural and the other way round. Headings are for reading convenience only and do not affect meaning. A reference to a clause is a reference to a clause of this Agreement, and a reference to writing includes email."
+      },
+      {
+        "no": "2.1",
+        "title": "The Service",
+        "text": "Supplier shall make the CloudDesk helpdesk service available to Customer over the internet for the Initial Term and any renewal term. Supplier shall provide the service in line with the description in Schedule 1 and shall not reduce any material feature during a contract year without Customer's written consent. Supplier shall give Customer at least thirty (30) days' written notice before it changes the way the service is hosted, and shall keep all Customer data within India for the duration of this Agreement. Planned maintenance shall take place outside Customer's published business hours wherever reasonably possible, and Supplier shall give at least five (5) Working Days' notice of it."
+      },
+      {
+        "no": "3.1",
+        "title": "Term",
+        "text": "The Initial Term is 3 (three) year(s) from 1 December 2026. The Initial Term begins on the commencement date set out in the order form.",
+        "termKey": "term"
+      },
+      {
+        "no": "4.1",
+        "title": "Seats and usage",
+        "text": "Customer may add Seats at any time at the rate set out in clause 9.1, charged pro rata for the remainder of the contract year. Customer may reduce Seats at the start of any contract year on thirty (30) days' written notice, provided the total does not fall below four hundred (400) Seats. Supplier shall not charge a fee for reassigning a Seat from one named user to another, and shall not count a user who has left Customer's organisation as occupying a Seat once Customer has deactivated that user. Supplier shall make usage reporting available to Customer at no additional charge."
+      },
+      {
+        "no": "5.1",
+        "title": "Data protection",
+        "text": "Each party shall comply with applicable data protection law. Supplier processes Customer personal data only on Customer's documented instructions and for the purpose of providing the service, and shall not use that data to train any model or to develop any other product. Supplier shall notify Customer without undue delay, and in any event within seventy-two (72) hours, after becoming aware of a personal data breach affecting Customer data. Supplier shall impose on each of its sub-processors terms no less protective than those in this clause, and shall remain responsible to Customer for the acts and omissions of each sub-processor."
+      },
+      {
+        "no": "6.1",
+        "title": "Confidentiality",
+        "text": "Each party shall keep the other party's confidential information in confidence and shall not disclose it to any third party except to its own staff and advisers who need it to perform this Agreement and who are bound by obligations of confidence. This clause does not apply to information that is public through no fault of the receiving party, that the receiving party already held without restriction, or that a party is required by law or by a regulator to disclose, provided that party gives the other as much notice of the requirement as it lawfully can. This clause survives the end of this Agreement for three (3) years."
+      },
+      {
+        "no": "7.1",
+        "title": "Warranties",
+        "text": "Supplier warrants that it has the right to grant the rights it grants under this Agreement, that it shall provide the service with reasonable skill and care and in line with good industry practice, and that the service does not and will not infringe the intellectual property rights of any third party. Supplier further warrants that it shall not knowingly introduce any virus or disabling code into the service, and that it holds and shall maintain the certifications listed in Schedule 2 for the duration of this Agreement."
+      },
+      {
+        "no": "8.1",
+        "title": "Support and escalation",
+        "text": "Supplier shall provide support between 09:00 and 19:00 India Standard Time on Working Days, and shall acknowledge a priority one incident within thirty (30) minutes at any hour. Supplier shall name an account contact and an escalation contact, and shall tell Customer in writing within five (5) Working Days if either changes. Where an incident remains unresolved after four (4) hours, Supplier shall escalate it to its head of service delivery and shall give Customer a written update at least once every two (2) hours until it is resolved."
+      },
+      {
+        "no": "9.1",
+        "title": "Fees",
+        "text": "The Fees are INR 12,000 per Seat per year for 500 Seats (INR 60,00,000 per year) and are fixed for the Initial Term. All Fees are exclusive of goods and services tax, which Customer shall pay at the rate in force at the time of supply.",
+        "termKey": "price"
+      },
+      {
+        "no": "9.3",
+        "title": "Payment",
+        "text": "Customer shall pay each undisputed invoice within 60 (sixty) days of receipt. Customer shall raise any dispute about an invoice within fifteen (15) days of receipt, and the parties shall settle a disputed amount within thirty (30) days of agreeing it.",
+        "termKey": "payment"
+      },
+      {
+        "no": "11.2",
+        "title": "Service credits",
+        "text": "If Availability in any month falls below 99.5%, Supplier shall credit 10 percent (10%) of that month's Fees against the next invoice. Supplier shall apply the credit without Customer having to claim it, and shall set it out as a separate line on the next invoice.",
+        "termKey": "service_credit"
+      },
+      {
+        "no": "12.1",
+        "title": "Limitation of liability",
+        "text": "Each party's total liability under this Agreement shall not exceed the Fees paid or payable in the 12 (twelve) months before the claim. Nothing in this Agreement limits either party's liability for death or personal injury caused by negligence, for fraud, or for any other liability that cannot lawfully be limited.",
+        "termKey": "liability_cap"
+      },
+      {
+        "no": "13.1",
+        "title": "Force majeure",
+        "text": "Neither party is liable for a failure to perform caused by an event beyond its reasonable control, including flood, fire, earthquake, war, civil unrest, strike other than by its own staff, or the failure of a public telecommunications network. The affected party shall tell the other as soon as it reasonably can, shall take reasonable steps to limit the effect, and shall resume performance as soon as the event allows. If the event continues for more than thirty (30) consecutive days, either party may end this Agreement on written notice without liability for that termination."
+      },
+      {
+        "no": "14.2",
+        "title": "Renewal and notice",
+        "text": "This Agreement renews for successive one (1) year terms unless either party gives 30 (thirty) days' written notice before the end of the then-current term. Customer may give notice by email to the address set out in the order form, and Supplier shall acknowledge that notice within two (2) Working Days.",
+        "termKey": "renewal_notice"
+      },
+      {
+        "no": "15.1",
+        "title": "Exit support",
+        "text": "On expiry or termination, Supplier shall provide up to thirty (30) days of exit support, including data export, at no additional charge. Supplier shall provide the export in a documented, machine-readable format and shall delete Customer data within sixty (60) days of the end of the exit period.",
+        "termKey": "exit_support"
+      },
+      {
+        "no": "16.1",
+        "title": "Notices",
+        "text": "A notice under this Agreement must be in writing and sent to the address or email address set out in the order form, or to any address notified in writing after the date of this Agreement. A notice sent by email is treated as received on the next Working Day in the place of receipt, and a notice sent by hand is treated as received when it is delivered. A notice of termination or of a claim must also be sent by courier to the recipient's registered office."
+      },
+      {
+        "no": "17.1",
+        "title": "Governing law and disputes",
+        "text": "This Agreement is governed by the laws of India. The courts of Mumbai have exclusive jurisdiction over any dispute arising out of or in connection with it, and each party submits to that jurisdiction. Before either party starts proceedings, the parties shall refer the dispute to a senior representative of each of them, who shall meet within ten (10) Working Days and try in good faith to settle it. This clause does not prevent either party from seeking an injunction at any time."
+      }
+    ]
+  },
+  {
+    "id": "v6",
+    "fileName": "CloudDesk_MSA_v6.docx",
+    "author": "supplier",
+    "sentAt": "2026-11-19T09:30:00+05:30",
+    "dealIdTag": "DL-CLOUDDESK-2026",
+    "declaredTrackedChanges": [
+      "11.2"
+    ],
+    "clauses": [
+      {
+        "no": "1.1",
+        "title": "Definitions",
+        "text": "In this Agreement, \"Seat\" means one named user permitted to sign in to the Service; \"Availability\" means the percentage of minutes in a calendar month during which the Service responds to a sign-in request; \"Initial Term\" has the meaning given in clause 3.1; and \"Working Day\" means a day other than a Saturday, Sunday or public holiday in Maharashtra. Words in the singular include the plural and the other way round. Headings are for reading convenience only and do not affect meaning. A reference to a clause is a reference to a clause of this Agreement, and a reference to writing includes email."
+      },
+      {
+        "no": "2.1",
+        "title": "The Service",
+        "text": "Supplier shall make the CloudDesk helpdesk service available to Customer over the internet for the Initial Term and any renewal term. Supplier shall provide the service in line with the description in Schedule 1 and shall not reduce any material feature during a contract year without Customer's written consent. Supplier shall give Customer at least thirty (30) days' written notice before it changes the way the service is hosted, and shall keep all Customer data within India for the duration of this Agreement. Planned maintenance shall take place outside Customer's published business hours wherever reasonably possible, and Supplier shall give at least five (5) Working Days' notice of it."
+      },
+      {
+        "no": "3.1",
+        "title": "Term",
+        "text": "The Initial Term is 3 (three) year(s) from 1 December 2026. The Initial Term begins on the commencement date set out in the order form.",
+        "termKey": "term"
+      },
+      {
+        "no": "4.1",
+        "title": "Seats and usage",
+        "text": "Customer may add Seats at any time at the rate set out in clause 9.1, charged pro rata for the remainder of the contract year. Customer may reduce Seats at the start of any contract year on thirty (30) days' written notice, provided the total does not fall below four hundred (400) Seats. Supplier shall not charge a fee for reassigning a Seat from one named user to another, and shall not count a user who has left Customer's organisation as occupying a Seat once Customer has deactivated that user. Supplier shall make usage reporting available to Customer at no additional charge."
+      },
+      {
+        "no": "5.1",
+        "title": "Data protection",
+        "text": "Each party shall comply with applicable data protection law. Supplier processes Customer personal data only on Customer's documented instructions and for the purpose of providing the service, and shall not use that data to train any model or to develop any other product. Supplier shall notify Customer without undue delay, and in any event within seventy-two (72) hours, after becoming aware of a personal data breach affecting Customer data. Supplier shall impose on each of its sub-processors terms no less protective than those in this clause, and shall remain responsible to Customer for the acts and omissions of each sub-processor."
+      },
+      {
+        "no": "6.1",
+        "title": "Confidentiality",
+        "text": "Each party shall keep the other party's confidential information in confidence and shall not disclose it to any third party except to its own staff and advisers who need it to perform this Agreement and who are bound by obligations of confidence. This clause does not apply to information that is public through no fault of the receiving party, that the receiving party already held without restriction, or that a party is required by law or by a regulator to disclose, provided that party gives the other as much notice of the requirement as it lawfully can. This clause survives the end of this Agreement for three (3) years."
+      },
+      {
+        "no": "7.1",
+        "title": "Warranties",
+        "text": "Supplier warrants that it has the right to grant the rights it grants under this Agreement, that it shall provide the service with reasonable skill and care and in line with good industry practice, and that the service does not and will not infringe the intellectual property rights of any third party. Supplier further warrants that it shall not knowingly introduce any virus or disabling code into the service, and that it holds and shall maintain the certifications listed in Schedule 2 for the duration of this Agreement."
+      },
+      {
+        "no": "8.1",
+        "title": "Support and escalation",
+        "text": "Supplier shall provide support between 09:00 and 19:00 India Standard Time on Working Days, and shall acknowledge a priority one incident within thirty (30) minutes at any hour. Supplier shall name an account contact and an escalation contact, and shall tell Customer in writing within five (5) Working Days if either changes. Where an incident remains unresolved after four (4) hours, Supplier shall escalate it to its head of service delivery and shall give Customer a written update at least once every two (2) hours until it is resolved."
+      },
+      {
+        "no": "9.1",
+        "title": "Fees",
+        "text": "The Fees are INR 12,000 per Seat per year for 500 Seats (INR 60,00,000 per year). Supplier may revise the Fees once in each contract year by written notice. All Fees are exclusive of goods and services tax, which Customer shall pay at the rate in force at the time of supply.",
+        "termKey": "price"
+      },
+      {
+        "no": "9.3",
+        "title": "Payment",
+        "text": "Customer shall pay each undisputed invoice within 45 (forty-five) days of receipt. Customer shall raise any dispute about an invoice within fifteen (15) days of receipt, and the parties shall settle a disputed amount within thirty (30) days of agreeing it.",
+        "termKey": "payment"
+      },
+      {
+        "no": "11.2",
+        "title": "Service credits",
+        "text": "If Availability in any month falls below 99.5%, Supplier shall credit 10 percent (10%) of that month's Fees against the next invoice. Supplier shall apply the credit without Customer having to claim it, and shall set it out as a separate line on the next invoice.",
+        "termKey": "service_credit"
+      },
+      {
+        "no": "12.1",
+        "title": "Limitation of liability",
+        "text": "Each party's total liability under this Agreement shall not exceed the Fees paid or payable in the 12 (twelve) months before the claim. Nothing in this Agreement limits either party's liability for death or personal injury caused by negligence, for fraud, or for any other liability that cannot lawfully be limited.",
+        "termKey": "liability_cap"
+      },
+      {
+        "no": "13.1",
+        "title": "Force majeure",
+        "text": "Neither party is liable for a failure to perform caused by an event beyond its reasonable control, including flood, fire, earthquake, war, civil unrest, strike other than by its own staff, or the failure of a public telecommunications network. The affected party shall tell the other as soon as it reasonably can, shall take reasonable steps to limit the effect, and shall resume performance as soon as the event allows. If the event continues for more than thirty (30) consecutive days, either party may end this Agreement on written notice without liability for that termination."
+      },
+      {
+        "no": "14.2",
+        "title": "Renewal and notice",
+        "text": "This Agreement renews for successive one (1) year terms unless either party gives 90 (ninety) days' written notice before the end of the then-current term. Customer may give notice by email to the address set out in the order form, and Supplier shall acknowledge that notice within two (2) Working Days.",
+        "termKey": "renewal_notice"
+      },
+      {
+        "no": "15.1",
+        "title": "Exit support",
+        "text": "On expiry or termination, Supplier shall provide up to thirty (30) days of exit support, including data export, at no additional charge. Supplier shall provide the export in a documented, machine-readable format and shall delete Customer data within sixty (60) days of the end of the exit period.",
+        "termKey": "exit_support"
+      },
+      {
+        "no": "16.1",
+        "title": "Notices",
+        "text": "A notice under this Agreement must be in writing and sent to the address or email address set out in the order form, or to any address notified in writing after the date of this Agreement. A notice sent by email is treated as received on the next Working Day in the place of receipt, and a notice sent by hand is treated as received when it is delivered. A notice of termination or of a claim must also be sent by courier to the recipient's registered office."
+      },
+      {
+        "no": "17.1",
+        "title": "Governing law and disputes",
+        "text": "This Agreement is governed by the laws of India. The courts of Mumbai have exclusive jurisdiction over any dispute arising out of or in connection with it, and each party submits to that jurisdiction. Before either party starts proceedings, the parties shall refer the dispute to a senior representative of each of them, who shall meet within ten (10) Working Days and try in good faith to settle it. This clause does not prevent either party from seeking an injunction at any time."
+      }
+    ]
+  }
+]

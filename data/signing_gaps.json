@@ -1,0 +1,30 @@
+{
+  "window": "Jun–Nov 2026",
+  "byTerm": [
+    {
+      "term": "Price",
+      "fixed": 6,
+      "waived": 1
+    },
+    {
+      "term": "Payment",
+      "fixed": 4,
+      "waived": 1
+    },
+    {
+      "term": "Renewal notice",
+      "fixed": 6,
+      "waived": 0
+    },
+    {
+      "term": "Service credits",
+      "fixed": 3,
+      "waived": 1
+    },
+    {
+      "term": "Other",
+      "fixed": 2,
+      "waived": 1
+    }
+  ]
+}

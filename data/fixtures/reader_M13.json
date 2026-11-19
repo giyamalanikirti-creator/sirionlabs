@@ -1,0 +1,16 @@
+{
+  "updates": [
+    {
+      "messageId": "M13",
+      "termKey": "price",
+      "action": "proposes",
+      "byPersonId": "rohan",
+      "value": { "kind": "price", "wording": "open_yearly", "fromYear": 2 },
+      "quote": "could we keep a yearly price review in the contract",
+      "confidence": 0.91,
+      "reason": "CloudDesk reopens the price in the business owner's thread"
+    }
+  ],
+  "mentions": [],
+  "statements": []
+}

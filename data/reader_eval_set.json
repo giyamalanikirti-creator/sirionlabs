@@ -1,0 +1,226 @@
+[
+  {
+    "id": "E01",
+    "context": { "openOffers": ["payment 60 (us)", "term 3 years (us)"] },
+    "from": "rohan",
+    "text": "OK on 60 days if you sign for 3 years.",
+    "expected": { "termKey": "payment", "action": "accepts_if", "value": { "kind": "payment", "days": 60 }, "condition": "3-year term" }
+  },
+  {
+    "id": "E02",
+    "context": { "openOffers": ["service_credit 10% (us)", "service_credit 5% (them)"] },
+    "from": "rohan",
+    "text": "Fine with that.",
+    "expected": { "action": "unclear" }
+  },
+  {
+    "id": "E03",
+    "context": { "openOffers": ["price fixed (us)"] },
+    "from": "rohan",
+    "text": "Let's revisit pricing in the new year.",
+    "expected": { "none": true }
+  },
+  {
+    "id": "E04",
+    "context": { "openOffers": ["price fixed (us)"] },
+    "from": "rohan",
+    "text": "We can hold the price for the full term.",
+    "expected": { "termKey": "price", "action": "accepts", "value": { "kind": "price", "wording": "fixed" } }
+  },
+  {
+    "id": "E05",
+    "context": { "openOffers": ["price fixed (us)"] },
+    "from": "rohan",
+    "text": "Our standard is a yearly revision, but we're flexible.",
+    "expected": { "termKey": "price", "action": "proposes", "value": { "kind": "price", "wording": "open_yearly", "fromYear": 2 } }
+  },
+  {
+    "id": "E06",
+    "context": { "openOffers": ["liability_cap 12 (us)", "payment 60 (us)", "price fixed (us)"] },
+    "from": "rohan",
+    "text": "Agreed on everything except the liability cap.",
+    "expected": { "action": "unclear" }
+  },
+  {
+    "id": "E07",
+    "context": { "openOffers": ["payment 60 (us)"] },
+    "from": "ananya",
+    "text": "Happy to go to 45 days if that helps.",
+    "expected": { "termKey": "payment", "action": "proposes", "value": { "kind": "payment", "days": 45 } }
+  },
+  {
+    "id": "E08",
+    "context": { "openOffers": ["price fixed (us)"] },
+    "from": "rohan",
+    "text": "We'll absorb any price change in year one.",
+    "expected": { "termKey": "price", "action": "proposes", "value": { "kind": "price", "wording": "open_yearly", "fromYear": 2 } }
+  },
+  {
+    "id": "E09",
+    "context": { "openOffers": ["price fixed (us)"] },
+    "from": "rohan",
+    "text": "Noted.",
+    "expected": { "none": true }
+  },
+  {
+    "id": "E10",
+    "context": { "openOffers": ["service_credit 10% (us)"] },
+    "from": "rohan",
+    "text": "10% credits are a stretch. Could we meet at 7.5%?",
+    "expected": { "termKey": "service_credit", "action": "proposes", "value": { "kind": "service_credit", "pct": 7.5, "uptimeTarget": 99.5 } }
+  },
+  {
+    "id": "E11",
+    "context": { "openOffers": ["payment 45 (them)"] },
+    "from": "rohan",
+    "text": "Please ignore my last email on payment terms.",
+    "expected": { "termKey": "payment", "action": "retracts" }
+  },
+  {
+    "id": "E12",
+    "context": { "openOffers": ["renewal_notice 30 (us)"] },
+    "from": "rohan",
+    "text": "Can confirm the renewal notice stays at 30 days.",
+    "expected": { "termKey": "renewal_notice", "action": "accepts", "value": { "kind": "renewal_notice", "days": 30 } }
+  },
+  {
+    "id": "E13",
+    "context": { "openOffers": ["renewal_notice 30 (us)", "renewal_notice 90 (them)"] },
+    "from": "rohan",
+    "text": "As discussed on the call, 90 days works.",
+    "expected": { "termKey": "renewal_notice", "action": "accepts", "value": { "kind": "renewal_notice", "days": 90 }, "maxConfidence": 0.75 }
+  },
+  {
+    "id": "E14",
+    "context": { "openOffers": ["service_credit 10% (us)", "payment 60 (us)"] },
+    "from": "rohan",
+    "text": "We can do 10% if you can do 45 days.",
+    "expected": { "termKey": "service_credit", "action": "accepts_if", "value": { "kind": "service_credit", "pct": 10, "uptimeTarget": 99.5 }, "condition": "payment 45" }
+  },
+  {
+    "id": "E15",
+    "context": { "openOffers": ["term 3 years (us)"] },
+    "from": "rohan",
+    "text": "Three years is fine with us.",
+    "expected": { "termKey": "term", "action": "accepts", "value": { "kind": "term", "years": 3 } }
+  },
+  {
+    "id": "E16",
+    "context": { "openOffers": ["exit_support 30 free (us)"] },
+    "from": "rohan",
+    "text": "We can do 30 days of exit support, but it would be chargeable.",
+    "expected": { "termKey": "exit_support", "action": "proposes", "value": { "kind": "exit_support", "days": 30, "free": false } }
+  },
+  {
+    "id": "E17",
+    "context": { "openOffers": ["price fixed (us)"] },
+    "from": "rohan",
+    "text": "Could we cap the yearly rise at 4% instead of fixing it?",
+    "expected": { "termKey": "price", "action": "proposes", "value": { "kind": "price", "wording": "capped", "capPct": 4, "fromYear": 2 } }
+  },
+  {
+    "id": "E18",
+    "context": { "openOffers": ["payment 60 (us)"] },
+    "from": "rohan",
+    "text": "I'll need to check with our finance team on payment terms.",
+    "expected": { "none": true }
+  },
+  {
+    "id": "E19",
+    "context": { "openOffers": ["liability_cap 12 (us)"] },
+    "from": "rohan",
+    "text": "A 12-month cap is acceptable.",
+    "expected": { "termKey": "liability_cap", "action": "accepts", "value": { "kind": "liability_cap", "months": 12 } }
+  },
+  {
+    "id": "E20",
+    "context": { "openOffers": ["liability_cap 12 (us)"] },
+    "from": "rohan",
+    "text": "Six months is our ceiling on liability.",
+    "expected": { "termKey": "liability_cap", "action": "proposes", "value": { "kind": "liability_cap", "months": 6 } }
+  },
+  {
+    "id": "E21",
+    "context": { "openOffers": ["service_credit 10% (us)"] },
+    "from": "rohan",
+    "text": "Thanks for the revised draft, we'll come back to you next week.",
+    "expected": { "none": true }
+  },
+  {
+    "id": "E22",
+    "context": { "openOffers": ["renewal_notice 30 (us)"] },
+    "from": "rohan",
+    "text": "We'd want 90 days' notice before the term ends.",
+    "expected": { "termKey": "renewal_notice", "action": "proposes", "value": { "kind": "renewal_notice", "days": 90 } }
+  },
+  {
+    "id": "E23",
+    "context": { "openOffers": ["price fixed (us)"] },
+    "from": "rohan",
+    "text": "Are you able to commit to four years instead?",
+    "expected": { "termKey": "term", "action": "proposes", "value": { "kind": "term", "years": 4 } }
+  },
+  {
+    "id": "E24",
+    "context": { "openOffers": ["payment 60 (us)"] },
+    "from": "rohan",
+    "text": "Net 60 is agreed.",
+    "expected": { "termKey": "payment", "action": "accepts", "value": { "kind": "payment", "days": 60 } }
+  },
+  {
+    "id": "E25",
+    "context": { "openOffers": ["price fixed (us)", "payment 60 (us)"] },
+    "from": "rohan",
+    "text": "Yes to both of those.",
+    "expected": { "action": "unclear" }
+  },
+  {
+    "id": "E26",
+    "context": { "openOffers": ["service_credit 10% (us)"] },
+    "from": "vikram",
+    "text": "Honestly 5% would be fine from our side.",
+    "expected": { "termKey": "service_credit", "action": "proposes", "value": { "kind": "service_credit", "pct": 5, "uptimeTarget": 99.5 } }
+  },
+  {
+    "id": "E27",
+    "context": { "openOffers": ["price fixed (us)"] },
+    "from": "rohan",
+    "text": "Our invoices will be issued monthly in advance.",
+    "expected": { "none": true }
+  },
+  {
+    "id": "E28",
+    "context": { "openOffers": ["price fixed (us)"] },
+    "from": "rohan",
+    "text": "We cannot fix the price for three years.",
+    "expected": { "termKey": "price", "action": "rejects" }
+  },
+  {
+    "id": "E29",
+    "context": { "openOffers": ["exit_support 30 free (us)"] },
+    "from": "rohan",
+    "text": "Thirty days of free exit support is agreed.",
+    "expected": { "termKey": "exit_support", "action": "accepts", "value": { "kind": "exit_support", "days": 30, "free": true } }
+  },
+  {
+    "id": "E30",
+    "context": { "openOffers": ["payment 60 (us)", "renewal_notice 30 (us)"] },
+    "from": "rohan",
+    "text": "Looks good, let's get this signed.",
+    "expected": { "action": "unclear" }
+  },
+  {
+    "id": "E31",
+    "context": { "openOffers": ["price fixed (us)"] },
+    "from": "rohan",
+    "text": "Please note our office will be closed for Diwali next week.",
+    "expected": { "none": true }
+  },
+  {
+    "id": "E32",
+    "context": { "openOffers": ["service_credit 10% (us)", "renewal_notice 30 (us)"] },
+    "from": "rohan",
+    "text": "We accept the 10% credit. The notice period we still need to discuss.",
+    "expected": { "termKey": "service_credit", "action": "accepts", "value": { "kind": "service_credit", "pct": 10, "uptimeTarget": 99.5 } }
+  }
+]
