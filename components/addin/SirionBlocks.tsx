@@ -18,7 +18,7 @@ import { useDemo } from '@/lib/store';
 import { cloudDeskDeal, personName, versionById, versions } from '@/lib/data';
 import { playbookReview } from '@/lib/engines/playbook';
 import { formatDateShort, formatLakh } from '@/lib/format';
-import { explainHeadline } from '@/lib/engines/explain';
+import { COST_RULE, explainHeadline } from '@/lib/engines/explain';
 import { CONTRACT_ID } from '@/lib/settings';
 import type { EmailMessage, LedgerRow } from '@/lib/types';
 import { recommendedMove } from '@/lib/engines/playbook';
@@ -295,29 +295,33 @@ export function MoveBox({ row }: { row: LedgerRow }) {
   );
 }
 
-/** The pane version of "How ₹X is calculated", with the risks outside the figure. */
-export function PaneHeadlineExplainer({ rows }: { rows: LedgerRow[] }) {
+/** The pane version of "How is this worked out?": the rule, each row in one sentence, the total and the risks outside it. */
+export function PaneHeadlineExplainer({ rows, label = 'How is this worked out?' }: { rows: LedgerRow[]; label?: string }) {
   const s = usePaneStyles();
   const x = explainHeadline(rows, cloudDeskDeal);
   return (
     <details style={{ marginTop: 6 }}>
-      <summary style={{ fontSize: 11.5, cursor: 'pointer', color: tokens.colorBrandForeground1 }}>How calculated, and other risks</summary>
-      <div style={{ marginTop: 6 }}>
+      <summary style={{ fontSize: 11.5, cursor: 'pointer', color: tokens.colorBrandForeground1 }}>{label}</summary>
+      <div style={{ marginTop: 6, fontSize: 11.5, lineHeight: '16px' }}>
+        <div style={{ background: tokens.colorNeutralBackground3, borderRadius: 4, padding: '6px 8px', marginBottom: 6 }}>
+          <div style={{ fontWeight: 600 }}>{COST_RULE[0]}</div>
+          <div style={{ color: tokens.colorNeutralForeground3 }}>{COST_RULE[1]}</div>
+        </div>
+        <div style={{ fontWeight: 600 }}>{formatLakh(x.totalLakh)} a year if signed as is (expected)</div>
         {x.lines.map((l) => (
-          <div key={l.rowId} className={s.listRow} style={{ alignItems: 'flex-start' }}>
-            <span className={s.listName}>
-              <span style={{ display: 'block', fontWeight: 600 }}>{l.label}</span>
-              <span className={s.listValue}>{l.threat} ({l.source})</span>
-            </span>
-            <span style={{ fontSize: 11.5, whiteSpace: 'nowrap' }}>{formatLakh(l.shareLakh)}</span>
-          </div>
+          <p key={l.rowId} style={{ margin: '4px 0' }}>
+            <strong>{l.label}:</strong> {l.summary} {l.proof[0]} → <strong>{formatLakh(l.shareLakh)} a year</strong>.
+          </p>
         ))}
-        <div style={{ fontSize: 11.5, fontWeight: 600, textAlign: 'right', marginTop: 4 }}>{x.sumText}</div>
+        <p style={{ margin: '4px 0', color: tokens.colorNeutralForeground3 }}>
+          {x.totalText}
+          {x.notPriced.length ? ` Not priced: ${x.notPriced.join(', ')}.` : ''}
+        </p>
         {x.otherRisks.length > 0 && (
           <>
             <p className={s.sectionLabel}>Other risks, not in the figure</p>
             {x.otherRisks.map((r, i) => (
-              <p key={i} style={{ fontSize: 11.5, lineHeight: '16px', margin: '0 0 4px' }}>
+              <p key={i} style={{ margin: '0 0 4px' }}>
                 <strong>{r.label}.</strong> {r.text}
               </p>
             ))}

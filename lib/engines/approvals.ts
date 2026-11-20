@@ -31,7 +31,7 @@ export function approvalRoute(row: Pick<LedgerRow, 'owner' | 'termKey'>, costLak
 
 export interface ApprovalRequest {
   id: string;
-  kind: 'accept_theirs' | 'send_anyway' | 'walk_away' | 'waive';
+  kind: 'accept_theirs' | 'send_anyway' | 'walk_away' | 'waive' | 'publish_anyway';
   rowId: string;
   termKey: TermKey;
   label: string;
@@ -54,4 +54,5 @@ export const APPROVAL_KIND_LABEL: Record<ApprovalRequest['kind'], string> = {
   send_anyway: 'Sent anyway after a warning',
   walk_away: 'Walk-away position offered',
   waive: 'Signing gap waived',
+  publish_anyway: 'Published with agreed terms missing',
 };

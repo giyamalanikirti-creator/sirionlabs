@@ -19,6 +19,12 @@ export const THREAT_LABELS: Record<string, string> = {
   signing_copy: 'The signing copy says',
 };
 
+/** The rule, in two lines. Shown at the top of every "How is this worked out?" and on the story page. */
+export const COST_RULE = [
+  'Expected cost = how often this kind of term has cost you before × the money it applies to, spread per year over the contract term.',
+  'Base rates come from your own invoices, renewals and uptime records. The AI only reads which term changed; every ₹ figure is calculated by code.',
+];
+
 export interface HeadlineLine {
   rowId: string;
   label: string;
@@ -30,6 +36,8 @@ export interface HeadlineLine {
   /** For a renewal notice: the once-per-renewal figure before it is spread over the term. */
   onceLakh?: number;
   proof: string[];
+  /** One plain sentence: who wants what, e.g. "CloudDesk is still asking for yearly revision; you want fixed for 3 years." */
+  summary: string;
 }
 
 export interface OtherRisk {
@@ -41,7 +49,30 @@ export interface HeadlineExplanation {
   totalLakh: number;
   lines: HeadlineLine[];
   sumText: string;
+  /** "Total ₹4.4 lakh a year, averaged over the 3-year term." */
+  totalText: string;
+  /** Terms with no ₹ figure, e.g. "liability cap (Legal-owned)". */
+  notPriced: string[];
   otherRisks: OtherRisk[];
+}
+
+function summaryFor(kind: string, deal: Deal, agreed: string, asked: string, versionId?: string): string {
+  switch (kind) {
+    case 'supplier_ask':
+      return `${deal.supplier} is still asking for ${asked}; you want ${agreed}.`;
+    case 'version_change':
+      return `${versionId ?? 'A draft'} changed it to ${asked}; agreed ${agreed}.`;
+    case 'new_ask':
+      return `${deal.supplier} asked again for ${asked}; agreed ${agreed}.`;
+    case 'side_offer':
+      return `Our side offered ${asked} in a side thread; you want ${agreed}.`;
+    case 'sent_concession':
+      return `Our side conceded ${asked} by email; agreed ${agreed}.`;
+    case 'signing_copy':
+      return `The signing copy says ${asked}; agreed ${agreed}.`;
+    default:
+      return `Now ${asked}; agreed ${agreed}.`;
+  }
 }
 
 export function explainHeadline(rows: LedgerRow[], deal: Deal): HeadlineExplanation {
@@ -69,6 +100,7 @@ export function explainHeadline(rows: LedgerRow[], deal: Deal): HeadlineExplanat
       source: sourcePlain(threat.source),
       shareLakh: notice ? tag.costLakhPerYr / deal.termYears : tag.costLakhPerYr,
       onceLakh: notice ? tag.costLakhPerYr : undefined,
+      summary: summaryFor(threat.kind, deal, plainValue(row.position, deal.termYears).toLowerCase(), plainValue(threat.value, deal.termYears).toLowerCase(), threat.source.versionId),
       proof: notice
         ? [...tag.proof, `Counted once per renewal, so it is spread over the ${deal.termYears}-year term: ${formatLakh(tag.costLakhPerYr)} ÷ ${deal.termYears} = ${formatLakh(tag.costLakhPerYr / deal.termYears)} a year.`]
         : tag.proof,
@@ -115,8 +147,12 @@ export function explainHeadline(rows: LedgerRow[], deal: Deal): HeadlineExplanat
   }
 
   const totalLakh = dealAtRisk(rows, deal);
+  const notPriced = rows.filter((r) => r.owner === 'legal').map((r) => `${r.label.toLowerCase()} (Legal-owned)`);
+  const totalText = lines.length
+    ? `Total ${formatLakh(totalLakh)} a year, averaged over the ${deal.termYears}-year term.`
+    : 'Nothing at risk: every term matches what was agreed.';
   const sumText = lines.length
     ? `${lines.map((l) => formatLakh(l.shareLakh)).join(' + ')} = ${formatLakh(totalLakh)} a year`
     : 'Nothing at risk: every term matches what was agreed.';
-  return { totalLakh, lines, sumText, otherRisks };
+  return { totalLakh, lines, sumText, totalText, notPriced, otherRisks };
 }

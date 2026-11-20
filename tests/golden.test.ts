@@ -19,6 +19,7 @@ import {
 import { formatDateLong, formatInr, formatLakh, formatLakhPerYear } from '@/lib/format';
 import { SMART_ALERT_MAX_CHARS, TAKE_ACTION_MAX_CHARS } from '@/lib/settings';
 import { buildDialog, TAKE_ACTION_LABEL } from '@/lib/engines/sendDialog';
+import { lakhRange, peerChange } from '@/lib/engines/peers';
 
 const deal = cloudDeskDeal;
 
@@ -240,5 +241,35 @@ describe('formatting', () => {
     expect(formatLakh(180)).toBe('₹1.8 crore');
     expect(formatInr(532000)).toBe('₹5,32,000');
     expect(formatInr(500000)).toBe('₹5,00,000');
+  });
+});
+
+describe('peer benchmarks (sample data; never in the headline)', () => {
+  const FIXED = { kind: 'price', wording: 'fixed' } as const;
+  const OPEN = { kind: 'price', wording: 'open_yearly', fromYear: 2 } as const;
+
+  it('peer price at the 7.1% median, a year', () => {
+    const p = peerChange(deal, FIXED, OPEN)!;
+    expect(p.costLakhPerYr!).toBeCloseTo(4.36082, 3);
+    expect(formatLakhPerYear(p.costLakhPerYr)).toBe('₹4.4 lakh a year');
+  });
+
+  it('peer price at 4.5% (p25) and 9.0% (p75), a year', () => {
+    const p = peerChange(deal, FIXED, OPEN)!;
+    expect(p.lowLakh!).toBeCloseTo(2.7405, 3);
+    expect(p.highLakh!).toBeCloseTo(5.562, 3);
+    expect(lakhRange(p.lowLakh!, p.highLakh!)).toBe('₹2.7–5.6 lakh');
+  });
+
+  it('peer renewal notice 30 → 90 days', () => {
+    const p = peerChange(deal, { kind: 'renewal_notice', days: 30 }, { kind: 'renewal_notice', days: 90 })!;
+    expect(p.onceLakh!).toBeCloseTo(2.16, 3);
+    expect(p.costLakhPerYr!).toBeCloseTo(0.72, 3);
+    expect(formatLakh(p.onceLakh!)).toBe('₹2.2 lakh');
+    expect(formatLakhPerYear(p.costLakhPerYr)).toBe('₹72,000 a year');
+  });
+
+  it('the CloudDesk headline at the start is unchanged by peer data', () => {
+    expect(dealAtRisk(initialLedger(), deal)).toBeCloseTo(4.42192, 4);
   });
 });

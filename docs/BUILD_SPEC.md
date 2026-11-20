@@ -623,6 +623,10 @@ Lakh to one decimal place (₹3.9 lakh). Below ₹1 lakh, rupees rounded to the 
 | All open deals at risk, after signing | 15.9 | ₹15.9 lakh a year |
 | BrightStaff markup 8% → 10% (rate card) | 1.5740741 | ₹1.6 lakh a year |
 | SwiftShip fuel threshold ₹92 → ₹88 | 0.72 | ₹72,000 a year |
+| Peer price, median 7.1%, a year (sample data) | 4.36082 | ₹4.4 lakh a year |
+| Peer price, 4.5% (p25) / 9.0% (p75), a year | 2.7405 / 5.562 | ₹2.7–5.6 lakh |
+| Peer renewal 30 → 90, at next renewal | 2.16 | ₹2.2 lakh |
+| Peer renewal, a year | 0.72 | ₹72,000 a year |
 | Term commitment | 180 | ₹1.8 crore |
 | Dec 2027 invoice over agreed price | 0.32 | ₹32,000 |
 | Renewal deadline / reminder | — | 31 Oct 2029 / 16 Sep 2029 |

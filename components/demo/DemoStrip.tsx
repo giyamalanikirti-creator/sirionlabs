@@ -12,7 +12,7 @@ const SURFACES = [
   { label: 'Sirion app', href: '/' },
   { label: "Ananya’s inbox · Procurement", href: '/outlook/ananya' },
   { label: "Vikram’s inbox · IT head", href: '/outlook/vikram' },
-  { label: 'Word (signing copy)', href: '/word/v6', needsV6: true },
+  { label: 'Word', href: '/word', word: true },
 ];
 
 export function DemoStrip() {
@@ -50,28 +50,20 @@ export function DemoStrip() {
       <div className="flex min-w-0 flex-1 items-center justify-center gap-3">
         <div className="flex items-center rounded-md bg-white/10 p-[2px]">
           {SURFACES.map((s) => {
+            // Word always opens: the latest draft (v4) before the signing copy arrives, the signing copy (v6) after.
+            const href = s.word ? (v6Arrived ? '/word/v6' : '/word/v4') : s.href;
+            const label = s.word ? (v6Arrived ? 'Word (signing copy)' : 'Word (latest draft)') : s.label;
             const active = isActive(s.href);
-            // Never grey out the surface we are already on.
-            const disabled = Boolean(s.needsV6) && !v6Arrived && !active;
             return (
               <button
                 key={s.href}
-                disabled={disabled}
-                onClick={() => {
-                  if (disabled) {
-                    toast('The signing copy arrives at step 4 (19 Nov).');
-                    return;
-                  }
-                  router.push(s.href);
-                }}
-                title={disabled ? 'Available once the signing copy arrives (step 4)' : undefined}
+                onClick={() => router.push(href)}
                 className={[
                   'whitespace-nowrap rounded px-2.5 py-[3px] text-[11.5px] transition-colors',
                   active ? 'bg-white text-ink font-medium' : 'text-white/75 hover:text-white',
-                  disabled ? 'cursor-not-allowed text-white/30 hover:text-white/30' : '',
                 ].join(' ')}
               >
-                {s.label}
+                {label}
               </button>
             );
           })}

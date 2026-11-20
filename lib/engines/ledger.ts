@@ -594,3 +594,24 @@ export function acceptTheirs(
   addHistory(row, opts.at, text, { kind: 'manual', quote: text, at: opts.at, byPersonId: opts.byPersonId });
   return next;
 }
+
+/** "Not right?": a person doubts the reading, so the row goes back to Needs confirming with both values. */
+export function flagForConfirmation(
+  rows: LedgerRow[],
+  rowId: string,
+  docValue: TermValue | null,
+  opts: { at: string; byPersonId: string; where: string },
+): LedgerRow[] {
+  const next = clone(rows);
+  const row = next.find((r) => r.id === rowId);
+  if (!row) return next;
+  const source: SourceRef = { kind: 'manual', quote: `Flagged in ${opts.where}`, at: opts.at, byPersonId: opts.byPersonId };
+  row.state = 'needs_confirmation';
+  row.pendingConfirmation = {
+    quote: `Flagged in ${opts.where}: the reading may be wrong`,
+    messageId: row.source.messageId ?? '',
+    alternatives: [{ value: row.position, source: row.source }, ...(docValue ? [{ value: docValue, source }] : [])],
+  };
+  addHistory(row, opts.at, `${personName(opts.byPersonId)} flagged this term in ${opts.where}: the reading may be wrong. Sent to Needs confirming.`, source);
+  return next;
+}

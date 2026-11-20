@@ -30,6 +30,7 @@ import {
   editRow as editRowEngine,
   addCallTerm as addCallTermEngine,
   acceptTheirs as acceptTheirsEngine,
+  flagForConfirmation as flagForConfirmationEngine,
   insertWordingForRow,
   markSigningGaps,
   waiveGapForRow,
@@ -168,6 +169,7 @@ interface DemoState {
   requestAcceptTheirs: (rowId: string) => void;
   updateSettings: (patch: Partial<AdminSettings>) => void;
   sendDispute: (message: EmailMessage) => void;
+  flagRow: (rowId: string, docValue: TermValue | null, where: string) => void;
   dismissThread: (threadId: string) => void;
   confirmRow: (rowId: string, value: TermValue, note?: string) => void;
   setDraft: (key: string, body: string) => void;
@@ -541,6 +543,12 @@ export const useDemo = create<DemoState>()(
       },
 
       updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
+
+      flagRow: (rowId, docValue, where) => {
+        const rows = flagForConfirmationEngine(get().ledger, rowId, docValue, { at: get().clock, byPersonId: 'ananya', where });
+        const row = rows.find((r) => r.id === rowId);
+        set((s) => ({ ledger: rows, events: [...s.events, { at: s.clock, text: `${row?.label ?? rowId} flagged in ${where}: sent to Needs confirming.` }] }));
+      },
 
       sendDispute: (message) =>
         set((s) => ({

@@ -217,6 +217,7 @@ export function OutlookApp({ person }: { person: Person }) {
     if (inbox.some((m) => m.id === wanted)) {
       setFolder('inbox');
       openMessage(wanted);
+
     } else if (!selectedId && inbox.length) {
       openMessage(inbox[0].id);
     }
@@ -405,6 +406,16 @@ export function OutlookApp({ person }: { person: Person }) {
     finishSend(draft, 'warn', 'send_anyway', topFinding.case, reason);
     toast(`Sent. Marked reopened (${reason})${approver ? `; approval requested from ${approver}` : ''}${person === 'ananya' ? '' : '. Ananya has been told'}.`);
   };
+
+  /* "Ask the supplier" from Word: once the message is open, start the reply with the supplier-safe draft. */
+  const askDraft = params.get('draft');
+  useEffect(() => {
+    if (!hydrated || !askDraft || !selected || selected.id !== wantedMessage || composing) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- runs once from the URL
+    openReply(askDraft.slice(0, 1500));
+    router.replace(`/outlook/${person}?msg=${wantedMessage}`);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, askDraft, selected?.id]);
 
   /* The guide's "see the result" link: open the reply and press Send for the presenter. */
   useEffect(() => {

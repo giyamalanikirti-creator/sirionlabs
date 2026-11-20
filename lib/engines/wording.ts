@@ -163,3 +163,18 @@ export function disputeEmail(opts: {
   ].join('\n');
   return { subject: `${opts.invoiceId}: billed above the fixed fee in clause ${opts.clauseNo}`, body, quotes: [clauseSentence, opts.supplierQuote] };
 }
+
+/**
+ * "Ask the supplier" from Word: a short, supplier-safe email asking for the
+ * agreed wording back. No ₹, no internal names, no peer data, no limits.
+ */
+export function askSupplierDraft(opts: {
+  greetingName: string;
+  clauseNo: string;
+  fileName: string;
+  docPlain: string;
+  agreedPlain: string;
+  agreedWhen: string;
+}): string {
+  return `Hi ${opts.greetingName}, clause ${opts.clauseNo} in ${opts.fileName} says ${opts.docPlain.toLowerCase()}. We agreed ${opts.agreedPlain.toLowerCase()} ${opts.agreedWhen}. Could you restore that wording in the next copy? Thanks, Ananya`;
+}

@@ -184,6 +184,8 @@ export function WordDocument({
   editText = '',
   onEditText,
   onClauseClick,
+  chips = {},
+  onMarkerClick,
 }: {
   version: DocVersion;
   edits: TrackedEdit[];
@@ -199,6 +201,9 @@ export function WordDocument({
   editText?: string;
   onEditText?: (text: string) => void;
   onClauseClick?: (clauseNo: string) => void;
+  /** Pane chrome beside a clause heading, e.g. "₹3.9L/yr". Never part of the document text. */
+  chips?: Record<string, string>;
+  onMarkerClick?: (clauseNo: string) => void;
 }) {
   const s = useStyles();
   const pages = paginate(version.clauses);
@@ -238,7 +243,10 @@ export function WordDocument({
                     <span
                       title={markers[c.no].title}
                       aria-label={markers[c.no].title}
+                      role={onMarkerClick ? 'button' : undefined}
+                      onClick={onMarkerClick ? (e) => { e.stopPropagation(); onMarkerClick(c.no); } : undefined}
                       style={{
+                        cursor: onMarkerClick ? 'pointer' : undefined,
                         position: 'absolute',
                         left: '-52px',
                         top: '3px',
@@ -252,6 +260,28 @@ export function WordDocument({
                   )}
                   <div className={s.heading}>
                     {c.no} {c.title}
+                    {chips[c.no] && (
+                      <span
+                        contentEditable={false}
+                        aria-hidden
+                        onClick={onMarkerClick ? (e) => { e.stopPropagation(); onMarkerClick(c.no); } : undefined}
+                        style={{
+                          marginLeft: 8,
+                          padding: '1px 6px',
+                          borderRadius: 999,
+                          fontFamily: 'Segoe UI, sans-serif',
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: '#C50F1F',
+                          background: '#FDF3F4',
+                          border: '1px solid #F1BBBC',
+                          cursor: onMarkerClick ? 'pointer' : undefined,
+                          userSelect: 'none',
+                        }}
+                      >
+                        {chips[c.no]}
+                      </span>
+                    )}
                   </div>
                   {editingClause === c.no ? (
                     <textarea

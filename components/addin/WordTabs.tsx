@@ -3,25 +3,19 @@
 /**
  * Deal Ledger for Word, on top of Sirion's Word add-in.
  *
- *  Sirion   (today)  contract metadata, obligations, Content Library clauses,
- *                    IssueDetection review, approve/reject/publish, save back
- *  Ledger   (new)    every clause compared with what was agreed in email
+ *  Review and Approve live in WordReview.tsx.
  *  Draft    (new)    edit guard as you type, and insert the agreed wording
  *  Compare  (new)    round compare, each change tagged with what the email said
  */
 import { useState } from 'react';
-import Link from 'next/link';
 import { Badge, Button, Dropdown, Option, tokens } from '@fluentui/react-components';
 import { CheckmarkCircleFilled, ErrorCircleFilled, QuestionCircleFilled, WarningFilled } from '@fluentui/react-icons';
-import { useDemo } from '@/lib/store';
 import { cloudDeskDeal, messageById, personByEmail, personName, versions } from '@/lib/data';
-import { compareWithEmail, guardClauseEdit, lensForVersion, type ClauseLens, type LensStatus } from '@/lib/engines/wordLens';
-import { playbookReview, PLAYBOOK } from '@/lib/engines/playbook';
+import { compareWithEmail, guardClauseEdit, lensForVersion, type LensStatus } from '@/lib/engines/wordLens';
 import { agreedWording } from '@/lib/engines/wording';
 import { approvalRoute } from '@/lib/engines/approvals';
 import { formatDateLong, formatLakh, HEADLINE_SUFFIX } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
-import { CONTRACT_ID } from '@/lib/settings';
 import type { Clause, DocVersion, LedgerRow } from '@/lib/types';
 import { OriginTag } from './SirionBlocks';
 import { usePaneStyles } from './paneStyles';
@@ -45,57 +39,6 @@ export function withAgreedWording(clause: Clause, row: LedgerRow): string {
   const first = clause.text.indexOf('. ');
   const tail = first >= 0 ? clause.text.slice(first + 1) : '';
   return agreedWording(row.termKey, row.position) + tail;
-}
-
-/* ------------------------------------------------------------------ */
-/* Ledger lens                                                         */
-/* ------------------------------------------------------------------ */
-
-export function LensTab({ version, lens, onGoTo }: { version: DocVersion; lens: ClauseLens[]; onGoTo: (no: string) => void }) {
-  const s = usePaneStyles();
-  const differs = lens.filter((l) => l.status === 'differs');
-  const total = differs.reduce((sum, l) => sum + (l.costLakhPerYr ?? 0), 0);
-  return (
-    <div>
-      <div className={s.headline}>
-        <span className={s.headlineLabel}>
-          <OriginTag kind="new" /> {version.fileName} against the ledger
-        </span>
-        <span>
-          {differs.length ? (
-            <>
-              <span className={s.money}>{formatLakh(total)}</span> <span className={s.moneySuffix}>{HEADLINE_SUFFIX}</span>
-            </>
-          ) : (
-            <span style={{ fontSize: 13 }}>Every tracked clause matches what was agreed.</span>
-          )}
-        </span>
-        <span className={s.grey}>
-          {lens.filter((l) => l.status === 'matches').length} match · {differs.length} differ · {lens.filter((l) => l.status === 'pending').length} waiting
-        </span>
-      </div>
-      <p className={s.note} style={{ marginTop: 0 }}>
-        The dot beside each clause in the document shows the same thing. Green matches, red differs, amber is still waiting for a person.
-      </p>
-      {lens.map((l) => (
-        <div key={l.clauseNo} className={s.listRow} style={{ alignItems: 'flex-start', cursor: 'pointer' }} onClick={() => onGoTo(l.clauseNo)}>
-          <span style={{ marginTop: 2 }}><StatusIcon status={l.status} /></span>
-          <span className={s.listName}>
-            <span style={{ display: 'block', fontWeight: 600 }}>
-              {l.clauseNo} · {l.label}
-            </span>
-            <span className={s.listValue}>
-              {l.status === 'differs' ? `Agreed ${l.agreedPlain.toLowerCase()} · this file says ${l.docPlain.toLowerCase()}` : `${l.docPlain}`}
-            </span>
-            <span className={s.listValue} style={{ display: 'block' }}>Source: {l.source}</span>
-          </span>
-          {l.status === 'differs' && l.costLakhPerYr !== null && (
-            <span style={{ fontSize: 11.5, whiteSpace: 'nowrap', color: tokens.colorPaletteRedForeground1 }}>{formatLakh(l.costLakhPerYr)}</span>
-          )}
-        </div>
-      ))}
-    </div>
-  );
 }
 
 /* ------------------------------------------------------------------ */
@@ -301,117 +244,6 @@ export function CompareTab({ version, rows, onGoTo }: { version: DocVersion; row
           </div>
         );
       })}
-    </div>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* What Sirion's add-in does today                                     */
-/* ------------------------------------------------------------------ */
-
-export function SirionTab({ version, onInsertPreferred }: { version: DocVersion; onInsertPreferred: (no: string, text: string) => void }) {
-  const s = usePaneStyles();
-  const contract = useDemo((st) => st.contract);
-  const signedAt = useDemo((st) => st.signedAt);
-  const request = useDemo((st) => st.requestReview);
-  const logEvent = useDemo((st) => st.logEvent);
-  const toast = useDemo((st) => st.toast);
-  const review = playbookReview(version);
-  const deal = cloudDeskDeal;
-  const act = (text: string, event: string) => {
-    logEvent(event);
-    toast(text);
-  };
-
-  return (
-    <div>
-      <section className={s.card}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className={s.sectionLabel} style={{ margin: 0 }}>Contract record</span>
-          <OriginTag kind="today" />
-        </div>
-        <div style={{ fontSize: 12.5, marginTop: 6 }}>
-          <strong>{deal.supplier}</strong> · {CONTRACT_ID} · {signedAt ? 'Signed' : 'Negotiating'}
-        </div>
-        <div className={s.grey}>
-          {formatLakh(deal.annualFeeInr / 1e5)} a year · {deal.termYears} years from {formatDateLong(deal.termStart)} · this file {version.id}
-        </div>
-      </section>
-
-      <section className={s.card}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className={s.sectionLabel} style={{ margin: 0 }}>Obligations in Word</span>
-          <OriginTag kind="today" />
-        </div>
-        {contract ? (
-          contract.obligations.map((o) => (
-            <div key={o.id} className={s.grey} style={{ marginTop: 4 }}>
-              {o.title} · clause {o.clauseNo}
-              {o.due ? ` · ${formatDateLong(o.due)}` : ''}
-            </div>
-          ))
-        ) : (
-          <p className={s.grey} style={{ marginTop: 4 }}>Obligations appear here once the contract is signed and saved to Sirion.</p>
-        )}
-      </section>
-
-      <section className={s.card}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className={s.sectionLabel} style={{ margin: 0 }}>AI review · IssueDetection</span>
-          <OriginTag kind="today" />
-        </div>
-        {review.map((r) => (
-          <div key={r.clauseNo} className={s.signal}>
-            {r.within ? <CheckmarkCircleFilled fontSize={13} color={tokens.colorPaletteGreenForeground1} /> : <WarningFilled fontSize={13} color={tokens.colorPaletteDarkOrangeForeground1} />}
-            <span style={{ fontSize: 11.5 }}>{r.text}</span>
-          </div>
-        ))}
-        <p className={s.grey} style={{ marginTop: 4 }}>Checks the file against the playbook. It does not know what was agreed in email; the Ledger tab does.</p>
-      </section>
-
-      <section className={s.card}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className={s.sectionLabel} style={{ margin: 0 }}>Content Library · preferred clauses</span>
-          <OriginTag kind="today" />
-        </div>
-        {version.clauses
-          .filter((c) => c.termKey && PLAYBOOK[c.termKey])
-          .map((c) => (
-            <div key={c.no} className={s.listRow}>
-              <span className={s.listName}>
-                <span style={{ fontWeight: 600 }}>{c.no}</span> · {plainValue(PLAYBOOK[c.termKey!]!.preferred, deal.termYears)}
-              </span>
-              <Button
-                size="small"
-                appearance="subtle"
-                onClick={() => {
-                  const first = c.text.indexOf('. ');
-                  onInsertPreferred(c.no, agreedWording(c.termKey!, PLAYBOOK[c.termKey!]!.preferred) + (first >= 0 ? c.text.slice(first + 1) : ''));
-                }}
-              >
-                Insert
-              </Button>
-            </div>
-          ))}
-      </section>
-
-      <section className={s.card}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span className={s.sectionLabel} style={{ margin: 0 }}>Actions</span>
-          <OriginTag kind="today" />
-        </div>
-        <div className={s.actions}>
-          <Button size="small" onClick={() => { request('approval', version.id); toast(`${version.id} sent to ${personName('neha')} for approval.`); }}>Send for approval</Button>
-          <Button size="small" onClick={() => act(`${version.id} approved.`, `${version.id} approved in Word.`)}>Approve</Button>
-          <Button size="small" onClick={() => act(`${version.id} rejected.`, `${version.id} rejected in Word.`)}>Reject</Button>
-          <Button size="small" onClick={() => act(`${version.id} published to Sirion.`, `${version.id} published from Word.`)}>Publish</Button>
-        </div>
-        <p className={s.grey} style={{ marginTop: 6 }}>
-          From Sirion&apos;s published material on its Word add-in (platform brochure, AppSource listing): Content Library clauses,
-          tracked changes and compare, AI risk flags, approve, reject or publish, metadata and obligations in Word, preferred,
-          fallback and walk-away clauses, and changes saved back to Sirion as a new version. <Link href="/today">Compare with Deal Ledger</Link>
-        </p>
-      </section>
     </div>
   );
 }

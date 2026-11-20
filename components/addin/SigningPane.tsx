@@ -41,10 +41,13 @@ export function SigningPane({
   rows,
   version,
   onGoToClause,
+  compact = false,
 }: {
   rows: LedgerRow[];
   version: DocVersion;
   onGoToClause: (clauseNo: string) => void;
+  /** Inside the Review tab: the issue cards above already show each gap. */
+  compact?: boolean;
 }) {
   const s = usePaneStyles();
   const open = useSourceDrawer((st) => st.open);
@@ -74,7 +77,7 @@ export function SigningPane({
 
   return (
     <div style={{ position: 'relative' }}>
-      <div className={s.headline}>
+      {!compact && <div className={s.headline}>
         <span className={s.headlineLabel}>Signing check · {version.fileName}{!signed ? ' · ran when the copy arrived' : ''}</span>
         {!signed && unresolved > 0 && (
           <span style={{ display: 'block' }}>
@@ -85,7 +88,7 @@ export function SigningPane({
         {
           <span>{result.matches.length} matched · {pending} awaiting supplier acceptance · {unresolved} unresolved{waived ? ` · ${waived} waived` : ''}</span>
         }
-      </div>
+      </div>}
 
       {result.needsConfirmation.length > 0 && (
         <MessageBar intent="warning" style={{ marginBottom: 10 }}>
@@ -98,7 +101,7 @@ export function SigningPane({
         </MessageBar>
       )}
 
-      <div className={s.card}>
+      {!compact && <div className={s.card}>
         <div className={s.cardTitle}>
           {signed ? 'Returned supplier copy verified' : readyToReturn ? 'Ready to return to CloudDesk' : 'Verify the supplier copy'}
         </div>
@@ -115,9 +118,9 @@ export function SigningPane({
             each with a supplier-safe note.
           </p>
         )}
-      </div>
+      </div>}
 
-      {openGaps.map((gap) => (
+      {!compact && openGaps.map((gap) => (
         <div key={gap.rowId} className={s.card}>
           <div className={s.termHead}>
             <span className={s.termName}>{gap.label}</span>

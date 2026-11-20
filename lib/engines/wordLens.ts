@@ -7,7 +7,9 @@
  * as it is typed (guard), and every round's changes tagged with whether the
  * email mentioned them (compare). Pure; ₹ from the pricing engine only.
  */
-import type { Clause, Deal, DocVersion, LedgerRow, TermKey, TermValue } from '@/lib/types';
+import type { Clause, Deal, DocVersion, LedgerRow, PriceTag, TermKey, TermValue } from '@/lib/types';
+import { playbookReview, type ReviewLine } from './playbook';
+import { peerChange, type PeerTag } from './peers';
 import { messages } from '@/lib/data';
 import { diffVersions, extractValue } from './diff';
 import { priceChange } from './pricing';
@@ -32,6 +34,13 @@ export interface ClauseLens {
   costLakhPerYr: number | null;
   costNote?: string;
   proof: string[];
+  /** From the price tag: own-data basis and confidence, for the issue card. */
+  n?: number;
+  confidence?: PriceTag['confidence'];
+  formula?: string;
+  overTermLakh?: number;
+  onceLakh?: number;
+  exposureLakh?: number;
 }
 
 function share(row: LedgerRow, deal: Deal, value: TermValue) {
@@ -81,7 +90,19 @@ export function lensForClause(clause: Clause, rows: LedgerRow[], deal: Deal): Cl
   const { tag, share: s, note } = share(row, deal, docValue);
   // A clause that is better for us than agreed is not a risk.
   if (s !== null && s <= 0) return { ...base, status: 'matches', costLakhPerYr: 0, proof: [] };
-  return { ...base, status: 'differs', costLakhPerYr: s, costNote: note, proof: tag.proof };
+  return {
+    ...base,
+    status: 'differs',
+    costLakhPerYr: s,
+    costNote: note,
+    proof: tag.proof,
+    n: tag.n,
+    confidence: tag.confidence,
+    formula: tag.formula,
+    overTermLakh: tag.overTermLakh,
+    onceLakh: row.termKey === 'renewal_notice' && tag.costLakhPerYr !== null ? tag.costLakhPerYr : undefined,
+    exposureLakh: tag.exposureLakh,
+  };
 }
 
 /** The ledger lens: every tracked clause in a version, compared with what was agreed. */
@@ -144,4 +165,49 @@ export function compareWithEmail(prev: DocVersion, next: DocVersion, rows: Ledge
       costLakhPerYr: lens?.status === 'differs' ? lens.costLakhPerYr : null,
     };
   });
+}
+
+/* ------------------------------------------------------------------ */
+/* The Review list: playbook issues and agreed-in-email differences    */
+/* ------------------------------------------------------------------ */
+
+export interface ReviewIssue {
+  clauseNo: string;
+  label: string;
+  /** 'playbook' = Sirion's IssueDetection (today); 'email' = Deal Ledger (new). */
+  sources: ('playbook' | 'email')[];
+  lens?: ClauseLens;
+  playbook?: ReviewLine;
+  peer: PeerTag | null;
+  costLakhPerYr: number | null;
+}
+
+/** One list, sorted by ₹ (largest first), then unpriced items. Matching clauses are counted, not listed. */
+export function reviewIssues(version: DocVersion, rows: LedgerRow[], deal: Deal): { issues: ReviewIssue[]; matches: number } {
+  const lens = lensForVersion(version, rows, deal);
+  const playbook = playbookReview(version).filter((l) => !l.within);
+  const byClause = new Map<string, ReviewIssue>();
+  for (const l of lens) {
+    if (l.status === 'matches') continue;
+    const row = rows.find((r) => r.id === l.rowId)!;
+    byClause.set(l.clauseNo, {
+      clauseNo: l.clauseNo,
+      label: l.label,
+      sources: ['email'],
+      lens: l,
+      peer: l.status === 'differs' && l.docValue ? peerChange(deal, row.position, l.docValue, { n: l.n, costLakhPerYr: l.costLakhPerYr }) : null,
+      costLakhPerYr: l.status === 'differs' ? l.costLakhPerYr : null,
+    });
+  }
+  for (const p of playbook) {
+    const existing = byClause.get(p.clauseNo);
+    if (existing) {
+      existing.sources = ['playbook', 'email'];
+      existing.playbook = p;
+    } else {
+      byClause.set(p.clauseNo, { clauseNo: p.clauseNo, label: p.label, sources: ['playbook'], playbook: p, peer: null, costLakhPerYr: null });
+    }
+  }
+  const issues = [...byClause.values()].sort((a, b) => (b.costLakhPerYr ?? -1) - (a.costLakhPerYr ?? -1));
+  return { issues, matches: lens.filter((l) => l.status === 'matches').length };
 }

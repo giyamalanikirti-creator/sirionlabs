@@ -2,13 +2,15 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Spinner, Tab, TabList, makeStyles } from '@fluentui/react-components';
-import { CompareTab, DraftTab, LensTab, SirionTab, STATUS_TEXT } from '@/components/addin/WordTabs';
-import { guardClauseEdit, lensForVersion, type ClauseLens } from '@/lib/engines/wordLens';
-import { cloudDeskDeal } from '@/lib/data';
+import { CompareTab, DraftTab, STATUS_TEXT, withAgreedWording } from '@/components/addin/WordTabs';
+import { ApproveTab, IssueCard, WordHeader, type IssueActions } from '@/components/addin/WordReview';
+import { guardClauseEdit, lensForVersion, reviewIssues, type ClauseLens, type ReviewIssue } from '@/lib/engines/wordLens';
+import type { LedgerRow } from '@/lib/types';
+import { cloudDeskDeal, personName } from '@/lib/data';
 import { formatLakh, HEADLINE_SUFFIX } from '@/lib/format';
 import { CONTRACT_ID } from '@/lib/settings';
 
-type PaneTab = 'check' | 'lens' | 'draft' | 'compare' | 'sirion';
+type PaneTab = 'review' | 'draft' | 'compare' | 'approve';
 
 const omit = (m: Record<string, string>, key: string) => Object.fromEntries(Object.entries(m).filter(([k]) => k !== key));
 import Link from 'next/link';
@@ -45,7 +47,8 @@ export function WordApp({ versionId }: { versionId: string }) {
 
   const [paneOpen, setPaneOpen] = useState(true);
   const [highlightedClause, setHighlightedClause] = useState<string>();
-  const [tab, setTab] = useState<PaneTab>(versionId === 'v6' || versionId === 'v7' ? 'check' : versionId === 'v5' ? 'draft' : 'lens');
+  const [tab, setTab] = useState<PaneTab>('review');
+  const [expanded, setExpanded] = useState<string>();
   /** Edits typed in Word in this session, by clause: the whole new clause text. */
   const [localEdits, setLocalEdits] = useState<Record<string, string>>({});
   const [localComments, setLocalComments] = useState<Record<string, string>>({});
@@ -139,10 +142,22 @@ export function WordApp({ versionId }: { versionId: string }) {
     return { edits: e, comments: c };
   }, [rows, version, localEdits, localComments]);
 
-  /* The ledger lens runs on the file as it now reads, including edits typed here. */
-  const working = useMemo(
-    () => (version ? { ...version, clauses: version.clauses.map((cl) => (localEdits[cl.no] ? { ...cl, text: localEdits[cl.no] } : cl)) } : undefined),
-    [version, localEdits],
+  /* The ledger lens runs on the file as it now reads: inserted wording and edits typed here included. */
+  const working = useMemo(() => {
+    if (!version) return undefined;
+    return {
+      ...version,
+      clauses: version.clauses.map((cl) => {
+        const edit = edits.find((e) => e.clauseNo === cl.no);
+        return edit && version.id !== 'v5' ? { ...cl, text: `${edit.after}${edit.tail ?? ''}` } : cl;
+      }),
+    };
+  }, [version, edits]);
+  const review = useMemo(() => (working ? reviewIssues(working, rows, cloudDeskDeal) : { issues: [], matches: 0 }), [working, rows]);
+  const chips = Object.fromEntries(
+    review.issues
+      .filter((i) => i.costLakhPerYr !== null && i.costLakhPerYr > 0)
+      .map((i) => [i.clauseNo, `${formatLakh(i.costLakhPerYr).replace(' lakh', 'L')}/yr`]),
   );
   const lens = useMemo(() => (working ? lensForVersion(working, rows, cloudDeskDeal) : []), [working, rows]);
   const markers = Object.fromEntries(
@@ -150,7 +165,10 @@ export function WordApp({ versionId }: { versionId: string }) {
       l.clauseNo,
       {
         tone: l.status === 'matches' ? 'ok' : l.status === 'differs' ? 'risk' : l.status === 'pending' ? 'warn' : 'muted',
-        title: `${l.label}: ${STATUS_TEXT[l.status]}${l.status === 'differs' ? ` (agreed ${l.agreedPlain.toLowerCase()})` : ''}`,
+        title:
+          l.status === 'differs'
+            ? `${l.label}${l.costLakhPerYr !== null ? ` · ${formatLakh(l.costLakhPerYr)} a year` : ''}\nAgreed: ${l.agreedPlain}\nThis draft: ${l.docPlain}`
+            : `${l.label}: ${STATUS_TEXT[l.status]}`,
       } as ClauseMarker,
     ]),
   );
@@ -182,6 +200,115 @@ export function WordApp({ versionId }: { versionId: string }) {
     logEvent(`Clause ${editing} edited in Word${l?.status === 'differs' ? `: differs from what was agreed (${l.agreedPlain})` : ''}.`);
     toast(l?.status === 'differs' ? 'Kept as a tracked change. It differs from what was agreed and is flagged.' : 'Kept as a tracked change.');
     setEditing(undefined);
+  };
+
+  const insertWording = useDemo((st) => st.insertWording);
+  const applyPlaybook = useDemo((st) => st.applyPlaybookPosition);
+  const waiveGap = useDemo((st) => st.waiveGap);
+  const requestApproval = useDemo((st) => st.requestApproval);
+  const flagRow = useDemo((st) => st.flagRow);
+  const sendBack = useDemo((st) => st.sendBack);
+  const sentBackAt = useDemo((st) => st.signing.sentBackAt);
+
+  const rowOf = (i: ReviewIssue) => (i.lens ? rows.find((r) => r.id === i.lens!.rowId) : undefined);
+  const isSigningGap = (row?: LedgerRow) => versionId === 'v6' && row?.signing === 'gap';
+  const putLocal = (no: string, text: string, comment?: string) => {
+    setLocalEdits((m) => ({ ...m, [no]: text }));
+    if (comment) setLocalComments((m) => ({ ...m, [no]: comment }));
+  };
+
+  const issueActions: IssueActions = {
+    onInsertAgreed: (issue) => {
+      const row = rowOf(issue);
+      const clause = version?.clauses.find((c) => c.no === issue.clauseNo);
+      if (!row || !clause) return;
+      if (isSigningGap(row)) insertWording(row.id);
+      else putLocal(clause.no, withAgreedWording(clause, row), row.supplierNote);
+      goToClause(clause.no);
+      logEvent(`Clause ${clause.no}: agreed wording inserted in Word (${version!.id}).`);
+      toast(`Agreed wording inserted in clause ${clause.no}, with a supplier-safe comment.`);
+    },
+    onUseRung: (issue, value, key) => {
+      const row = rowOf(issue);
+      const clause = version?.clauses.find((c) => c.no === issue.clauseNo);
+      if (!row || !clause) return;
+      if (isSigningGap(row) && key !== 'preferred') applyPlaybook(row.id, value, key);
+      else {
+        const first = clause.text.indexOf('. ');
+        putLocal(clause.no, agreedWording(row.termKey, value) + (first >= 0 ? clause.text.slice(first + 1) : ''), 'Proposed wording for this clause.');
+      }
+      goToClause(clause.no);
+      toast(`Playbook ${key} inserted in clause ${clause.no} as a tracked change.`);
+    },
+    onAccept: (issue, reason) => {
+      const row = rowOf(issue);
+      if (!row || !issue.lens) return;
+      if (isSigningGap(row)) waiveGap(row.id, reason);
+      else
+        requestApproval({
+          kind: 'accept_theirs',
+          rowId: row.id,
+          termKey: row.termKey,
+          label: row.label,
+          change: `${issue.lens.agreedPlain} → ${issue.lens.docPlain} (accepted in Word)`,
+          costLakhPerYr: issue.costLakhPerYr,
+          requestedById: 'ananya',
+          reason,
+          value: issue.lens.docValue ?? undefined,
+        });
+      const last = useDemo.getState().approvals.at(-1);
+      toast(last?.status === 'pending' ? `Waiver logged. Approval requested from ${personName(last.approverId)}.` : 'Waiver logged, within your limit.');
+    },
+    onNotRight: (issue) => {
+      const row = rowOf(issue);
+      if (!row) return;
+      flagRow(row.id, issue.lens?.docValue ?? null, `Word (${version!.fileName})`);
+      toast('Sent to Needs confirming. Correct it on the ledger page; the edit is logged.');
+    },
+    onGoTo: (no) => goToClause(no),
+  };
+
+  const emailGaps = review.issues.filter((i) => i.sources.includes('email') && i.lens?.status === 'differs' && rowOf(i)?.signing !== 'waived');
+  const insertAll = () => emailGaps.forEach((g) => issueActions.onInsertAgreed(g));
+  const onPublished = (anyway: boolean, reason?: string) => {
+    if (anyway && emailGaps.length) {
+      const first = rowOf(emailGaps[0])!;
+      requestApproval({
+        kind: 'publish_anyway',
+        rowId: first.id,
+        termKey: first.termKey,
+        label: `${emailGaps.length} agreed terms`,
+        change: `${version!.id} published without ${emailGaps.map((g) => g.label.toLowerCase()).join(', ')}`,
+        costLakhPerYr: emailGaps.reduce((sum, g) => sum + (g.costLakhPerYr ?? 0), 0),
+        requestedById: 'ananya',
+        reason,
+      });
+      logEvent(`${version!.id} published to Sirion with ${emailGaps.length} agreed terms missing · reason: ${reason}.`);
+      toast('Published anyway. Logged to the deal activity, and sent for approval.');
+      return;
+    }
+    logEvent(`${version!.id} published to Sirion after the signing check: every agreed term is in the copy.`);
+    if (versionId === 'v6' && !sentBackAt && useDemo.getState().signing.checkedAt) sendBack('portal');
+    void fetch('/api/handover', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ dealId: cloudDeskDeal.id, rows, signedVersionId: version!.id }),
+    })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((record: { obligations?: unknown[] } | null) => {
+        toast(
+          record?.obligations
+            ? `Published to Sirion. On signature, the Obligations agent creates ${record.obligations.length} obligations from the agreed terms.`
+            : 'Published to Sirion.',
+        );
+      })
+      .catch(() => toast('Published to Sirion.'));
+  };
+
+  const openIssue = (no: string) => {
+    setTab('review');
+    setExpanded(no);
+    requestAnimationFrame(() => document.getElementById(`issue-${no}`)?.scrollIntoView({ block: 'nearest' }));
   };
 
   const goToClause = (clauseNo: string) => {
@@ -219,6 +346,11 @@ export function WordApp({ versionId }: { versionId: string }) {
           </Button>
         </div>
       )}
+      {versionId === 'v4' && hydrated && clock < STEP_CLOCK[4] && (
+        <div style={{ padding: '6px 16px', background: '#FFF8E5', fontSize: 12.5, borderBottom: '1px solid #F2E2B3' }}>
+          The signing copy arrives on 19 Nov (step 4). This is v4, the draft that came with Rohan&apos;s round-4 email.
+        </div>
+      )}
       <WordRibbon
         paneOpen={paneOpen}
         onTogglePane={() => setPaneOpen((v) => !v)}
@@ -239,28 +371,55 @@ export function WordApp({ versionId }: { versionId: string }) {
               editText={editText}
               onEditText={setEditText}
               onClauseClick={versionId !== 'v7' ? startEdit : undefined}
+              chips={paneOpen ? chips : {}}
+              onMarkerClick={openIssue}
             />
           </div>
         </div>
         {paneOpen && (
           <PaneFrame width={350} onClose={() => setPaneOpen(false)} footerHref="/deals/D-CLOUDDESK/ledger">
-            <TabList size="small" selectedValue={tab} onTabSelect={(_, d) => setTab(d.value as PaneTab)} style={{ marginBottom: 10, flexWrap: 'wrap' }}>
-              {(versionId === 'v6' || versionId === 'v7') && <Tab value="check">Signing</Tab>}
-              <Tab value="lens">Ledger</Tab>
+            {working && <WordHeader version={version} rows={rows} issues={review.issues} matches={review.matches} />}
+            <TabList size="small" selectedValue={tab} onTabSelect={(_, d) => setTab(d.value as PaneTab)} style={{ marginBottom: 10 }}>
+              <Tab value="review">Review</Tab>
               {versionId !== 'v7' && <Tab value="draft">Draft</Tab>}
               <Tab value="compare">Compare</Tab>
-              <Tab value="sirion">Sirion</Tab>
+              <Tab value="approve">Approve</Tab>
             </TabList>
-            {tab === 'check' && (versionId === 'v6' ? (
-              checkedAt ? <SigningPane rows={rows} version={version} onGoToClause={goToClause} /> : (
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 13 }}>
-                  <Spinner size="tiny" /> Checking the signing copy against the ledger…
-                </div>
-              )
-            ) : (
+            {tab === 'review' && (versionId === 'v7' ? (
               <SigningPane rows={rows} version={version} onGoToClause={goToClause} />
+            ) : versionId === 'v6' && !checkedAt ? (
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 13 }}>
+                <Spinner size="tiny" /> Checking the signing copy against the ledger…
+              </div>
+            ) : (
+              <div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
+                  <span style={{ fontSize: 13, fontWeight: 600 }}>{versionId === 'v6' ? 'Signing check' : 'Review'}</span>
+                  <span style={{ display: 'flex', gap: 4 }}><OriginTag kind="today" /><OriginTag kind="new" /></span>
+                </div>
+                {review.issues.map((issue) => (
+                  <IssueCard
+                    key={issue.clauseNo}
+                    issue={issue}
+                    version={working ?? version}
+                    rows={rows}
+                    expanded={expanded === issue.clauseNo}
+                    onToggle={() => setExpanded((e) => (e === issue.clauseNo ? undefined : issue.clauseNo))}
+                    actions={issueActions}
+                    resolvedLabel={rowOf(issue)?.signing === 'waived' ? 'Accepted · waiver logged' : undefined}
+                  />
+                ))}
+                <div style={{ fontSize: 12, color: '#707070', padding: '4px 2px 8px' }}>
+                  {review.matches} clause{review.matches === 1 ? '' : 's'} match what was agreed
+                </div>
+                {emailGaps.length > 1 && versionId !== 'v6' && (
+                  <Button appearance="secondary" style={{ width: '100%', marginBottom: 10 }} onClick={insertAll}>
+                    Insert all {emailGaps.length} agreed wordings
+                  </Button>
+                )}
+                {versionId === 'v6' && <SigningPane rows={rows} version={version} onGoToClause={goToClause} compact />}
+              </div>
             ))}
-            {tab === 'lens' && <LensTab version={version} lens={lens} onGoTo={goToClause} />}
             {tab === 'draft' && (
               <>
                 {versionId === 'v5' && <OurTurnPane edits={edits} />}
@@ -292,14 +451,16 @@ export function WordApp({ versionId }: { versionId: string }) {
               </>
             )}
             {tab === 'compare' && <CompareTab version={version} rows={rows} onGoTo={goToClause} />}
-            {tab === 'sirion' && (
-              <SirionTab
+            {tab === 'approve' && (
+              <ApproveTab
                 version={version}
-                onInsertPreferred={(no, text) => {
-                  setLocalEdits((m) => ({ ...m, [no]: text }));
-                  goToClause(no);
-                  toast(`Preferred clause inserted in ${no} from the Content Library.`);
+                gaps={emailGaps}
+                onInsertAll={insertAll}
+                onReview={() => {
+                  setTab('review');
+                  if (emailGaps[0]) openIssue(emailGaps[0].clauseNo);
                 }}
+                onPublished={onPublished}
               />
             )}
           </PaneFrame>
