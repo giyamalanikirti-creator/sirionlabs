@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 /**
  * Deal pages for every deal other than CloudDesk.
  *
@@ -73,6 +74,9 @@ export function OtherDealPage({ deal }: { deal: Deal }) {
 function Scripted({ deal }: { deal: ScriptedDeal }) {
   const hydrated = useHydrated();
   const started = useDemo((s) => s.startedDealIds).includes(deal.dealId);
+  const [disputed, setDisputed] = useState(false);
+  const toast = useDemo((s) => s.toast);
+  const logEvent = useDemo((s) => s.logEvent);
   const emailById = (id?: string) => deal.emails.find((e) => e.id === id);
 
   return (
@@ -174,11 +178,10 @@ function Scripted({ deal }: { deal: ScriptedDeal }) {
         </Table>
       </SirionCard>
 
-      <div className="grid gap-4 lg:grid-cols-2">
-        <SirionCard title="Rounds" caption="Each turn is their file plus their email, which is what the ledger reads">
-          <ol className="space-y-3">
+      <SirionCard title="Rounds" caption="Each turn is their file plus their email, which is what the ledger reads">
+          <ol className={`grid gap-3 ${deal.turns.length >= 3 ? 'md:grid-cols-3' : 'md:grid-cols-2'}`}>
             {deal.turns.map((t) => (
-              <li key={t.round} className="flex gap-3">
+              <li key={t.round} className="flex gap-3 rounded-lg border border-line p-3">
                 <span className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-semibold ${t.side === 'theirs' ? 'bg-amber-bg text-amber-fg' : 'bg-mint text-teal-900'}`}>
                   {t.round}
                 </span>
@@ -195,10 +198,10 @@ function Scripted({ deal }: { deal: ScriptedDeal }) {
               </li>
             ))}
           </ol>
-        </SirionCard>
+      </SirionCard>
 
         <SirionCard title="Threads" caption={`${deal.emails.length} emails, including a side thread`}>
-          <ul className="space-y-2.5">
+          <ul className="grid gap-2.5 md:grid-cols-2">
             {deal.emails.map((e) => (
               <li key={e.id} className="rounded-md border border-line px-3 py-2 text-[12px] leading-[17px]">
                 <p className="flex flex-wrap items-center gap-1.5">
@@ -213,7 +216,6 @@ function Scripted({ deal }: { deal: ScriptedDeal }) {
             ))}
           </ul>
         </SirionCard>
-      </div>
 
       {deal.afterSigning && (
         <SirionCard title="After signing" caption="Sirion invoice reconciliation, against the ledger">
@@ -225,8 +227,19 @@ function Scripted({ deal }: { deal: ScriptedDeal }) {
             <span className="font-semibold text-danger">{formatInr(deal.afterSigning.overbillInr)}</span>{' '}
             <span className="text-muted">over the agreed markup, every month</span>
           </p>
-          <div className="mt-3 flex gap-2">
-            <Button>Raise a dispute</Button>
+          <div className="mt-3 flex items-center gap-3">
+            <Button
+              variant="danger"
+              disabled={disputed}
+              onClick={() => {
+                setDisputed(true);
+                logEvent(`${deal.supplier}: dispute raised on the January timesheet invoice, quoting the 8% markup agreed on 7 Nov.`);
+                toast(`Dispute sent to ${deal.supplier}, quoting the 8% markup agreed by email on 7 Nov.`);
+              }}
+            >
+              {disputed ? 'Dispute sent' : 'Raise a dispute'}
+            </Button>
+            {disputed && <span className="text-[12px] text-muted">Sent to Sunita Rao, quoting clause 6 and the HR head&apos;s email of 7 Nov.</span>}
           </div>
         </SirionCard>
       )}

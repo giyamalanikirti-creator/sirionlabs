@@ -172,7 +172,7 @@ export function SendGuardDialog({
                   <Button appearance={primaryLabel ? 'secondary' : 'primary'} onClick={onEdit}>
                     Edit reply
                   </Button>
-                  <Button appearance="subtle" onClick={() => setAsking(true)}>
+                  <Button appearance="outline" onClick={() => setAsking(true)}>
                     Send anyway
                   </Button>
                 </>

@@ -35,6 +35,17 @@ body {
   /* Scoped reset for the Sirion surfaces and the demo chrome. :where() keeps
      the specificity at a single class, and the base layer keeps it below
      every utility, so text-[56px] and px-3 are never flattened. */
+  /* Without preflight nothing gives borders a style, so Tailwind's border
+     utilities (which only set a width) drew nothing. Same defaults as preflight. */
+  .ds-scope,
+  .ds-scope *,
+  .ds-scope ::before,
+  .ds-scope ::after {
+    border-width: 0;
+    border-style: solid;
+    border-color: #e6ebeb;
+  }
+
   .ds-scope :where(h1, h2, h3, h4, h5, h6, p, figure, blockquote, dl, dd) {
     margin: 0;
     font-size: inherit;
@@ -51,7 +62,7 @@ body {
     font: inherit;
     color: inherit;
     background: none;
-    border: 0;
+    border-width: 0;
     padding: 0;
     cursor: pointer;
     text-align: inherit;
@@ -61,7 +72,7 @@ body {
     font: inherit;
     color: inherit;
     background: none;
-    border: 0;
+    border-width: 0;
     padding: 0;
     margin: 0;
   }

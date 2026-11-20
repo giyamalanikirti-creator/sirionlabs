@@ -137,7 +137,7 @@ export default function SettingsPage() {
                 <span className="text-muted">· clouddesk.example · {tracked ? 'email tracked' : 'not tracked'}</span>
               </span>
               {tracked ? (
-                <button className="rounded-md border border-line px-2.5 py-1 text-[11.5px]" onClick={() => stopTracking('D-CLOUDDESK')}>
+                <button className="rounded-md border border-teal-900/45 bg-white font-semibold text-teal-900 shadow-sm transition-colors hover:border-teal-900 hover:bg-mint/40 px-2.5 py-1 text-[11.5px]" onClick={() => stopTracking('D-CLOUDDESK')}>
                   Stop tracking
                 </button>
               ) : (
@@ -153,7 +153,7 @@ export default function SettingsPage() {
                   Linked thread: <span className="font-medium text-ink">CloudDesk uptime in October</span>{' '}
                   <span className="text-muted">(Vikram Shah ↔ Rohan Iyer)</span>
                 </span>
-                <button className="rounded-md border border-line px-2.5 py-1 text-[11.5px]" onClick={() => undoLink('T2')}>
+                <button className="rounded-md border border-teal-900/45 bg-white font-semibold text-teal-900 shadow-sm transition-colors hover:border-teal-900 hover:bg-mint/40 px-2.5 py-1 text-[11.5px]" onClick={() => undoLink('T2')}>
                   Unlink
                 </button>
               </div>
@@ -164,7 +164,7 @@ export default function SettingsPage() {
                   On this deal: <span className="font-medium text-ink">{people.find((p) => p.id === id)?.name}</span>{' '}
                   <span className="text-muted">· only their clouddesk.example threads are read</span>
                 </span>
-                <button className="rounded-md border border-line px-2.5 py-1 text-[11.5px]" onClick={() => removePerson('D-CLOUDDESK', id)}>
+                <button className="rounded-md border border-teal-900/45 bg-white font-semibold text-teal-900 shadow-sm transition-colors hover:border-teal-900 hover:bg-mint/40 px-2.5 py-1 text-[11.5px]" onClick={() => removePerson('D-CLOUDDESK', id)}>
                   Remove from deal
                 </button>
               </div>

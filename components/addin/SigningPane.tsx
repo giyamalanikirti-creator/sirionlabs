@@ -179,7 +179,7 @@ export function SigningPane({
             <Button size="small" onClick={() => onGoToClause(gap.clauseNo)}>
               Go to clause
             </Button>
-            <Button size="small" appearance="subtle" onClick={() => setWaiving(gap.rowId)}>
+            <Button size="small" appearance="outline" onClick={() => setWaiving(gap.rowId)}>
               Waive…
             </Button>
           </div>

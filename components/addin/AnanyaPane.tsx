@@ -351,7 +351,7 @@ function AutoLinkBar() {
       <div className={s.actions}>
         <Button
           size="small"
-          appearance="subtle"
+          appearance="outline"
           icon={<ArrowUndoRegular />}
           onClick={() => {
             undo('T2');
@@ -402,7 +402,7 @@ function ConfirmCreditCard({ row, onDraftReply }: { row: LedgerRow; onDraftReply
         >
           Send clarification
         </Button>
-        <Button size="small" appearance="subtle" onClick={() => setManual((v) => !v)}>
+        <Button size="small" appearance="outline" onClick={() => setManual((v) => !v)}>
           I already confirmed it
         </Button>
       </div>

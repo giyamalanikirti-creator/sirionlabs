@@ -52,10 +52,10 @@ export function LeadDashboard() {
 
       <SirionCard title="Start here" className="mb-4">
         <div className="flex flex-wrap gap-3 text-sm">
-          <Link className="rounded-md border border-line px-4 py-2 text-teal-900" href="/story">Read the case · 2 min</Link>
-          <Link className="rounded-md border border-line px-4 py-2 text-teal-900" href="/today">First: what Sirion has today · 1 min</Link>
+          <Link className="rounded-md border border-teal-900/45 bg-white font-semibold text-teal-900 shadow-sm transition-colors hover:border-teal-900 hover:bg-mint/40 px-4 py-2" href="/story">Read the case · 2 min</Link>
+          <Link className="rounded-md border border-teal-900/45 bg-white font-semibold text-teal-900 shadow-sm transition-colors hover:border-teal-900 hover:bg-mint/40 px-4 py-2" href="/today">First: what Sirion has today · 1 min</Link>
           <Link className="rounded-md bg-teal-900 px-4 py-2 font-medium text-white" href="/outlook/ananya?msg=M8" onClick={() => useDemo.getState().startStage(1, true)}>Start the walkthrough · 3 min</Link>
-          <Link className="rounded-md border border-line px-4 py-2 text-teal-900" href="/deals">Explore freely</Link>
+          <Link className="rounded-md border border-teal-900/45 bg-white font-semibold text-teal-900 shadow-sm transition-colors hover:border-teal-900 hover:bg-mint/40 px-4 py-2" href="/deals">Explore freely</Link>
         </div>
       </SirionCard>
 
@@ -63,7 +63,7 @@ export function LeadDashboard() {
         <p className="text-sm text-ink">{signed ? 'Review the handover and see how the signed price is checked against invoices.' : 'Rohan’s email confirms pricing, but v4 quietly changes the renewal notice.'}</p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Link href={signed ? "/contracts/C-2026-0417?tab=obligations" : "/outlook/ananya?msg=M8"} className="rounded-md bg-teal-900 px-4 py-2 text-sm font-medium text-white">{signed ? "See handover" : "Review supplier update"}</Link>
-          <Link href="/deals" className="rounded-md border border-line px-4 py-2 text-sm text-teal-900">Explore portfolio</Link>
+          <Link href="/deals" className="rounded-md border border-teal-900/45 bg-white font-semibold text-teal-900 shadow-sm transition-colors hover:border-teal-900 hover:bg-mint/40 px-4 py-2 text-sm">Explore portfolio</Link>
         </div>
       </SirionCard>
 

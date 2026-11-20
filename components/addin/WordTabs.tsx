@@ -133,7 +133,7 @@ export function DraftTab({
                   Use agreed wording
                 </Button>
               )}
-              <Button size="small" appearance="subtle" onClick={onCancel}>Cancel</Button>
+              <Button size="small" appearance="outline" onClick={onCancel}>Cancel</Button>
             </div>
           </div>
         )}
@@ -147,8 +147,8 @@ export function DraftTab({
                   <span className={s.listName} onClick={() => onGoTo(no)} style={{ cursor: 'pointer' }}>
                     <span style={{ fontWeight: 600 }}>{no}</span> {l ? `· ${STATUS_TEXT[l.status].toLowerCase()}` : ''}
                   </span>
-                  <Button size="small" appearance="subtle" onClick={() => onStartEdit(no)}>Edit</Button>
-                  <Button size="small" appearance="subtle" onClick={() => onRevert(no)}>Revert</Button>
+                  <Button size="small" appearance="outline" onClick={() => onStartEdit(no)}>Edit</Button>
+                  <Button size="small" appearance="outline" onClick={() => onRevert(no)}>Revert</Button>
                 </div>
               );
             })}

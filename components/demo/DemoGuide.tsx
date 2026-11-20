@@ -28,7 +28,7 @@ export function DemoGuide() {
           <li className="rounded-xl border border-dashed border-line p-4">
             <h3 className="text-sm font-semibold text-ink">Before you start: Sirion today</h3>
             <p className="mt-1 text-xs leading-5 text-muted">Sirion&apos;s Outlook plugin as it is today, next to the same plugin with Deal Ledger. New parts are marked.</p>
-            <button className="mt-3 rounded-md border border-line px-3 py-1.5 text-xs text-teal-900" onClick={() => { setOpen(false); router.push('/today'); }}>See the comparison</button>
+            <button className="mt-3 rounded-md border border-teal-900/45 bg-white font-semibold text-teal-900 shadow-sm transition-colors hover:border-teal-900 hover:bg-mint/40 px-3 py-1.5 text-xs" onClick={() => { setOpen(false); router.push('/today'); }}>See the comparison</button>
           </li>
           <li className="rounded-xl border border-dashed border-line p-4 text-xs leading-5 text-muted">
             After step 5: the full ledger (Deals → CloudDesk → Open full ledger), the December invoice dispute, and the 2029 renewal brief on the Obligations tab.
@@ -43,7 +43,7 @@ export function DemoGuide() {
                   setOpen(false);
                   router.push(stage.href);
                 }}>Start this step</button>
-                <button className="rounded-md border border-line px-3 py-1.5 text-teal-900" onClick={() => {
+                <button className="rounded-md border border-teal-900/45 bg-white font-semibold text-teal-900 shadow-sm transition-colors hover:border-teal-900 hover:bg-mint/40 px-3 py-1.5" onClick={() => {
                   useDemo.getState().previewStage(stage.step);
                   setOpen(false);
                   router.push('result' in stage ? stage.result : stage.href);

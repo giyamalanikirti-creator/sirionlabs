@@ -108,7 +108,7 @@ export function SmartAlertDialog({
               <Button appearance="secondary" onClick={onDontSend}>
                 Edit reply
               </Button>
-              {onSendAnyway && <Button appearance="subtle" onClick={onSendAnyway}>
+              {onSendAnyway && <Button appearance="outline" onClick={onSendAnyway}>
                 Send Anyway
               </Button>}
             </DialogActions>

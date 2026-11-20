@@ -139,7 +139,7 @@ export function AttachmentBlock({ message }: { message: EmailMessage }) {
             </div>
             <div className={s.actions} style={{ marginTop: 6 }}>
               {done ? (
-                <Button size="small" appearance="subtle" icon={<ArrowUndoRegular />} onClick={() => unsync(versionId)}>
+                <Button size="small" appearance="outline" icon={<ArrowUndoRegular />} onClick={() => unsync(versionId)}>
                   Undo
                 </Button>
               ) : (

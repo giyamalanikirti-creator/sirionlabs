@@ -54,7 +54,7 @@ export function WordConnect({
             Connect as {version.id}
           </Button>
           <Button size="small" onClick={() => onState('search')}>Choose another contract</Button>
-          <Button size="small" appearance="subtle" onClick={() => onState('none')}>Not a Sirion contract</Button>
+          <Button size="small" appearance="outline" onClick={() => onState('none')}>Not a Sirion contract</Button>
         </div>
       </Block>
     );

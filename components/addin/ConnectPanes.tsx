@@ -76,7 +76,7 @@ export function TrackCard({ asOf, onTracked }: { asOf: string; onTracked: (summa
   if (collapsed) {
     return (
       <p className={s.note}>
-        <Button size="small" appearance="transparent" onClick={() => setCollapsed(false)}>
+        <Button size="small" appearance="outline" onClick={() => setCollapsed(false)}>
           Track this negotiation in email…
         </Button>
       </p>
@@ -92,7 +92,7 @@ export function TrackCard({ asOf, onTracked }: { asOf: string; onTracked: (summa
       <p style={{ fontSize: 12, margin: '8px 0 0' }}>
         On our side: {owner.name}
         {people.map((p) => `, ${personName(p)}`).join('')} ·{' '}
-        <Button size="small" appearance="transparent" style={{ padding: 0, minWidth: 0 }} onClick={() => setAdding((v) => !v)}>
+        <Button size="small" appearance="outline" onClick={() => setAdding((v) => !v)}>
           add people
         </Button>
       </p>
@@ -122,7 +122,7 @@ export function TrackCard({ asOf, onTracked }: { asOf: string; onTracked: (summa
           Track negotiation
         </Button>
         <Button size="small" onClick={() => setCollapsed(true)}>Not now</Button>
-        <Button size="small" appearance="subtle" onClick={() => neverTrack(cloudDeskDeal.supplierDomain)}>Never for this supplier</Button>
+        <Button size="small" appearance="outline" onClick={() => neverTrack(cloudDeskDeal.supplierDomain)}>Never for this supplier</Button>
       </div>
       <p className={s.grey}>Asked once, of the deal owner. Matched to {CONTRACT_ID} by sender domain.</p>
     </Block>

@@ -376,7 +376,7 @@ export function IssueCard({
                   </span>
                 </span>
                 {!isAgreed && r.key !== 'preferred' && (
-                  <Button size="small" appearance="subtle" onClick={() => actions.onUseRung(issue, r.value, r.key)}>
+                  <Button size="small" appearance="outline" onClick={() => actions.onUseRung(issue, r.value, r.key)}>
                     Use
                   </Button>
                 )}
@@ -392,7 +392,7 @@ export function IssueCard({
         <Button size="small" appearance="primary" onClick={() => actions.onInsertAgreed(issue)}>Insert agreed wording</Button>
         <Link href={askHref}><Button size="small">Ask the supplier</Button></Link>
         <Button size="small" onClick={() => setAccepting(true)}>Accept this change</Button>
-        <Button size="small" appearance="subtle" onClick={() => actions.onNotRight(issue)}>Not right?</Button>
+        <Button size="small" appearance="outline" onClick={() => actions.onNotRight(issue)}>Not right?</Button>
       </div>
       <div className={s.grey} style={{ marginTop: 4 }}>
         The inserted wording carries a supplier-safe comment: no ₹, no internal names, no peer data.
@@ -542,7 +542,7 @@ export function ApproveTab({
                   <>
                     <Button appearance="primary" onClick={() => { onInsertAll(); setGateOpen(false); }}>Insert all agreed wording</Button>
                     <Button onClick={() => { onReview(); setGateOpen(false); }}>Review one by one</Button>
-                    <Button appearance="subtle" onClick={() => setAnyway(true)}>Publish anyway…</Button>
+                    <Button appearance="outline" onClick={() => setAnyway(true)}>Publish anyway…</Button>
                   </>
                 )
               ) : (

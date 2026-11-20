@@ -130,10 +130,12 @@ export function Button({
       {...rest}
       className={cn(
         'inline-flex items-center justify-center gap-1.5 rounded-md font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-45',
+        'shadow-sm active:translate-y-px focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-900',
         size === 'sm' ? 'px-2.5 py-[5px] text-[11.5px]' : 'px-3.5 py-[7px] text-[12.5px]',
         variant === 'primary' && 'bg-teal-900 text-white hover:bg-teal-700',
-        variant === 'outline' && 'border border-line bg-white text-ink hover:border-muted/50 hover:bg-page',
-        variant === 'ghost' && 'text-teal-900 hover:bg-page',
+        // Outline buttons read as buttons: a teal border and text, not a hairline.
+        variant === 'outline' && 'border border-teal-900/45 bg-white font-semibold text-teal-900 hover:border-teal-900 hover:bg-mint/40',
+        variant === 'ghost' && 'border border-teal-900/20 bg-mint/40 font-semibold text-teal-900 shadow-none hover:bg-mint',
         variant === 'danger' && 'bg-danger text-white hover:opacity-90',
         className,
       )}
