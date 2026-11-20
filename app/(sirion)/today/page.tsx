@@ -104,6 +104,10 @@ export default function TodayPage() {
           <div>
             <p className="mb-1 font-semibold text-teal-900">Added by Deal Ledger</p>
             <ul className="list-disc space-y-0.5 pl-5 text-ink">
+              <li>Ledger lens: a marker beside every clause showing whether it matches what was agreed in email, with the source and ₹</li>
+              <li>Edit guard: an edit typed in Word that moves an agreed term is flagged as you type, with the cost and the approval it would need</li>
+              <li>Insert from ledger: the exact agreed wording, next to the Content Library, with a supplier-safe comment</li>
+              <li>Compare with email: each change between rounds tagged “discussed in email”, “not mentioned in email” or “not a tracked change”</li>
               <li>The signing check runs when the clean copy arrives, against what was agreed in email</li>
               <li>Each gap shows the email line it came from and the approval that depends on it</li>
               <li>A ₹ figure on the agreed wording, the fallback and the walk-away</li>

@@ -76,7 +76,7 @@ export const BRIGHTSTAFF: ScriptedDeal = {
   ownerId: 'karan',
   pattern: 'A rate card table that disagrees with the email',
   patternDetail:
-    'The 8% markup cap was agreed in email by the HR head, outside procurement. The signing copy keeps the clause text but the rate card table still says 10%. Sirion reads tables; Deal Ledger compares the table with what was agreed.',
+    'The 8% markup cap was agreed in email by the HR head, outside procurement. The signing copy keeps the clause text but the rate card table still says 10%.',
   emails: [
     { id: 'B1', from: 'sunita.rao@brightstaff.example', fromName: 'Sunita Rao (BrightStaff)', to: 'Karan Malhotra', at: '2026-11-02T11:00:00+05:30', subject: 'BrightStaff contractor agreement 2026–28', body: 'Attached is our draft for the contractor agreement. Rate card in Schedule 2. Sunita', attachment: 'BrightStaff_MSA_v1.docx' },
     { id: 'B2', from: 'karan.malhotra@meridian.example', fromName: 'Karan Malhotra', to: 'Sunita Rao', at: '2026-11-05T15:20:00+05:30', subject: 'RE: BrightStaff contractor agreement 2026–28', body: 'Thanks Sunita. We need the markup capped at 8% over pass-through pay. Revised draft attached. Karan', attachment: 'BrightStaff_MSA_v2.docx' },

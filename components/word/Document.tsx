@@ -102,6 +102,18 @@ export interface TrackedEdit {
   tail?: string;
 }
 
+export interface ClauseMarker {
+  tone: 'ok' | 'warn' | 'risk' | 'muted';
+  title: string;
+}
+
+const MARKER_COLOUR: Record<ClauseMarker['tone'], string> = {
+  ok: '#107C10',
+  warn: '#C19C00',
+  risk: '#C50F1F',
+  muted: '#A0A0A0',
+};
+
 export interface CommentCard {
   clauseNo: string;
   author: string;
@@ -166,12 +178,27 @@ export function WordDocument({
   comments,
   anchorRefs,
   highlightedClause,
+  markers = {},
+  notes = {},
+  editingClause,
+  editText = '',
+  onEditText,
+  onClauseClick,
 }: {
   version: DocVersion;
   edits: TrackedEdit[];
   comments: CommentCard[];
   highlightedClause?: string;
   anchorRefs?: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
+  /** Deal Ledger's gutter marker per clause: matches, differs, waiting. */
+  markers?: Record<string, ClauseMarker>;
+  /** Inline notes under a clause, e.g. the edit guard's warning. */
+  notes?: Record<string, React.ReactNode>;
+  /** The clause being edited in place. */
+  editingClause?: string;
+  editText?: string;
+  onEditText?: (text: string) => void;
+  onClauseClick?: (clauseNo: string) => void;
 }) {
   const s = useStyles();
   const pages = paginate(version.clauses);
@@ -203,14 +230,53 @@ export function WordDocument({
                   ref={(el) => {
                     if (anchorRefs) anchorRefs.current[c.no] = el;
                   }}
+                  onClick={onClauseClick && editingClause !== c.no ? () => onClauseClick(c.no) : undefined}
+                  style={onClauseClick && editingClause !== c.no ? { cursor: 'text' } : undefined}
                 >
                   {edit && <span className={s.changeBar} />}
+                  {markers[c.no] && (
+                    <span
+                      title={markers[c.no].title}
+                      aria-label={markers[c.no].title}
+                      style={{
+                        position: 'absolute',
+                        left: '-52px',
+                        top: '3px',
+                        width: '12px',
+                        height: '12px',
+                        borderRadius: '50%',
+                        backgroundColor: MARKER_COLOUR[markers[c.no].tone],
+                        boxShadow: '0 0 0 2px #fff',
+                      }}
+                    />
+                  )}
                   <div className={s.heading}>
                     {c.no} {c.title}
                   </div>
-                  <div className={comment ? s.anchor : undefined}>
-                    <ClauseBody clause={c} edit={edit} highlighted={highlightedClause === c.no} />
-                  </div>
+                  {editingClause === c.no ? (
+                    <textarea
+                      autoFocus
+                      value={editText}
+                      onChange={(e) => onEditText?.(e.target.value)}
+                      aria-label={`Edit clause ${c.no}`}
+                      style={{
+                        width: '100%',
+                        minHeight: 90,
+                        font: 'inherit',
+                        lineHeight: 1.3,
+                        border: '1px solid #0C5E69',
+                        borderRadius: 2,
+                        padding: 4,
+                        color: AUTHOR_COLOUR,
+                        resize: 'vertical',
+                      }}
+                    />
+                  ) : (
+                    <div className={comment ? s.anchor : undefined}>
+                      <ClauseBody clause={c} edit={edit} highlighted={highlightedClause === c.no} />
+                    </div>
+                  )}
+                  {notes[c.no]}
                   {comment && <aside className={s.commentCard} aria-label="Comment on this clause">
                     <div className={s.commentHead}>
                       <span className={s.commentAvatar}>{comment.initials}</span>
