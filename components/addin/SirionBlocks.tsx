@@ -226,7 +226,7 @@ export function ActionRow({
         >
           {sent('approval') ? 'Sent for approval' : 'Send for approval'}
         </Button>
-        <Link href={`/word/${versionId}`}>
+        <Link href={`/word/${versionId}?from=sirion`}>
           <Button size="small">Open in Word</Button>
         </Link>
       </div>

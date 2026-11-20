@@ -36,6 +36,7 @@ export function SendGuardDialog({
   onSendAnyway,
   showWorkings = true,
   showFallback = true,
+  whyHref,
 }: {
   finding: GuardFinding;
   others: GuardFinding[];
@@ -47,6 +48,8 @@ export function SendGuardDialog({
   /** Business owners see the ₹ figure but, by default, not the cost workings (Privacy and admin). */
   showWorkings?: boolean;
   showFallback?: boolean;
+  /** For people outside procurement: a short explainer of why the check ran. */
+  whyHref?: string;
 }) {
   const [asking, setAsking] = useState(false);
   const [reason, setReason] = useState<SendAnywayReason | null>(null);
@@ -138,6 +141,14 @@ export function SendGuardDialog({
                 )}
                 <p style={{ margin: '10px 0 0', fontSize: 11, color: tokens.colorNeutralForeground3 }}>
                   Checked against the CloudDesk ledger. This warns but never blocks: if the check cannot finish, the email sends as usual.
+                  {whyHref && (
+                    <>
+                      {' '}
+                      <a href={whyHref} target="_blank" rel="noreferrer" style={{ color: tokens.colorBrandForeground1 }}>
+                        Why am I seeing this?
+                      </a>
+                    </>
+                  )}
                 </p>
               </div>
             </DialogContent>

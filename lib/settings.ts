@@ -33,3 +33,8 @@ export const CAPTURE_ADDRESS = 'deals@meridian.example';
 
 // Header-check counter shown on the Threads tab (§8.5).
 export const HEADERS_CHECKED = 186;
+
+/** Deals at or above this value (₹ lakh a year) can be tracked automatically, if the admin turns it on. */
+export const AUTO_TRACK_LAKH = 25;
+/** The mail-enabled security group that limits which mailboxes Deal Ledger may read. */
+export const CONNECTED_GROUP = 'Deal Ledger – connected mailboxes';

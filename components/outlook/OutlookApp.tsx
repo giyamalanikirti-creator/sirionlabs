@@ -20,6 +20,9 @@ import { SwiftShipPane } from '@/components/addin/SwiftShipPane';
 import { SWIFTSHIP_MESSAGES } from '@/lib/demo/moreDeals';
 import { dealIdForMessage } from '@/lib/demo/supplierInbox';
 import { SupplierDealPane } from '@/components/addin/SupplierDealPane';
+import { FirstRunCard, LinkNotice, PREQUEL_CLOCK, prequelDate, SetupGapNotice, TrackCard } from '@/components/addin/ConnectPanes';
+import { Block } from '@/components/addin/SirionBlocks';
+import { CONTRACT_ID } from '@/lib/settings';
 import { useDemo, cachedReaderFor } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { initialLedger, STEP_CLOCK } from '@/lib/demo/steps';
@@ -105,18 +108,37 @@ export function OutlookApp({ person }: { person: Person }) {
   const sentBackAt = useDemo((st) => st.signing.sentBackAt);
   const currentVersion = currentVersionId(clock, sentBackAt);
 
+  /* How it got connected: the prequel on 1 Nov, setup gaps (fail open), and whether CloudDesk is tracked. */
+  const prequel = person === 'ananya' && params.get('prequel') === '1';
+  const viewClock = prequel ? PREQUEL_CLOCK : clock;
+  const setup = useDemo((st) => st.setup);
+  const setupGap = !hydrated
+    ? undefined
+    : !setup.enabled
+      ? ('not_enabled' as const)
+      : !setup.consented
+        ? ('not_consented' as const)
+        : !setup.group
+          ? ('no_group' as const)
+          : !setup.deployed
+            ? ('not_deployed' as const)
+            : undefined;
+  const tracked = useDemo((st) => st.trackedDealIds).includes(cloudDeskDeal.id);
+  const firstRunSeen = useDemo((st) => st.firstRunSeen);
+  const [prequelGotIt, setPrequelGotIt] = useState(false);
+
   const inbox = useMemo(() => [
-    ...inboxFor(person, clock),
-    ...sentMessages.filter((message) => message.mailboxes.includes(person) && message.from !== owner.email),
-  ].sort((a, b) => b.sentAt.localeCompare(a.sentAt)), [person, clock, owner.email, sentMessages]);
+    ...inboxFor(person, viewClock),
+    ...(prequel ? [] : sentMessages.filter((message) => message.mailboxes.includes(person) && message.from !== owner.email)),
+  ].sort((a, b) => b.sentAt.localeCompare(a.sentAt)), [person, viewClock, prequel, owner.email, sentMessages]);
 
   const sent = useMemo(() => {
-    const seeded = sentItemsFor(person, clock);
+    const seeded = sentItemsFor(person, viewClock);
     const extra = sentMessages.filter(
       (m) => m.from.toLowerCase() === owner.email.toLowerCase(),
     );
     return [...extra, ...seeded].sort((a, b) => b.sentAt.localeCompare(a.sentAt));
-  }, [person, clock, sentMessages, owner.email]);
+  }, [person, viewClock, sentMessages, owner.email]);
 
   const list = folder === 'inbox' ? inbox : sent;
   const selected = list.find((message) => message.id === selectedId);
@@ -167,20 +189,22 @@ export function OutlookApp({ person }: { person: Person }) {
       markRead(id);
       return;
     }
-    if (person === 'ananya' && message && threadById(message.threadId)?.dealId === cloudDeskDeal.id) {
+    const live = !prequel && !setupGap && useDemo.getState().trackedDealIds.includes(cloudDeskDeal.id);
+    if (live && person === 'ananya' && message && threadById(message.threadId)?.dealId === cloudDeskDeal.id) {
       // Sirion's plugin files the supplier's draft as the next version on its own; Undo is in the pane.
       const state = useDemo.getState();
       for (const file of message.attachments) {
         if (file.versionId && !state.readMessageIds.includes(id)) state.syncVersion(file.versionId);
       }
       // Same supplier domain, and Rohan names Vikram: link the side thread, with Undo.
-      if (id === 'M12') state.autoLinkThread('T2');
+      // Only when Vikram's mailbox is connected: otherwise the pane says it can't be checked.
+      if (id === 'M12' && state.settings.mailboxes.vikram !== false) state.autoLinkThread('T2');
       // The clean copy has arrived: run the signing check without waiting for a button.
       if (id === 'M14' && !state.signing.checkedAt) state.runSigningCheck();
     }
     if (useDemo.getState().readMessageIds.includes(id)) return;
     markRead(id);
-    if (message && threadById(message.threadId)?.dealId === cloudDeskDeal.id) void runReader([id], id);
+    if (live && message && threadById(message.threadId)?.dealId === cloudDeskDeal.id) void runReader([id], id);
   };
 
   /*
@@ -236,8 +260,8 @@ export function OutlookApp({ person }: { person: Person }) {
 
   /* ---- Compose ---- */
 
-  const replyTo = selected ? (folder === 'sent' ? selected.to : [selected.from]) : [];
-  const replySubject = selected ? `RE: ${selected.subject.replace(/^RE:\s*/i, '')}` : '';
+  const replyTo = draftOpts.to ?? (selected ? (folder === 'sent' ? selected.to : [selected.from]) : []);
+  const replySubject = draftOpts.subject ?? (selected ? `RE: ${selected.subject.replace(/^RE:\s*/i, '')}` : '');
   const [replyAllCc, setReplyAllCc] = useState<string[]>([]);
   const cc = [...new Set([...replyAllCc, ...(ccAdded ? [lead.email] : [])])];
 
@@ -258,7 +282,8 @@ export function OutlookApp({ person }: { person: Person }) {
     const body = bodyOverride ?? draft;
     setChecking(true);
     let result: GuardResult;
-    if (!mailboxOn) {
+    // Fail open: not connected, not deployed or not tracked means the email sends as usual.
+    if (!mailboxOn || setupGap || !tracked) {
       finishSend(body, 'allow');
       return;
     }
@@ -476,7 +501,7 @@ export function OutlookApp({ person }: { person: Person }) {
               messages={list}
               selectedId={selectedId}
               readIds={readIds}
-              clock={clock}
+              clock={viewClock}
               folder={folder}
               onSelect={openMessage}
             />
@@ -517,7 +542,9 @@ export function OutlookApp({ person }: { person: Person }) {
 
             {paneOpen && (
               <PaneFrame width={340} source={cloudDeskContext ? readerSource : undefined} footerHref={cloudDeskContext ? undefined : '/deals'} onClose={() => setPaneOpen(false)}>
-                {!mailboxOn ? (
+                {setupGap ? (
+                  <SetupGapNotice gap={setupGap} />
+                ) : !mailboxOn ? (
                   <p style={{ fontSize: 13 }}>
                     This mailbox is not connected to Deal Ledger, so nothing in it is read and replies are not checked. An admin can
                     connect it under Privacy and admin.
@@ -528,15 +555,46 @@ export function OutlookApp({ person }: { person: Person }) {
                   <SupplierDealPane dealId={dealIdForMessage(selected.id)!} messageId={selected.id} />
                 ) : !cloudDeskContext ? (
                   <p style={{ fontSize: 13 }}>No linked deal for this message.</p>
+                ) : person === 'ananya' && prequel ? (
+                  <>
+                    <Block title="Matched contract" kind="today">
+                      <div style={{ fontSize: 13, fontWeight: 600 }}>{cloudDeskDeal.supplier} MSA</div>
+                      <div style={{ fontSize: 11.5, color: '#707070' }}>
+                        {CONTRACT_ID} · Negotiating · current v1 · matched by sender domain ({cloudDeskDeal.supplierDomain})
+                      </div>
+                    </Block>
+                    {!prequelGotIt && <FirstRunCard onDone={() => setPrequelGotIt(true)} />}
+                    {prequelGotIt && (
+                      <TrackCard
+                        asOf={PREQUEL_CLOCK}
+                        onTracked={(summary) => {
+                          // Jumping to step 0 resets the demo state, so the toast goes after it.
+                          advanceTo(0);
+                          toast(summary);
+                          router.push('/');
+                        }}
+                      />
+                    )}
+                    <p style={{ fontSize: 11.5, color: '#707070' }}>Prequel · {prequelDate}. Nothing is read until the owner says Track.</p>
+                  </>
+                ) : person === 'ananya' && !tracked ? (
+                  <>
+                    {!firstRunSeen && <FirstRunCard />}
+                    <TrackCard asOf={clock} onTracked={(summary) => toast(summary)} />
+                  </>
                 ) : person === 'ananya' ? (
+                  <>
+                  {!firstRunSeen && <FirstRunCard />}
                   <AnanyaPane
                     rows={rows}
                     openMessageId={selected?.id}
                     busy={busy}
                     onDraftReply={(body, opts) => openReply(body, false, opts)}
                   />
+                  </>
                 ) : (
                   <>
+                  <LinkNotice />
                   <VikramPane
                     rows={rows}
                     loopIn={loopIn}
@@ -582,6 +640,7 @@ export function OutlookApp({ person }: { person: Person }) {
           onSendAnyway={onSendAnyway}
           showWorkings={!isOwner || settings.ownersSeeWorkings}
           showFallback={!isOwner || settings.ownersSeeFallbacks}
+          whyHref={isOwner ? '/story#how-it-connects' : undefined}
         />
       )}
     </div>

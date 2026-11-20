@@ -4,6 +4,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, Spinner, Tab, TabList, makeStyles } from '@fluentui/react-components';
 import { CompareTab, DraftTab, STATUS_TEXT, withAgreedWording } from '@/components/addin/WordTabs';
 import { ApproveTab, IssueCard, WordHeader, type IssueActions } from '@/components/addin/WordReview';
+import { WordConnect, type WordConnection } from '@/components/addin/WordConnect';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { guardClauseEdit, lensForVersion, reviewIssues, type ClauseLens, type ReviewIssue } from '@/lib/engines/wordLens';
 import type { LedgerRow } from '@/lib/types';
 import { cloudDeskDeal, personName } from '@/lib/data';
@@ -46,6 +48,15 @@ export function WordApp({ versionId }: { versionId: string }) {
   const checkedAt = useDemo((st) => st.signing.checkedAt);
 
   const [paneOpen, setPaneOpen] = useState(true);
+  /* How this file was recognised: Sirion tag (default), fingerprint offer, or not connected. */
+  const params = useSearchParams();
+  const router = useRouter();
+  const from = params.get('from');
+  const [connection, setConnection] = useState<WordConnection>(from === 'attachment' ? 'suggest' : from === 'unknown' ? 'search' : 'connected');
+  const [connectedBy, setConnectedBy] = useState<'tag' | 'fingerprint' | 'search'>('tag');
+  const setup = useDemo((st) => st.setup);
+  const setupGap = hydrated && !(setup.enabled && setup.consented && setup.group && setup.deployed);
+  const connected = connection === 'connected' && !setupGap;
   const [highlightedClause, setHighlightedClause] = useState<string>();
   const [tab, setTab] = useState<PaneTab>('review');
   const [expanded, setExpanded] = useState<string>();
@@ -71,10 +82,10 @@ export function WordApp({ versionId }: { versionId: string }) {
       setClock(STEP_CLOCK[4]);
       return;
     }
-    // The clean copy has arrived: check it on its own rather than waiting for a button.
-    if (!checkedAt) runSigningCheck();
+    // The clean copy has arrived and is connected: check it on its own rather than waiting for a button.
+    if (!checkedAt && connected) runSigningCheck();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, versionId, clock, checkedAt]);
+  }, [hydrated, versionId, clock, checkedAt, connected]);
 
   useEffect(() => {
     if (versionId === 'v7') anchorRefs.current['9.1']?.scrollIntoView({ block: 'center' });
@@ -365,20 +376,40 @@ export function WordApp({ versionId }: { versionId: string }) {
               comments={comments}
               anchorRefs={anchorRefs}
               highlightedClause={highlightedClause}
-              markers={paneOpen ? markers : {}}
-              notes={paneOpen ? notes : {}}
+              markers={paneOpen && connected ? markers : {}}
+              notes={paneOpen && connected ? notes : {}}
               editingClause={editing}
               editText={editText}
               onEditText={setEditText}
-              onClauseClick={versionId !== 'v7' ? startEdit : undefined}
-              chips={paneOpen ? chips : {}}
+              onClauseClick={versionId !== 'v7' && connected ? startEdit : undefined}
+              chips={paneOpen && connected ? chips : {}}
               onMarkerClick={openIssue}
             />
           </div>
         </div>
         {paneOpen && (
           <PaneFrame width={350} onClose={() => setPaneOpen(false)} footerHref="/deals/D-CLOUDDESK/ledger">
-            {working && <WordHeader version={version} rows={rows} issues={review.issues} matches={review.matches} />}
+            {setupGap ? (
+              <div style={{ fontSize: 13, lineHeight: '19px' }}>
+                <p style={{ marginTop: 0 }}>Sirion for Word is not set up for you yet, so this file is not checked. Word works as usual.</p>
+                <Link href="/setup">Finish setup in Sirion</Link>
+              </div>
+            ) : !connected ? (
+              <WordConnect
+                version={version}
+                state={connection as Exclude<WordConnection, 'connected'>}
+                onState={setConnection}
+                onConnect={(how) => {
+                  setConnection('connected');
+                  setConnectedBy(how);
+                  logEvent(`${version.fileName} connected to ${CONTRACT_ID} as ${version.id} (${how === 'fingerprint' ? 'clause fingerprint' : 'search'}).`);
+                  toast(`Connected to ${CONTRACT_ID} as ${version.id}. Tagged, so it opens connected next time.`);
+                  router.replace(`/word/${versionId}?from=sirion`);
+                }}
+              />
+            ) : (
+            <>
+            {working && <WordHeader version={version} rows={rows} issues={review.issues} matches={review.matches} connectedBy={connectedBy} />}
             <TabList size="small" selectedValue={tab} onTabSelect={(_, d) => setTab(d.value as PaneTab)} style={{ marginBottom: 10 }}>
               <Tab value="review">Review</Tab>
               {versionId !== 'v7' && <Tab value="draft">Draft</Tab>}
@@ -462,6 +493,8 @@ export function WordApp({ versionId }: { versionId: string }) {
                 }}
                 onPublished={onPublished}
               />
+            )}
+            </>
             )}
           </PaneFrame>
         )}

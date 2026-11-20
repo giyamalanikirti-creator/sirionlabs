@@ -142,7 +142,7 @@ export function ReadingPane({
                 key={a.fileName}
                 className={s.attachment}
                 onClick={() => {
-                  if (a.versionId) router.push(`/word/${a.versionId}`);
+                  if (a.versionId) router.push(`/word/${a.versionId}?from=attachment`);
                 }}
                 title={a.versionId ? 'Open in Word' : undefined}
               >

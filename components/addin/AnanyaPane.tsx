@@ -37,6 +37,7 @@ import { CLARIFY_DRAFT, RESPOND_ROUND_DRAFT } from '@/lib/engines/wording';
 import { signingCheck } from '@/lib/engines/signing';
 import { rowHeadlineShare } from '@/lib/engines/playbook';
 import { HEADLINE_SUFFIX } from '@/lib/format';
+import { NotConnectedCard, TrackedBanner, ASK_COPY_DRAFT } from './ConnectPanes';
 import { ActionRow, AiReviewBlock, AttachmentBlock, Block, DealHeaderBlock, MoveBox, OriginTag, PaneHeadlineExplainer } from './SirionBlocks';
 import { formatLakh, formatDateLong, formatDateShort } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
@@ -52,6 +53,9 @@ const CREDIT_5: TermValue = { kind: 'service_credit', pct: 5, uptimeTarget: 99.5
 export interface DraftOptions {
   kind?: 'clarify' | 'respond';
   attachVersionId?: string;
+  /** A new internal email rather than a reply (e.g. asking Vikram to copy deals@). */
+  to?: string[];
+  subject?: string;
 }
 
 export function AnanyaPane({
@@ -84,6 +88,7 @@ export function AnanyaPane({
 
   return (
     <div style={{ position: 'relative' }}>
+      <TrackedBanner />
       {message && <DealHeaderBlock message={message} />}
 
       <div className={s.headline}>
@@ -271,10 +276,21 @@ export function RowMoney({ row }: { row: LedgerRow }) {
 function SideThreadFlow({ rows, onDraftReply }: { rows: LedgerRow[]; onDraftReply: (body: string, opts?: DraftOptions) => void }) {
   const linked = useDemo((st) => st.linkedThreadIds).includes('T2');
   const dismissed = useDemo((st) => st.dismissedThreadIds).includes('T2');
+  const vikramOff = useDemo((st) => st.settings.mailboxes.vikram === false);
   const credit = rows.find((r) => r.id === 'R-credit');
 
   return (
     <>
+      {vikramOff && !linked && !dismissed && (
+        <NotConnectedCard
+          onAskCopy={() =>
+            onDraftReply(ASK_COPY_DRAFT, {
+              to: ['vikram.shah@meridian.example'],
+              subject: 'CloudDesk: please copy deals@ on your uptime thread',
+            })
+          }
+        />
+      )}
       {(linked || dismissed) && <AutoLinkBar />}
       {credit?.state === 'needs_confirmation' && <ConfirmCreditCard row={credit} onDraftReply={onDraftReply} />}
       {credit?.state === 'agreed' && linked && <CreditConfirmedCard row={credit} />}
@@ -518,8 +534,8 @@ function SigningCopyCard({ rows }: { rows: LedgerRow[] }) {
             <p className={s.grey}>v6 reverted payment terms to the 45 days of v3. v4 and v5 said 60.</p>
           )}
           <div className={s.actions}>
-            <Link href="/word/v6">
-              <Button size="small" appearance="primary">{gaps.length ? 'Fix all and send back' : 'Open in Word'}</Button>
+            <Link href="/word/v6?from=sirion" onClick={() => useDemo.getState().syncVersion('v6')}>
+              <Button size="small" appearance="primary">Open signing check in Word</Button>
             </Link>
           </div>
         </>

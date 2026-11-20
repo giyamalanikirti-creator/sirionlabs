@@ -88,11 +88,13 @@ export function WordHeader({
   rows,
   issues,
   matches,
+  connectedBy = 'tag',
 }: {
   version: DocVersion;
   rows: LedgerRow[];
   issues: ReviewIssue[];
   matches: number;
+  connectedBy?: 'tag' | 'fingerprint' | 'search';
 }) {
   const s = usePaneStyles();
   const signedAt = useDemo((st) => st.signedAt);
@@ -114,6 +116,13 @@ export function WordHeader({
         </div>
         <div className={s.grey}>
           {role} · {personName(cloudDeskDeal.ownerId)} · {signedAt ? 'Signed' : 'Negotiating'}
+        </div>
+        <div style={{ fontSize: 11.5, marginTop: 4, color: tokens.colorPaletteGreenForeground1 }}>
+          ● Connected · {cloudDeskDeal.supplier} MSA · {version.id} · Tracked negotiation
+          <span style={{ color: tokens.colorNeutralForeground3 }}>
+            {' '}
+            ({connectedBy === 'tag' ? 'Sirion tag in the file' : connectedBy === 'fingerprint' ? 'matched by clause text, now tagged' : 'chosen by you, now tagged'})
+          </span>
         </div>
       </section>
 

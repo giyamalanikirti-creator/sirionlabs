@@ -1,6 +1,7 @@
 'use client';
 
 import { ArchitectureDiagram } from './ArchitectureDiagram';
+import { ConnectionFlow } from './ConnectionFlow';
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
@@ -79,6 +80,7 @@ export function StoryView({ markdown }: { markdown: string }) {
             <StakeholderMap />
             {after && <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ h2: Heading }}>{after}</ReactMarkdown>}
             <ArchitectureDiagram />
+            <ConnectionFlow />
             {appendix && <details className="mt-8 rounded-lg border border-line p-4">
               <summary className="cursor-pointer font-semibold text-teal-900">Technical appendix and related work</summary>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{appendix}</ReactMarkdown>

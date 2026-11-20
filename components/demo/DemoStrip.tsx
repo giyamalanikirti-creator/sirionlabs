@@ -18,13 +18,15 @@ const SURFACES = [
 export function DemoStrip() {
   const router = useRouter();
   const pathname = usePathname();
-  const message = useSearchParams().get('msg');
+  const search = useSearchParams();
+  const message = search.get('msg');
+  const prequel = search.get('prequel') === '1';
   const hydrated = useHydrated();
   const clock = useDemo((s) => s.clock);
   const completed = useDemo((s) => s.completedSteps);
   const contract = useDemo((s) => s.contract);
   const invoiceReached = useDemo((s) => s.invoiceFastForward);
-  const stage = pathname.startsWith('/outlook/ananya') ? (message === 'M12' ? 2 : message === 'M8' ? 1 : clock >= STEP_CLOCK[2] ? 2 : 1)
+  const stage = prequel ? undefined : pathname.startsWith('/outlook/ananya') ? (message === 'M12' ? 2 : message === 'M8' ? 1 : clock >= STEP_CLOCK[2] ? 2 : 1)
     : pathname.startsWith('/outlook/vikram') ? 3
       : pathname === '/word/v6' ? 4
         : pathname === '/contracts/C-2026-0417' ? 5 : undefined;
@@ -35,7 +37,7 @@ export function DemoStrip() {
   const toast = useDemo((s) => s.toast);
 
   const v6Arrived = hydrated && clock >= STEP_CLOCK[4];
-  const shownClock = hydrated ? clock : STEP_CLOCK[0];
+  const shownClock = prequel ? '2026-11-01T11:30:00+05:30' : hydrated ? clock : STEP_CLOCK[0];
 
   const isActive = (href: string) =>
     href === '/' ? !pathname.startsWith('/outlook') && !pathname.startsWith('/word') : pathname.startsWith(href);
@@ -51,7 +53,7 @@ export function DemoStrip() {
         <div className="flex items-center rounded-md bg-white/10 p-[2px]">
           {SURFACES.map((s) => {
             // Word always opens: the latest draft (v4) before the signing copy arrives, the signing copy (v6) after.
-            const href = s.word ? (v6Arrived ? '/word/v6' : '/word/v4') : s.href;
+            const href = s.word ? (v6Arrived ? '/word/v6?from=sirion' : '/word/v4?from=sirion') : s.href;
             const label = s.word ? (v6Arrived ? 'Word (signing copy)' : 'Word (latest draft)') : s.label;
             const active = isActive(s.href);
             return (
@@ -86,6 +88,17 @@ export function DemoStrip() {
         </button>
         <button
           onClick={() => {
+            useDemo.getState().resetSetup();
+            router.push('/setup');
+            toast('Setup reset. Replay the Microsoft 365 connection.');
+          }}
+          className="flex items-center gap-1.5 rounded px-2 py-[3px] text-[11.5px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+          title="Replay how Deal Ledger was connected"
+        >
+          Reset setup
+        </button>
+        <button
+          onClick={() => {
             reset();
             router.push('/');
             toast('Walkthrough reset.');
@@ -97,6 +110,12 @@ export function DemoStrip() {
         </button>
       </div>
     </div>
+    {hydrated && prequel && (
+      <div className="ds-scope flex min-h-9 shrink-0 items-center gap-3 border-b border-line bg-white px-3 py-1 text-xs text-ink">
+        <span className="whitespace-nowrap font-semibold">Prequel</span>
+        <span className="min-w-0 flex-1 truncate text-muted">1 Nov · how CloudDesk started being tracked. Track lands on step 0 (14 Nov).</span>
+      </div>
+    )}
     {hydrated && current && (
       <div className="ds-scope flex min-h-9 shrink-0 items-center gap-3 border-b border-line bg-white px-3 py-1 text-xs text-ink">
         <span className="whitespace-nowrap font-semibold">Step {current.step} of 5</span>

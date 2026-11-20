@@ -68,9 +68,14 @@ export default function TodayPage() {
         title="Sirion today, and what Deal Ledger adds"
         caption="Start here. Left is Sirion's Outlook plugin as it works today. Right is the same plugin with Deal Ledger on top. New parts are marked."
         right={
-          <Link href="/outlook/ananya?msg=M8" className="rounded-md bg-teal-900 px-4 py-2 text-[12.5px] font-medium text-white">
-            Start the walkthrough
-          </Link>
+          <span className="flex flex-wrap items-center gap-3">
+            <Link href="/setup" className="text-[12.5px] font-medium text-teal-900 underline">
+              See how this was set up ↗
+            </Link>
+            <Link href="/outlook/ananya?msg=M8" className="rounded-md bg-teal-900 px-4 py-2 text-[12.5px] font-medium text-white">
+              Start the walkthrough
+            </Link>
+          </span>
         }
       />
 

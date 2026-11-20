@@ -76,6 +76,18 @@ export const DEFAULT_SETTINGS: AdminSettings = {
   ownersSeeFallbacks: true,
 };
 
+/** Org setup for Microsoft 365 (the /setup checklist). Starts complete in the demo. */
+export interface SetupState {
+  enabled: boolean;
+  consented: boolean;
+  group: boolean;
+  deployed: boolean;
+  /** Auto-track deals above ₹25 lakh a year instead of asking the owner. */
+  autoTrackAbove25: boolean;
+}
+
+export const SETUP_COMPLETE: SetupState = { enabled: true, consented: true, group: true, deployed: true, autoTrackAbove25: false };
+
 export interface ReviewRequest {
   kind: 'review' | 'approval';
   personId: string;
@@ -117,6 +129,17 @@ interface DemoState {
   startedDealIds: string[];
   approvals: ApprovalRequest[];
   settings: AdminSettings;
+  setup: SetupState;
+  /** Ananya has seen "What Deal Ledger reads in your mailbox". */
+  firstRunSeen: boolean;
+  /** Deals whose email is tracked (the owner said Track, or Sirion was set to). */
+  trackedDealIds: string[];
+  /** Suppliers the owner said never to offer tracking for. */
+  neverTrackDomains: string[];
+  /** Vikram has seen that his thread was linked. */
+  linkNoticeSeen: boolean;
+  /** Business owners added to a deal's connected mailboxes, by deal. */
+  dealPeople: Record<string, string[]>;
   disputeEmail?: EmailMessage;
   sentVia?: 'email' | 'portal';
   sentMessages: EmailMessage[];
@@ -168,6 +191,15 @@ interface DemoState {
   addCallTerm: (termKey: TermKey, value: TermValue, withPersonId: string, note: string) => void;
   requestAcceptTheirs: (rowId: string) => void;
   updateSettings: (patch: Partial<AdminSettings>) => void;
+  updateSetup: (patch: Partial<SetupState>) => void;
+  resetSetup: () => void;
+  seeFirstRun: () => void;
+  trackDeal: (dealId: string, people?: string[]) => void;
+  stopTracking: (dealId: string) => void;
+  neverTrack: (domain: string) => void;
+  addPersonToDeal: (dealId: string, personId: string) => void;
+  removePersonFromDeal: (dealId: string, personId: string) => void;
+  seeLinkNotice: () => void;
   sendDispute: (message: EmailMessage) => void;
   flagRow: (rowId: string, docValue: TermValue | null, where: string) => void;
   dismissThread: (threadId: string) => void;
@@ -213,6 +245,12 @@ const BASE = {
   startedDealIds: [] as string[],
   approvals: [] as ApprovalRequest[],
   settings: DEFAULT_SETTINGS,
+  setup: SETUP_COMPLETE,
+  firstRunSeen: true,
+  trackedDealIds: ['D-CLOUDDESK'] as string[],
+  neverTrackDomains: [] as string[],
+  linkNoticeSeen: false,
+  dealPeople: { 'D-CLOUDDESK': ['vikram'] } as Record<string, string[]>,
   disputeEmail: undefined,
   sentVia: undefined,
   sentMessages: [] as EmailMessage[],
@@ -293,6 +331,8 @@ export const useDemo = create<DemoState>()(
           ...BASE,
           sirionRole: get().sirionRole,
           settings: get().settings,
+          setup: get().setup,
+          firstRunSeen: get().firstRunSeen,
           clock: STEP_CLOCK[step],
           ledger: rows,
           completedSteps: completed,
@@ -541,6 +581,55 @@ export const useDemo = create<DemoState>()(
           value: threat.value,
         });
       },
+
+      updateSetup: (patch) =>
+        set((s) => ({
+          setup: { ...s.setup, ...patch },
+          events: [...s.events, { at: s.clock, text: `Setup: ${Object.entries(patch).map(([k, v]) => `${k} ${v ? 'done' : 'off'}`).join(', ')}.` }],
+        })),
+
+      resetSetup: () =>
+        set((s) => ({
+          setup: { enabled: false, consented: false, group: false, deployed: false, autoTrackAbove25: s.setup.autoTrackAbove25 },
+          firstRunSeen: false,
+          events: [...s.events, { at: s.clock, text: 'Setup reset: replaying the Microsoft 365 connection.' }],
+        })),
+
+      seeFirstRun: () => set({ firstRunSeen: true }),
+
+      trackDeal: (dealId, people = []) =>
+        set((s) => ({
+          trackedDealIds: s.trackedDealIds.includes(dealId) ? s.trackedDealIds : [...s.trackedDealIds, dealId],
+          dealPeople: { ...s.dealPeople, [dealId]: [...new Set([...(s.dealPeople[dealId] ?? []), ...people])] },
+          events: [...s.events, { at: s.clock, text: `${dealId}: email tracking started by Ananya Rao${people.length ? `, with ${people.map(personName).join(', ')}` : ''}.` }],
+        })),
+
+      stopTracking: (dealId) =>
+        set((s) => ({
+          trackedDealIds: s.trackedDealIds.filter((id) => id !== dealId),
+          events: [...s.events, { at: s.clock, text: `${dealId}: email tracking stopped. The ledger and its sources are kept.` }],
+        })),
+
+      neverTrack: (domain) =>
+        set((s) => ({
+          neverTrackDomains: [...new Set([...s.neverTrackDomains, domain])],
+          events: [...s.events, { at: s.clock, text: `Never track ${domain}: the owner declined.` }],
+        })),
+
+      addPersonToDeal: (dealId, personId) =>
+        set((s) => ({
+          dealPeople: { ...s.dealPeople, [dealId]: [...new Set([...(s.dealPeople[dealId] ?? []), personId])] },
+          settings: { ...s.settings, mailboxes: { ...s.settings.mailboxes, [personId]: true } },
+          events: [...s.events, { at: s.clock, text: `${personName(personId)} added to ${dealId}: only their threads with this supplier are read.` }],
+        })),
+
+      removePersonFromDeal: (dealId, personId) =>
+        set((s) => ({
+          dealPeople: { ...s.dealPeople, [dealId]: (s.dealPeople[dealId] ?? []).filter((p) => p !== personId) },
+          events: [...s.events, { at: s.clock, text: `${personName(personId)} removed from ${dealId}: their mailbox is no longer read for this supplier.` }],
+        })),
+
+      seeLinkNotice: () => set({ linkNoticeSeen: true }),
 
       updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
 
