@@ -66,6 +66,11 @@ check('step 1 · reminder and deadline shown', /Last day to give notice.*Interna
 await p.evaluate(() => [...document.querySelectorAll('summary')].find((node) => node.textContent === 'Try your own email').click());
 await click('Replay example');
 check('step 1 · reader replay names its evidence and condition', /Replayed extraction.*Exact quote.*Condition.*Uncertainty/s.test(await text()));
+await click('Reply all');
+const replyAll = await p.waitForSelector('textarea[placeholder="Type your reply"]');
+const recipients = await replyAll.evaluate((editor) => editor.closest('section').innerText);
+check('Outlook · Reply all includes the sender and original Cc', recipients.includes('rohan.iyer@clouddesk.example') && recipients.includes('priya.nair@clouddesk.example'));
+await click('Discard');
 
 // Step 2
 await click('Next · Resolve side thread'); await w(2300);

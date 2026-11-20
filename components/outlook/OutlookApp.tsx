@@ -352,6 +352,7 @@ export function OutlookApp({ person }: { person: Person }) {
         <div className={chrome.main}>
           <OutlookRibbon
             onReply={() => openReply()}
+            onReplyAll={() => openReply('', true)}
             onApps={() => setPaneOpen((v) => !v)}
             appsActive={paneOpen}
             replyDisabled={!selected || composing}

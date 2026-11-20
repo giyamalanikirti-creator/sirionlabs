@@ -253,11 +253,13 @@ export function OutlookRail() {
 
 export function OutlookRibbon({
   onReply,
+  onReplyAll,
   onApps,
   appsActive,
   replyDisabled,
 }: {
   onReply: () => void;
+  onReplyAll: () => void;
   onApps: () => void;
   appsActive: boolean;
   replyDisabled: boolean;
@@ -271,7 +273,7 @@ export function OutlookRibbon({
         <span className={s.ribbonTab}>Help</span>
       </div>
       <div className={s.commandBar}>
-        <Button appearance="primary" size="small" icon={<ChevronDownRegular />} iconPosition="after">
+        <Button appearance="primary" size="small" icon={<ChevronDownRegular />} iconPosition="after" disabled>
           New mail
         </Button>
         <Button appearance="subtle" size="small" icon={<DeleteRegular />} disabled>
@@ -292,10 +294,10 @@ export function OutlookRibbon({
         >
           Reply
         </Button>
-        <Button appearance="subtle" size="small" icon={<ArrowReplyAllRegular />} disabled={replyDisabled}>
+        <Button appearance="subtle" size="small" icon={<ArrowReplyAllRegular />} onClick={onReplyAll} disabled={replyDisabled}>
           Reply all
         </Button>
-        <Button appearance="subtle" size="small" icon={<ArrowForwardRegular />} disabled={replyDisabled}>
+        <Button appearance="subtle" size="small" icon={<ArrowForwardRegular />} disabled>
           Forward
         </Button>
         <Button appearance="subtle" size="small" icon={<MailUnreadRegular />} disabled>
