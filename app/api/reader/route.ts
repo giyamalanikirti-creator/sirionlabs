@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { forcedToolCall, MODEL_SMART, fixturesOnly } from '@/lib/server/anthropic';
+import { callModelTool, MODEL_SMART, fixturesOnly } from '@/lib/server/anthropic';
 import { PROPOSE_LEDGER_UPDATES_SCHEMA, readerOutputSchema, readerRequestSchema } from '@/lib/server/schemas';
 import { READER_SYSTEM, readerUserContent } from '@/lib/server/prompts';
 import { diffBlock, ledgerSnapshot, messagesBlock, peopleDirectory } from '@/lib/server/context';
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Bad request', detail: parsed.error.format() }, { status: 400 });
   }
 
-  const { messageIds } = parsed.data;
+  const { messageIds, linkedThreadIds } = parsed.data;
   if (messageIds.length > READER_MAX_MESSAGES) {
     return NextResponse.json({ error: 'Too many messages' }, { status: 400 });
   }
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     const thread = threadById(m.threadId);
     const threadHeaders = messages.filter((x) => x.threadId === m.threadId).map(toHeader);
     const match = matchThread(threadHeaders, deals, versions);
-    const linked = Boolean(thread?.dealId) || match.strength !== 'none';
+    const linked = Boolean(thread?.dealId) || (match.strength !== 'none' && linkedThreadIds.includes(m.threadId));
     if (!linked) {
       return NextResponse.json(
         {
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
 
   const rows: LedgerRow[] = initialLedger();
 
-  const result = await forcedToolCall({
+  const result = await callModelTool({
     model: MODEL_SMART,
     system: READER_SYSTEM,
     userContent: readerUserContent({

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Bell, Check, FileText, Repeat } from 'lucide-react';
 import {
@@ -19,6 +19,7 @@ import { useDemo } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { useLedger } from '@/lib/useDeal';
 import { cloudDeskDeal, personName, versions } from '@/lib/data';
+import { approverFor } from '@/lib/engines/sendDialog';
 import { checkInvoice } from '@/lib/engines/invoices';
 import { formatDateLong, formatInr, formatLakh } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
@@ -26,6 +27,12 @@ import { CONTRACT_ID } from '@/lib/settings';
 
 export function ContractRecord({ initialTab = 'overview' }: { initialTab?: string }) {
   const [tab, setTab] = useState(initialTab);
+  const top = useRef<HTMLDivElement>(null);
+  const changeTab = (id: string) => {
+    setTab(id);
+    requestAnimationFrame(() => top.current?.scrollIntoView({ block: 'start' }));
+  };
+  const [showInvoiceHistory, setShowInvoiceHistory] = useState(false);
   const hydrated = useHydrated();
   const { rows } = useLedger();
   const contract = useDemo((s) => s.contract);
@@ -41,19 +48,19 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
     return (
       <SirionCard title="CloudDesk helpdesk subscription">
         <EmptyState
-          title="This contract has not been handed over yet"
-          body="Once the signing copy matches what was agreed and CloudDesk signs, the agreed terms become obligations and invoice rules here, each linked back to its clause and its email."
+          title={signedAt ? 'Returned copy verified and signed' : signing.sentBackAt ? 'CloudDesk returned the corrected signing copy' : 'The signing copy is still under review'}
+          body={signedAt ? 'The signed clauses have been checked against the ledger. Save the contract to create its obligations and invoice rules.' : signing.sentBackAt ? `CloudDesk accepted ${signing.inserted.length} submitted corrections. Verify the returned copy before signing.` : 'Resolve or record a waiver for each discrepancy in Word, then send the reviewed copy to CloudDesk.'}
         />
         <div className="mt-4 flex gap-2">
-          {!signedAt && (
+          {!signedAt && signing.sentBackAt && (
             <Button
               variant="primary"
               onClick={() => {
                 sign();
-                toast('CloudDesk accepted the changes and signed (21 Nov).');
+                if (useDemo.getState().signedAt) toast('Returned v7 checked and signed.');
               }}
             >
-              Fast-forward: CloudDesk signs
+              Verify returned copy and sign
             </Button>
           )}
           {signedAt && (
@@ -67,8 +74,8 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
               Save to Sirion
             </Button>
           )}
-          <Link href="/deals/D-CLOUDDESK">
-            <Button>Back to the deal</Button>
+          <Link href={signing.sentBackAt ? '/deals/D-CLOUDDESK' : '/word/v6'}>
+            <Button>{signing.sentBackAt ? 'Back to the deal' : 'Review signing copy in Word'}</Button>
           </Link>
         </div>
       </SirionCard>
@@ -77,6 +84,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
 
   return (
     <>
+      <div ref={top} />
       <SirionCard className="mb-4" bodyClassName="px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div>
@@ -104,7 +112,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
 
       <Tabs
         active={tab}
-        onChange={setTab}
+        onChange={changeTab}
         tabs={[
           { id: 'overview', label: 'Overview' },
           { id: 'terms', label: 'Agreed terms' },
@@ -191,7 +199,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
                   <SourceChip source={r.source} />
                 </Td>
                 <Td className="text-[12px] text-muted">
-                  {r.approvedBy ? personName(r.approvedBy.personId) : '—'}
+                  {r.termKey === 'price' ? (approverFor(rows, r.termKey) ? `${approverFor(rows, r.termKey)} · if pricing stays fixed` : '—') : r.approvedBy ? personName(r.approvedBy.personId) : '—'}
                 </Td>
               </tr>
             ))}
@@ -209,6 +217,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
         bodyClassName="px-0 pb-0 pt-0"
       >
         <div className="divide-y divide-line">
+          <div className="px-6 py-4 text-sm">Contract end · <strong>{formatDateLong(contract!.endDate)}</strong></div>
           {contract!.obligations.map((o) => (
             <div key={o.id} className="flex flex-wrap items-start gap-x-6 gap-y-3 px-6 py-4">
               <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-page text-teal-900">
@@ -233,12 +242,12 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
               <div className="w-44 shrink-0">
                 {o.due && (
                   <p className="text-[12.5px] text-ink">
-                    Due <strong className="font-medium">{formatDateLong(o.due)}</strong>
+                    {o.reminder ? 'Last day to give notice' : 'Due'} <strong className="font-medium">{formatDateLong(o.due)}</strong>
                   </p>
                 )}
                 {o.reminder && (
                   <p className="mt-0.5 text-[12px] text-muted">
-                    Reminder {formatDateLong(o.reminder)}
+                    Internal reminder · {formatDateLong(o.reminder)} · 45 days before notice is due
                   </p>
                 )}
                 {o.recurring && <p className="text-[12.5px] capitalize text-ink">{o.recurring}</p>}
@@ -246,6 +255,9 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
               <div className="w-36 shrink-0 text-[12.5px] text-muted">{o.owner}</div>
             </div>
           ))}
+        </div>
+        <div className="px-6 py-4">
+          <Button variant="primary" onClick={() => { useDemo.getState().fastForwardInvoice(); changeTab('invoices'); }}>Next · See December invoice</Button>
         </div>
       </SirionCard>
     );
@@ -259,9 +271,11 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
     const resolved = useDemo((s) => s.invoiceResolved);
     const raiseDispute = useDemo((s) => s.raiseDispute);
     const resolveInvoice = useDemo((s) => s.resolveInvoice);
+    const exceptions = invoices.filter((invoice) => checkInvoice(invoice, contract!.rules).length > 0);
 
     return (
       <div className="space-y-4">
+        {isFastForwarded && <InvoiceFlag {...{ disputeRaised, resolved, raiseDispute, resolveInvoice }} />}
         <SirionCard title="Invoice rules" caption="Built from the agreed terms at handover">
           <div className="space-y-3">
             {contract!.rules.map((r) => (
@@ -294,8 +308,8 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
         </SirionCard>
 
         <SirionCard
-          title="Invoices"
-          caption="Checked against the rules above"
+          title={showInvoiceHistory ? "Invoice history" : `Exceptions (${exceptions.length})`}
+          caption="Checked against the signed invoice rules"
           bodyClassName="px-0 pb-0 pt-0"
           right={
             !isFastForwarded ? (
@@ -309,7 +323,11 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
               >
                 Fast-forward to Dec 2027
               </Button>
-            ) : undefined
+            ) : (
+              <Button size="sm" onClick={() => setShowInvoiceHistory(!showInvoiceHistory)}>
+                {showInvoiceHistory ? 'Show exceptions' : 'Expand invoice history'}
+              </Button>
+            )
           }
         >
           <Table>
@@ -323,7 +341,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
               </tr>
             </thead>
             <tbody>
-              {invoices.map((inv) => {
+              {(showInvoiceHistory ? invoices : exceptions).map((inv) => {
                 const flags = checkInvoice(inv, contract!.rules);
                 const over = flags.find((f) => f.kind === 'over_agreed_price');
                 return (
@@ -352,7 +370,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
             </tbody>
           </Table>
 
-          {isFastForwarded && <InvoiceFlag {...{ disputeRaised, resolved, raiseDispute, resolveInvoice }} />}
+          {exceptions.length === 0 && !showInvoiceHistory && <p className="p-5 text-sm text-muted">No invoice exceptions yet.</p>}
         </SirionCard>
       </div>
     );
@@ -380,8 +398,9 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
       <div className="m-5 rounded-xl border border-danger/30 bg-danger/[0.04] p-5">
         <p className="flex items-center gap-2 text-[14px] font-semibold text-danger">
           <AlertTriangle size={16} />
-          {formatInr(over.overInr!)} above the agreed price.
+          December invoice is {formatInr(over.overInr!)} above the signed price.
         </p>
+        <p className="mt-2 text-sm font-medium">Billed {formatInr(inv.amountInr)} · Agreed {formatInr(over.expectedInr!)}</p>
         <p className="mt-2 max-w-3xl text-[13px] leading-[20px] text-ink">
           Clause {over.clauseNo} of the signed contract fixes the price at{' '}
           {formatInr(over.expectedInr!)} a month until {formatDateLong(contract!.endDate)}.
@@ -424,8 +443,8 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
       {
         id: 'v7',
         name: 'CloudDesk_MSA_v7.docx',
-        who: 'Meridian Foods',
-        at: signing.sentBackAt ?? signedAt ?? '2026-11-21T12:00:00+05:30',
+        who: 'CloudDesk',
+        at: signedAt ?? '2026-11-21T12:00:00+05:30',
         signed: true,
       },
     ];
@@ -447,7 +466,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
                 <Td>
                   <span className="flex items-center gap-2">
                     <FileText size={14} className="shrink-0 text-muted" />
-                    <span className="font-medium">{d.name}</span>
+                    <Link href={`/word/${d.id}`} className="font-medium text-teal-900 hover:underline">{d.name}</Link>
                   </span>
                 </Td>
                 <Td className="text-muted">{d.id}</Td>

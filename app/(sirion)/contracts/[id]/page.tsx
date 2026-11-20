@@ -6,7 +6,7 @@ import { ContractRecord } from '@/components/contract/ContractRecord';
 
 function Inner() {
   const params = useSearchParams();
-  return <ContractRecord initialTab={params.get('tab') ?? 'overview'} />;
+  return <ContractRecord key={params.get('tab')} initialTab={params.get('tab') ?? 'overview'} />;
 }
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {

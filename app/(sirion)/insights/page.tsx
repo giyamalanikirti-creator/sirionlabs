@@ -3,8 +3,8 @@
 import { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { EmptyState, PageHeader, SirionCard } from '@/components/sirion/ui';
-import { GuardrailLine, TrendBarsLine } from '@/components/sirion/charts';
-import { guardrails, kpiHistory, sendWarnings } from '@/lib/data';
+import { GuardrailLine, StackedBars, TrendBarsLine } from '@/components/sirion/charts';
+import { guardrails, kpiHistory, sendWarnings, signingGapsData } from '@/lib/data';
 import { useDemo } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import {
@@ -36,6 +36,23 @@ export default function InsightsPage() {
   const outcomes = useDemo((s) => s.sendOutcomes);
   const data = evalResults as EvalFile;
 
+  // Short axis labels so five categories fit without colliding.
+  const SHORT: Record<string, string> = {
+    'Renewal notice': 'Renewal',
+    'Service credits': 'Credits',
+  };
+  const gapsData = signingGapsData.byTerm.map((t) => ({
+    name: SHORT[t.term] ?? t.term,
+    fixed: t.fixed,
+    waived: t.waived,
+  }));
+
+  const warningsData = sendWarnings.months.map((m, i) => ({
+    name: m,
+    shown: sendWarnings.shown[i],
+    looped: Math.round(sendWarnings.loopedInShare[i] * 100),
+  }));
+
   const sendAnywayData = sendWarnings.months.map((m, i) => ({
     name: m,
     shown: sendWarnings.shown[i],
@@ -60,6 +77,8 @@ export default function InsightsPage() {
   const liveSendAnyway = hydrated
     ? outcomes.filter((o) => o.choice === 'send_anyway').length
     : 0;
+  const ratedWarnings = hydrated ? outcomes.filter((outcome) => outcome.decision === 'warn' && outcome.actionable !== undefined) : [];
+  const actionableWarnings = ratedWarnings.filter((outcome) => outcome.actionable).length;
   const liveWarnings = hydrated ? outcomes.filter((o) => o.decision === 'warn').length : 0;
 
   return (
@@ -71,6 +90,28 @@ export default function InsightsPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <ReaderAccuracy data={data} />
+        <SirionCard title="Gaps caught at signing" caption={signingGapsData.window} sample>
+          <StackedBars
+            data={gapsData}
+            keys={[
+              { key: 'fixed', label: 'Fixed before signing' },
+              { key: 'waived', label: 'Waived with a reason' },
+            ]}
+            height={262}
+          />
+        </SirionCard>
+
+        <SirionCard title="Send warnings" caption="Shown, and how often procurement was looped in" sample>
+          <TrendBarsLine
+            data={warningsData}
+            barKey="shown"
+            barLabel="Warnings shown"
+            lineKey="looped"
+            lineLabel="Looped in procurement"
+            height={262}
+          />
+        </SirionCard>
+
 
         <SirionCard
           title="Send Anyway rate"
@@ -91,6 +132,11 @@ export default function InsightsPage() {
               This session: {liveSendAnyway} of {liveWarnings} warnings sent anyway.
             </p>
           )}
+        </SirionCard>
+
+        <SirionCard title="Warnings reviewers judged actionable" caption="Feedback is collected after reviewing the warning.">
+          <p className="text-2xl font-semibold text-teal-900">{ratedWarnings.length ? `${Math.round(actionableWarnings / ratedWarnings.length * 100)}%` : '—'}</p>
+          <p className="mt-1 text-sm text-muted">{ratedWarnings.length ? `${actionableWarnings} of ${ratedWarnings.length} rated warnings in this session` : 'No warnings rated in this session.'}</p>
         </SirionCard>
 
         <SirionCard
@@ -138,7 +184,7 @@ export default function InsightsPage() {
           <p className="mt-1 text-[11.5px] leading-[17px] text-muted">
             Measured by sampling the email trail of signed contracts and checking whether any term
             agreed there is missing from the signed copy. The audit is done by people, not by this
-            tool, so the metric cannot grade itself.
+            tool, so missed extractions count as failures. Report authorised waivers separately. Track time to signature and the share of warnings reviewers judge actionable alongside this measure.
           </p>
         </SirionCard>
       </div>
@@ -153,8 +199,8 @@ function ReaderAccuracy({ data }: { data: EvalFile }) {
     return (
       <SirionCard title="Reader accuracy">
         <EmptyState
-          title="Not run yet"
-          body="Run `npm run eval:reader` with an API key to score the reader against the 32-item test set. The result is written to data/reader_eval_results.json and shown here."
+          title="Accuracy results pending"
+          body="The 32-example live reader assessment has no published score yet."
         />
       </SirionCard>
     );

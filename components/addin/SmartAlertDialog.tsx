@@ -8,6 +8,7 @@
  * whose three buttons are the Take Action button (our own label, ≤ 20 chars),
  * Don't Send, and Send Anyway.
  */
+import { useEffect, useRef } from 'react';
 import {
   Button,
   Dialog,
@@ -46,6 +47,7 @@ export function ProgressDialog({ open }: { open: boolean }) {
 export function SmartAlertDialog({
   open,
   markdown,
+  title,
   takeActionLabel,
   source,
   onTakeAction,
@@ -54,12 +56,20 @@ export function SmartAlertDialog({
 }: {
   open: boolean;
   markdown: string;
+  title: string;
   takeActionLabel: string;
   source: AiSource;
   onTakeAction: () => void;
   onDontSend: () => void;
-  onSendAnyway: () => void;
+  onSendAnyway?: () => void;
 }) {
+  const reviewButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!open) return;
+    const frame = requestAnimationFrame(() => reviewButton.current?.focus());
+    return () => cancelAnimationFrame(frame);
+  }, [open]);
+
   return (
     <Dialog open={open} modalType="alert">
       <DialogSurface style={{ maxWidth: 480 }}>
@@ -68,7 +78,7 @@ export function SmartAlertDialog({
             <DialogTitle>
               <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                 <Mark size={18} tone="dark" />
-                <span style={{ fontSize: 16 }}>Deal Ledger</span>
+                <span style={{ fontSize: 16 }}>{title}</span>
               </span>
             </DialogTitle>
             <DialogContent>
@@ -87,19 +97,20 @@ export function SmartAlertDialog({
                 </ReactMarkdown>
               </div>
               <div style={{ marginTop: 6 }}>
-                <AiBadge source={source} />
+                {source !== 'rules' && <AiBadge source={source} />}
               </div>
+
             </DialogContent>
             <DialogActions>
-              <Button appearance="subtle" onClick={onSendAnyway}>
-                Send Anyway
+              <Button appearance="primary" onClick={onTakeAction} ref={reviewButton}>
+                {takeActionLabel}
               </Button>
               <Button appearance="secondary" onClick={onDontSend}>
                 Don&apos;t Send
               </Button>
-              <Button appearance="primary" onClick={onTakeAction}>
-                {takeActionLabel}
-              </Button>
+              {onSendAnyway && <Button appearance="subtle" onClick={onSendAnyway}>
+                Send Anyway
+              </Button>}
             </DialogActions>
           </DialogBody>
         </FluentProvider>

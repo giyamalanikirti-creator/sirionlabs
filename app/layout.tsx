@@ -11,7 +11,7 @@ import { DemoChrome } from '@/components/demo/DemoChrome';
 export const metadata: Metadata = {
   title: 'Deal Ledger',
   description:
-    'One source-linked record of what has actually been agreed with a supplier. Student prototype for the Sirion ISB assignment.',
+    'One source-linked record of what has actually been agreed with a supplier.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

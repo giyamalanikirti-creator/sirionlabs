@@ -110,11 +110,12 @@ export function buildDialog(
   const costPhrase =
     tag.costLakhPerYr === null
       ? 'has no ₹ figure: this is a Legal-owned term'
-      : `would cost about **${formatLakh(tag.costLakhPerYr)} a year**${
+      : `would cost about **${formatLakh(tag.costLakhPerYr)} ${termKey === 'renewal_notice' ? 'expected at the next renewal' : 'a year on average'}**${
           tag.overTermLakh ? ` (${formatLakh(tag.overTermLakh)} over the term)` : ''
         }, based on ${basisPlain(termKey, tag.n)}`;
 
-  const head = `**This changes a term already agreed with ${deal.supplier}.**`;
+  const title = termKey === 'price' ? 'This reply would reopen fixed pricing.' : `This reply would reopen ${row.label.toLowerCase()}.`;
+  const head = termKey === 'price' && approver ? `**CFO approval from ${approver} depends on fixed pricing.**` : `**CloudDesk already agreed this term.**`;
   const body = `${DIALOG_LABELS[termKey]} is ${agreed} (${sourceText}${
     approver ? `, approved by ${approver}` : ''
   }). ${change} ${costPhrase}.`;
@@ -129,7 +130,7 @@ export function buildDialog(
   }
 
   return {
-    title: 'Deal Ledger',
+    title,
     markdown,
     plain: markdown.replace(/\*\*/g, ''),
     takeActionLabel: TAKE_ACTION_LABEL,

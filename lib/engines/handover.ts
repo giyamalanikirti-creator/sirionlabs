@@ -2,6 +2,8 @@
 import type { Deal, DocVersion, Invoice, InvoiceRule, LedgerRow, Obligation } from '@/lib/types';
 import { CONTRACT_ID } from '@/lib/settings';
 import { rowForTerm } from './ledger';
+import { extractValue } from './diff';
+import type { TermKey } from '@/lib/types';
 import { formatInr } from '@/lib/format';
 
 const DAY = 86400000;
@@ -35,17 +37,22 @@ export function handover(
   deal: Deal,
 ): ContractRecord {
   const end = termEnd(deal);
-  const notice = rowForTerm(rows, 'renewal_notice');
-  const payment = rowForTerm(rows, 'payment');
-  const credit = rowForTerm(rows, 'service_credit');
-  const exit = rowForTerm(rows, 'exit_support');
+  const signedValue = (key: TermKey) => {
+    const row = rowForTerm(rows, key);
+    const clause = signedVersion.clauses.find((item) => item.termKey === key);
+    return row?.signing === 'waived' && clause ? extractValue(clause) : row?.position;
+  };
+  const notice = signedValue('renewal_notice');
+  const payment = signedValue('payment');
+  const credit = signedValue('service_credit');
+  const exit = signedValue('exit_support');
+  const price = signedValue('price');
 
-  const noticeDays = notice?.position.kind === 'renewal_notice' ? notice.position.days : 30;
-  const paymentDays = payment?.position.kind === 'payment' ? payment.position.days : 60;
-  const creditPct = credit?.position.kind === 'service_credit' ? credit.position.pct : 10;
-  const uptimeTarget =
-    credit?.position.kind === 'service_credit' ? credit.position.uptimeTarget : 99.5;
-  const exitDays = exit?.position.kind === 'exit_support' ? exit.position.days : 30;
+  const noticeDays = notice?.kind === 'renewal_notice' ? notice.days : 30;
+  const paymentDays = payment?.kind === 'payment' ? payment.days : 60;
+  const creditPct = credit?.kind === 'service_credit' ? credit.pct : 10;
+  const uptimeTarget = credit?.kind === 'service_credit' ? credit.uptimeTarget : 99.5;
+  const exitDays = exit?.kind === 'exit_support' ? exit.days : 30;
 
   const noticeDeadline = minusDays(end, noticeDays);
   const monthlyFee = Math.round(deal.annualFeeInr / 12);
@@ -124,7 +131,7 @@ export function handover(
     endDate: end,
     annualFeeInr: deal.annualFeeInr,
     obligations,
-    rules,
+    rules: price?.kind === 'price' && price.wording !== 'fixed' ? rules.filter((rule) => rule.kind !== 'fixed_monthly') : rules,
     signedVersionId: signedVersion.id,
   };
 }
@@ -132,7 +139,7 @@ export function handover(
 /** Monthly invoices for the first contract year, all at the agreed price. */
 export function demoInvoices(record: ContractRecord): Invoice[] {
   const fixed = record.rules.find((r) => r.kind === 'fixed_monthly');
-  const amount = fixed?.amountInr ?? 0;
+  const amount = fixed?.amountInr ?? Math.round(record.annualFeeInr / 12);
   const out: Invoice[] = [];
   let y = 2026;
   let m = 12;

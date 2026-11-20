@@ -3,12 +3,13 @@
 /** Our add-in pane, Sirion teal inside Microsoft chrome — BUILD_SPEC §4D. */
 import {
   Badge,
+  Button,
   FluentProvider,
   makeStyles,
   shorthands,
   tokens,
 } from '@fluentui/react-components';
-import { DismissRegular, PinRegular } from '@fluentui/react-icons';
+import { DismissRegular } from '@fluentui/react-icons';
 import Link from 'next/link';
 import { Mark } from '@/components/sirion/Mark';
 import { dealLedgerTheme } from '@/lib/fluentTheme';
@@ -34,17 +35,6 @@ const useStyles = makeStyles({
     ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2),
   },
   name: { fontSize: '13.5px', fontWeight: tokens.fontWeightSemibold, flexGrow: 1 },
-  icon: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '26px',
-    height: '26px',
-    ...shorthands.borderRadius('4px'),
-    color: tokens.colorNeutralForeground3,
-    cursor: 'pointer',
-    ':hover': { backgroundColor: tokens.colorNeutralBackground1Hover },
-  },
   body: { flexGrow: 1, overflowY: 'auto', ...shorthands.padding('12px') },
   footer: {
     display: 'flex',
@@ -67,7 +57,7 @@ const useStyles = makeStyles({
 
 export const AI_BADGE_LABEL: Record<AiSource, string> = {
   live: 'AI: live',
-  cached: 'AI: cached',
+  cached: 'Saved example',
   rules: 'Checked by rules',
 };
 
@@ -81,7 +71,7 @@ export function AiBadge({ source }: { source: AiSource }) {
         source === 'live'
           ? 'This card was built from a live model call, validated against the email text.'
           : source === 'cached'
-            ? 'No API key, or demo mode is cached. This card comes from a stored fixture.'
+            ? 'This result comes from a saved example.'
             : 'The model was unavailable, so this was checked by rules instead.'
       }
     >
@@ -110,17 +100,12 @@ export function PaneFrame({
         <header className={s.header}>
           <Mark size={20} tone="dark" />
           <span className={s.name}>Deal Ledger</span>
-          <span className={s.icon} title="Pin the pane open">
-            <PinRegular fontSize={15} />
-          </span>
-          <span className={s.icon} onClick={onClose} title="Close">
-            <DismissRegular fontSize={15} />
-          </span>
+          {onClose && <Button size="small" appearance="subtle" icon={<DismissRegular />} onClick={onClose} aria-label="Close Deal Ledger" />}
         </header>
         <div className={s.body}>{children}</div>
         <footer className={s.footer}>
           <Link href={footerHref} className={s.link}>
-            Open full ledger in Sirion ↗
+            {footerHref === '/deals' ? 'Browse deals ↗' : 'Open full ledger in Sirion ↗'}
           </Link>
           {source && <AiBadge source={source} />}
         </footer>

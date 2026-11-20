@@ -24,13 +24,14 @@ const useStyles = makeStyles({
   pane: { flexGrow: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' },
   inner: { ...shorthands.padding('20px'), maxWidth: '920px' },
   subjectRow: {
+    flexWrap: 'wrap',
     display: 'flex',
     alignItems: 'flex-start',
     justifyContent: 'space-between',
     columnGap: '16px',
   },
   subject: { fontSize: '20px', fontWeight: tokens.fontWeightSemibold, lineHeight: '26px' },
-  actions: { display: 'flex', alignItems: 'center', columnGap: '2px', flexShrink: 0 },
+  actions: { display: 'flex', flexWrap: 'wrap', alignItems: 'center', columnGap: '2px', flexShrink: 0 },
   senderBlock: { display: 'flex', columnGap: '12px', marginTop: '18px' },
   senderBody: { flexGrow: 1, minWidth: 0 },
   senderRow: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', columnGap: '12px' },
@@ -68,16 +69,6 @@ const useStyles = makeStyles({
     color: tokens.colorNeutralForeground1,
     whiteSpace: 'pre-wrap',
   },
-  quoted: {
-    marginTop: '18px',
-    fontSize: '13px',
-    color: tokens.colorNeutralForeground3,
-    cursor: 'pointer',
-    display: 'inline-flex',
-    ...shorthands.padding('2px', '10px'),
-    ...shorthands.borderRadius('10px'),
-    backgroundColor: tokens.colorNeutralBackground3,
-  },
   empty: {
     display: 'flex',
     flexGrow: 1,
@@ -91,11 +82,11 @@ const useStyles = makeStyles({
 export function ReadingPane({
   message,
   onReply,
-  showHistory,
+  onReplyAll,
 }: {
   message?: EmailMessage;
   onReply: () => void;
-  showHistory?: boolean;
+  onReplyAll: () => void;
 }) {
   const s = useStyles();
   const router = useRouter();
@@ -119,13 +110,13 @@ export function ReadingPane({
             <Button appearance="subtle" size="small" icon={<ArrowReplyRegular />} onClick={onReply}>
               Reply
             </Button>
-            <Button appearance="subtle" size="small" icon={<ArrowReplyAllRegular />} onClick={onReply}>
+            <Button appearance="subtle" size="small" icon={<ArrowReplyAllRegular />} onClick={onReplyAll}>
               Reply all
             </Button>
-            <Button appearance="subtle" size="small" icon={<ArrowForwardRegular />}>
+            <Button appearance="subtle" size="small" icon={<ArrowForwardRegular />} disabled>
               Forward
             </Button>
-            <Button appearance="subtle" size="small" icon={<MoreHorizontalRegular />} />
+            <Button appearance="subtle" size="small" icon={<MoreHorizontalRegular />} aria-label="More actions" disabled />
           </div>
         </div>
 
@@ -168,7 +159,6 @@ export function ReadingPane({
 
         <div className={s.bodyText}>{message.body}</div>
 
-        {showHistory && <div className={s.quoted}>…</div>}
       </div>
     </section>
   );

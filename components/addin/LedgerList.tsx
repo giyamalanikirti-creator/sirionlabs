@@ -2,7 +2,7 @@
 
 import { Badge, tokens } from '@fluentui/react-components';
 import type { LedgerRow, RowState } from '@/lib/types';
-import { cloudDeskDeal } from '@/lib/data';
+import { cloudDeskDeal, personName } from '@/lib/data';
 import { rowAtRisk } from '@/lib/engines/atRisk';
 import { formatLakh } from '@/lib/format';
 import { plainValue, STATE_LABELS } from '@/lib/plain';
@@ -27,7 +27,7 @@ export function StateBadge({ state }: { state: RowState }) {
 }
 
 /** The compact seven-row ledger that sits under the round card (§10.5). */
-export function LedgerList({ rows }: { rows: LedgerRow[] }) {
+export function LedgerList({ rows, compact = false }: { rows: LedgerRow[]; compact?: boolean }) {
   const s = usePaneStyles();
   return (
     <div>
@@ -40,9 +40,9 @@ export function LedgerList({ rows }: { rows: LedgerRow[] }) {
               <span className={s.listValue}>{plainValue(r.position)}</span>
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
-              {risk ? (
+              {compact ? <span className={s.listValue}>{r.owner === 'legal' ? 'Legal' : personName(cloudDeskDeal.ownerId)}</span> : risk ? (
                 <span style={{ fontSize: 11.5, color: tokens.colorPaletteDarkOrangeForeground1 }}>
-                  {formatLakh(risk)}
+                  {formatLakh(risk)} {r.termKey === 'renewal_notice' ? 'at next renewal' : '/year avg.'}
                 </span>
               ) : null}
               <StateBadge state={r.state} />

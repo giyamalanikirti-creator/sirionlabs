@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { makeStyles } from '@fluentui/react-components';
+import { Button, makeStyles } from '@fluentui/react-components';
 import { useWordStyles, WordRibbon, WordStatusBar, WordTitleBar } from './chrome';
 import { countWords, paginate, WordDocument, type CommentCard, type TrackedEdit } from './Document';
 import { PaneFrame } from '@/components/addin/PaneFrame';
@@ -10,12 +10,12 @@ import { RoundDiffPane } from '@/components/addin/RoundDiffPane';
 import { useDemo } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { versionById, versions } from '@/lib/data';
-import { ledgerAtStep } from '@/lib/demo/steps';
+import { ledgerAtStep, STEP_CLOCK } from '@/lib/demo/steps';
 import { agreedWording } from '@/lib/engines/wording';
 import { diffVersions, extractValue, lastOwnVersion } from '@/lib/engines/diff';
 
 const useLocal = makeStyles({
-  canvasInner: { display: 'flex', justifyContent: 'center' },
+  canvasInner: { display: 'flex', justifyContent: 'center', minWidth: 0 },
 });
 
 export function WordApp({ versionId }: { versionId: string }) {
@@ -23,14 +23,17 @@ export function WordApp({ versionId }: { versionId: string }) {
   const local = useLocal();
   const hydrated = useHydrated();
 
-  const version = versionById(versionId);
+  const returned = useDemo((st) => st.signing.returnedCopy);
+  const version = versionId === 'v7' ? (hydrated ? returned : undefined) : versionById(versionId);
   const storedRows = useDemo((st) => st.ledger);
-  const completedSteps = useDemo((st) => st.completedSteps);
   const advanceTo = useDemo((st) => st.advanceTo);
   const runSigningCheck = useDemo((st) => st.runSigningCheck);
+  const setClock = useDemo((st) => st.setClock);
+  const clock = useDemo((st) => st.clock);
   const checkedAt = useDemo((st) => st.signing.checkedAt);
 
   const [paneOpen, setPaneOpen] = useState(true);
+  const [highlightedClause, setHighlightedClause] = useState<string>();
   const anchorRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const rows = hydrated ? storedRows : ledgerAtStep(4);
@@ -38,13 +41,17 @@ export function WordApp({ versionId }: { versionId: string }) {
   /* Opening the signing copy means the demo is at step 4. */
   useEffect(() => {
     if (!hydrated || versionId !== 'v6') return;
-    if (Math.max(...completedSteps) < 3) {
+    if (clock < STEP_CLOCK[3]) {
       advanceTo(3);
       return;
     }
-    if (!checkedAt) runSigningCheck();
+    if (clock < STEP_CLOCK[4]) setClock(STEP_CLOCK[4]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, versionId, completedSteps.length, checkedAt]);
+  }, [hydrated, versionId, clock]);
+
+  useEffect(() => {
+    if (versionId === 'v7') anchorRefs.current['9.1']?.scrollIntoView({ block: 'center' });
+  }, [versionId, version]);
 
   /* Tracked changes and comments come from the rows whose wording we inserted. */
   const { edits, comments } = useMemo(() => {
@@ -52,7 +59,7 @@ export function WordApp({ versionId }: { versionId: string }) {
     const e: TrackedEdit[] = [];
     const c: CommentCard[] = [];
     for (const row of rows) {
-      if (row.signing !== 'inserted') continue;
+      if (version.id !== 'v6' || row.signing !== 'inserted') continue;
       const clause = version.clauses.find((cl) => cl.termKey === row.termKey);
       if (!clause) continue;
       const docValue = extractValue(clause);
@@ -80,12 +87,13 @@ export function WordApp({ versionId }: { versionId: string }) {
   }, [rows, version]);
 
   const goToClause = (clauseNo: string) => {
+    setHighlightedClause(clauseNo);
     const el = anchorRefs.current[clauseNo];
     el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
   };
 
   if (!version) {
-    return <div style={{ padding: 32, fontSize: 13 }}>That version is not in the demo data.</div>;
+    return <div style={{ padding: 32, fontSize: 13 }}>This document version is unavailable.</div>;
   }
 
   const pages = paginate(version.clauses).length;
@@ -108,12 +116,20 @@ export function WordApp({ versionId }: { versionId: string }) {
               edits={edits}
               comments={comments}
               anchorRefs={anchorRefs}
+              highlightedClause={highlightedClause}
             />
           </div>
         </div>
         {paneOpen && (
           <PaneFrame width={330} onClose={() => setPaneOpen(false)}>
             {versionId === 'v6' ? (
+              checkedAt ? <SigningPane rows={rows} version={version} onGoToClause={goToClause} /> : (
+                <div style={{ display: 'grid', gap: 12 }}>
+                  <p>CloudDesk says it accepted the changes. Compare the signing copy with the ledger before sending it for signature.</p>
+                  <Button appearance="primary" onClick={() => { runSigningCheck(); goToClause('9.1'); }}>Run signing check</Button>
+                </div>
+              )
+            ) : versionId === 'v7' ? (
               <SigningPane rows={rows} version={version} onGoToClause={goToClause} />
             ) : (
               <RoundDiffPane version={version} changes={roundChanges} />

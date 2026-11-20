@@ -1,24 +1,35 @@
 'use client';
 
-import { usePathname, useRouter } from 'next/navigation';
-import { BookOpenText, RotateCcw } from 'lucide-react';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { BookOpenText, Check, RotateCcw } from 'lucide-react';
 import { useDemo } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { formatDemoDate } from '@/lib/format';
+import { GUIDE_STAGES } from '@/lib/demo/guide';
 import { STEP_CLOCK } from '@/lib/demo/steps';
 
 const SURFACES = [
   { label: 'Sirion app', href: '/' },
-  { label: "Ananya's Outlook", href: '/outlook/ananya' },
-  { label: "Vikram's Outlook", href: '/outlook/vikram' },
+  { label: "Ananya · Procurement (Outlook)", href: '/outlook/ananya' },
+  { label: "Vikram · IT head (Outlook)", href: '/outlook/vikram' },
   { label: 'Word (signing copy)', href: '/word/v6', needsV6: true },
 ];
 
 export function DemoStrip() {
   const router = useRouter();
   const pathname = usePathname();
+  const message = useSearchParams().get('msg');
   const hydrated = useHydrated();
   const clock = useDemo((s) => s.clock);
+  const completed = useDemo((s) => s.completedSteps);
+  const contract = useDemo((s) => s.contract);
+  const invoiceReached = useDemo((s) => s.invoiceFastForward);
+  const stage = pathname.startsWith('/outlook/ananya') ? (message === 'M12' ? 2 : message === 'M8' ? 1 : clock >= STEP_CLOCK[2] ? 2 : 1)
+    : pathname.startsWith('/outlook/vikram') ? 3
+      : pathname === '/word/v6' ? 4
+        : pathname === '/contracts/C-2026-0417' ? 5 : undefined;
+  const next = GUIDE_STAGES.find((item) => stage && item.step === stage + 1);
+  const current = stage ? GUIDE_STAGES[stage - 1] : undefined;
   const setGuideOpen = useDemo((s) => s.setGuideOpen);
   const reset = useDemo((s) => s.reset);
   const toast = useDemo((s) => s.toast);
@@ -30,11 +41,10 @@ export function DemoStrip() {
     href === '/' ? !pathname.startsWith('/outlook') && !pathname.startsWith('/word') : pathname.startsWith(href);
 
   return (
+    <>
     <div className="ds-scope flex h-8 shrink-0 items-center justify-between gap-4 bg-ink px-3 text-[12px] text-white/90">
       <div className="hidden shrink-0 items-center gap-2 lg:flex">
         <span className="font-semibold tracking-tight text-white">Deal Ledger</span>
-        <span className="text-white/35">·</span>
-        <span className="text-white/60">student prototype · fictional data</span>
       </div>
 
       <div className="flex min-w-0 flex-1 items-center justify-center gap-3">
@@ -70,7 +80,7 @@ export function DemoStrip() {
           suppressHydrationWarning
           className="hidden whitespace-nowrap rounded-full border border-white/20 px-2.5 py-[2px] text-[11px] text-white/70 xl:inline-block"
         >
-          Demo date: {formatDemoDate(shownClock)}
+          {formatDemoDate(shownClock)}
         </span>
       </div>
 
@@ -80,13 +90,13 @@ export function DemoStrip() {
           className="flex items-center gap-1.5 rounded px-2 py-[3px] text-[11.5px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
         >
           <BookOpenText size={13} strokeWidth={1.8} />
-          Demo guide
+          Walkthrough
         </button>
         <button
           onClick={() => {
             reset();
             router.push('/');
-            toast('Demo reset to 14 Nov, 10:00.');
+            toast('Walkthrough reset.');
           }}
           className="flex items-center gap-1.5 rounded px-2 py-[3px] text-[11.5px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
         >
@@ -95,5 +105,25 @@ export function DemoStrip() {
         </button>
       </div>
     </div>
+    {hydrated && current && (
+      <div className="ds-scope flex min-h-9 shrink-0 items-center gap-3 border-b border-line bg-white px-3 py-1 text-xs text-ink">
+        <span className="whitespace-nowrap font-semibold">Step {current.step} of 5</span>
+        <span className="flex gap-1" aria-label={`${completed.filter((step) => step > 0 && step < 6).length} steps completed`}>
+          {GUIDE_STAGES.map((item) => <span key={item.step} className={`grid h-4 w-4 place-items-center rounded-full ${completed.includes(item.step) ? 'bg-teal-900 text-white' : 'bg-page text-muted'}`}>
+            {completed.includes(item.step) ? <Check size={10} /> : item.step}
+          </span>)}
+        </span>
+        <span className="min-w-0 flex-1 truncate text-muted">{current.step === 5 && invoiceReached ? 'One year later · December 2027 invoice' : current.time}</span>
+        {next && <button className="rounded bg-teal-900 px-3 py-1 text-white disabled:opacity-40" disabled={!completed.includes(current.step)} onClick={() => {
+          useDemo.getState().startStage(next.step);
+          router.push(next.href);
+        }}>Next · {next.title}</button>}
+        {current.step === 5 && contract && !invoiceReached && <button className="rounded bg-teal-900 px-3 py-1 text-white" onClick={() => {
+          useDemo.getState().fastForwardInvoice();
+          router.push('/contracts/C-2026-0417?tab=invoices');
+        }}>Next · December invoice</button>}
+      </div>
+    )}
+    </>
   );
 }

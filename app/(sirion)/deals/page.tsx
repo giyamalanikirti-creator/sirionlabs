@@ -90,10 +90,6 @@ export default function DealsPage() {
               </button>
             ))}
           </nav>
-          <p className="mt-4 px-3 text-[11px] leading-[16px] text-muted">
-            Only CloudDesk is interactive in this demo. The rest are there so the list reads like a
-            real one.
-          </p>
         </aside>
 
         <div className="min-w-0 flex-1">
@@ -121,7 +117,15 @@ export default function DealsPage() {
                   <Th align="right">Value / yr</Th>
                   <Th align="center">Round</Th>
                   <Th align="center">Threads</Th>
-                  <Th align="center">Rows</Th>
+                  <Th align="center">
+                    Rows
+                    <div className="mt-1 flex flex-wrap justify-center gap-1 text-[10px] font-normal">
+                      <span className="rounded bg-mint px-1 text-teal-900">Agreed</span>
+                      <span className="rounded border border-line bg-white px-1 text-muted">Open</span>
+                      <span className="rounded bg-lime px-1 text-ink">Needs confirming</span>
+                      <span className="rounded bg-amber-bg px-1 text-amber-fg">Reopened</span>
+                    </div>
+                  </Th>
                   <Th align="right">₹ at risk / yr</Th>
                   <Th>Stage</Th>
                   <Th>Owner</Th>
@@ -136,7 +140,7 @@ export default function DealsPage() {
                       key={d.id}
                       onClick={() => {
                         if (d.interactive) router.push(`/deals/${d.id}`);
-                        else toast('Demo: only CloudDesk is interactive');
+                        else toast('Deal details are unavailable');
                       }}
                       className="cursor-pointer transition-colors hover:bg-page/60"
                     >

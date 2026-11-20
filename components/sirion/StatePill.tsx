@@ -40,7 +40,7 @@ export function SigningBadge({ signing }: { signing?: string }) {
   const map: Record<string, { label: string; className: string }> = {
     match: { label: 'Matches signing copy', className: 'bg-mint text-teal-900' },
     gap: { label: 'Gap in signing copy', className: 'bg-danger text-white' },
-    inserted: { label: 'Inserted ✓', className: 'bg-mint text-teal-900' },
+    inserted: { label: 'Awaiting supplier acceptance', className: 'bg-page text-muted border border-line' },
     waived: { label: 'Waived', className: 'bg-page text-muted border border-line' },
   };
   const s = map[signing];

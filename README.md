@@ -17,9 +17,9 @@ Three surfaces that share one demo state:
 - **Word mock** — the supplier's signing copy with our signing-check pane, tracked
   changes and supplier-safe comments.
 
-Five moments, about three minutes. Open the **Demo guide** in the dark strip at the top;
-every step's **Go** button replays the earlier steps from cached results, so you can start
-anywhere.
+Start with **Review supplier update** on Home. The guide walks through **Review round**, **Resolve side thread**, **Check reply**, **Verify signing copy**, and **See handover**. **Start this step** opens the activity with any earlier prerequisites seeded. **Skip to result** opens a prepared result from the fictional case.
+
+In Ananya’s Outlook, **Try your own email** previews an extraction without writing to the ledger. With live inference configured, the reader checks that the quoted text appears verbatim in the email. **Replay example** shows a labelled result that runs without an API key.
 
 ## Running it
 
@@ -29,7 +29,7 @@ npm run dev          # http://localhost:3000
 ```
 
 The whole demo runs **with no API key**. Every AI call falls back to a stored fixture or to
-rules, and the pane says which: "AI: live", "AI: cached" or "Checked by rules".
+rules, and the pane says which: "AI: live", "Saved example" or "Checked by rules".
 
 To run the AI live:
 

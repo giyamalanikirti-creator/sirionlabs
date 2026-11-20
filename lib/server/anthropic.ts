@@ -3,7 +3,7 @@ import 'server-only';
 /**
  * Server-only AI plumbing — BUILD_SPEC §9.
  * The API key never leaves this module's call stack. Every route validates
- * input and output with zod, uses forced tool use, times out, and falls back
+ * input and output with zod, requests a typed tool response, times out, and falls back
  * to a fixture or to rules so the demo cannot break.
  */
 import Anthropic from '@anthropic-ai/sdk';
@@ -17,7 +17,7 @@ export function hasApiKey(): boolean {
 }
 
 export function isCachedMode(): boolean {
-  return (process.env.DEMO_MODE || 'cached').toLowerCase() === 'cached';
+  return (process.env.DEMO_MODE || 'live').toLowerCase() === 'cached';
 }
 
 /** True when we should not even try a live call. */
@@ -45,10 +45,10 @@ export interface ToolCallOptions {
 }
 
 /**
- * One forced tool call. Returns the tool input, or null if anything at all
+ * One model request for typed tool output. Returns the tool input, or null if anything at all
  * goes wrong — the caller then falls back.
  */
-export async function forcedToolCall(
+export async function callModelTool(
   opts: ToolCallOptions,
 ): Promise<{ input: unknown; source: AiSource } | null> {
   if (fixturesOnly()) return null;
@@ -61,7 +61,7 @@ export async function forcedToolCall(
       {
         model: opts.model,
         max_tokens: opts.maxTokens,
-        system: opts.system,
+        system: `${opts.system}\nReturn your result by calling ${opts.toolName} once, even if there is no matching term. Do not return plain text.`,
         tools: [
           {
             name: opts.toolName,
@@ -69,13 +69,13 @@ export async function forcedToolCall(
             input_schema: opts.inputSchema as Anthropic.Tool['input_schema'],
           },
         ],
-        tool_choice: { type: 'tool', name: opts.toolName },
+        tool_choice: { type: 'auto' },
         messages: [{ role: 'user', content: opts.userContent }],
       },
       { signal: controller.signal },
     );
 
-    const block = response.content.find((c) => c.type === 'tool_use');
+    const block = response.content.find((c) => c.type === 'tool_use' && c.name === opts.toolName);
     if (!block || block.type !== 'tool_use') return null;
     return { input: block.input, source: 'live' };
   } catch (error) {

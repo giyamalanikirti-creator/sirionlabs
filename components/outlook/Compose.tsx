@@ -1,5 +1,6 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import {
   Button,
   makeStyles,
@@ -48,7 +49,7 @@ const useStyles = makeStyles({
     ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke3),
     color: tokens.colorNeutralForeground3,
   },
-  bodyWrap: { flexGrow: 1, minHeight: 0, ...shorthands.padding('12px', '20px', '20px') },
+  bodyWrap: { flexGrow: 1, minHeight: 0, overflowY: 'auto', ...shorthands.padding('12px', '20px', '20px') },
 });
 
 export function Compose({
@@ -60,6 +61,7 @@ export function Compose({
   onSend,
   onDiscard,
   sending,
+  suggestions,
 }: {
   to: string[];
   cc: string[];
@@ -69,6 +71,7 @@ export function Compose({
   onSend: () => void;
   onDiscard: () => void;
   sending: boolean;
+  suggestions?: ReactNode;
 }) {
   const s = useStyles();
 
@@ -141,6 +144,7 @@ export function Compose({
           style={{ width: '100%', minHeight: 220 }}
           textarea={{ style: { fontSize: 14, lineHeight: '20px', minHeight: 200 } }}
         />
+        {suggestions}
       </div>
     </section>
   );

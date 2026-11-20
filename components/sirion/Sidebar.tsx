@@ -10,7 +10,7 @@ const NAV = [
   { href: '/deals', icon: Handshake, label: 'Deals' },
   { href: '/contracts', icon: FileText, label: 'Contracts' },
   { href: '/insights', icon: LineChart, label: 'Insights' },
-  { href: '/story', icon: BookOpen, label: 'Story' },
+  { href: '/story', icon: BookOpen, label: 'About this case' },
 ];
 
 export function Sidebar() {

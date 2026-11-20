@@ -6,15 +6,28 @@ import { SirionCard, Table, Td, Th } from '@/components/sirion/ui';
 import { StatePill, NewAskBadge, SigningBadge } from '@/components/sirion/StatePill';
 import { SourceChip } from '@/components/sirion/SourceChip';
 import { MoneyFigure } from '@/components/sirion/MoneyFigure';
-import { cloudDeskDeal, personName } from '@/lib/data';
-import { rowAtRisk, rowPriceTag } from '@/lib/engines/atRisk';
+import { cloudDeskDeal, personName, versionById } from '@/lib/data';
+import { rowPriceTag } from '@/lib/engines/atRisk';
+import { extractValue } from '@/lib/engines/diff';
+import { priceChange } from '@/lib/engines/pricing';
+import { useDemo } from '@/lib/store';
 import { isSupplierSafe } from '@/lib/engines/wording';
 import { formatDateShort, formatDateTime } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 import type { LedgerRow } from '@/lib/types';
 
-export function LedgerTab({ rows }: { rows: LedgerRow[] }) {
-  const [open, setOpen] = useState<string | null>(null);
+export function LedgerTab({ rows, initialRow }: { rows: LedgerRow[]; initialRow?: string }) {
+  const [open, setOpen] = useState(initialRow ?? null);
+  const clock = useDemo((state) => state.clock);
+  const returned = useDemo((state) => state.signing.returnedCopy);
+  const term = rows.find((row) => row.termKey === 'term');
+  const payment = rows.find((row) => row.termKey === 'payment');
+  const price = rows.find((row) => row.termKey === 'price');
+  const cfoApproval = term?.approvedBy;
+  const priceReopened = price?.threats.some((threat) => threat.active && threat.kind === 'sent_concession' && threat.value.kind === 'price' && threat.value.wording !== 'fixed');
+  const termChanged = term && ((term.position.kind === 'term' && term.position.years !== 3) ||
+    term.threats.some((threat) => threat.active && threat.value.kind === 'term' && threat.value.years !== 3));
+  const document = returned ?? ['v6', 'v5', 'v4', 'v3'].map(versionById).find((version) => version && version.sentAt <= clock);
 
   return (
     <SirionCard
@@ -29,7 +42,7 @@ export function LedgerTab({ rows }: { rows: LedgerRow[] }) {
             <Th>Term</Th>
             <Th>Position</Th>
             <Th>State</Th>
-            <Th align="right">At risk / yr</Th>
+            <Th align="right">Estimated impact</Th>
             <Th>Source</Th>
             <Th>Reason</Th>
             <Th>Approved by</Th>
@@ -38,12 +51,15 @@ export function LedgerTab({ rows }: { rows: LedgerRow[] }) {
         <tbody>
           {rows.map((row) => {
             const expanded = open === row.id;
-            const risk = rowAtRisk(row, cloudDeskDeal);
             const tag = rowPriceTag(row, cloudDeskDeal);
+            const clause = document?.clauses.find((item) => item.termKey === row.termKey);
+            const documentValue = clause && extractValue(clause);
+            const approval = row.termKey === 'price' ? cfoApproval : row.approvedBy;
             const newAsk = row.threats.some((t) => t.active && t.kind === 'new_ask');
             return (
               <Fragment key={row.id}>
                 <tr
+                  id={row.id}
                   onClick={() => setOpen(expanded ? null : row.id)}
                   className="cursor-pointer transition-colors hover:bg-page/60"
                 >
@@ -64,10 +80,8 @@ export function LedgerTab({ rows }: { rows: LedgerRow[] }) {
                     </span>
                   </Td>
                   <Td align="right">
-                    {risk === null ? (
-                      <span className="text-[12px] text-muted">No ₹ figure</span>
-                    ) : (
-                      <MoneyFigure tag={tag} size="sm" suffix={null} showExposure={false} />
+                    {tag ? <MoneyFigure tag={tag} size="sm" showExposure={false} /> : (
+                      <span className="text-[12px] text-muted">No current discrepancy</span>
                     )}
                   </Td>
                   <Td>
@@ -86,6 +100,27 @@ export function LedgerTab({ rows }: { rows: LedgerRow[] }) {
                 {expanded && (
                   <tr>
                     <Td colSpan={8} className="bg-page/50 px-6 py-5">
+                      <dl className="mb-5 grid gap-4 rounded-lg border border-line bg-white p-4 text-sm lg:grid-cols-3">
+                        <div>
+                          <dt className="text-muted">Supplier position</dt>
+                          <dd>{plainValue(row.position, cloudDeskDeal.termYears)} · {personName(row.source.byPersonId)}, {formatDateShort(row.source.at)}</dd>
+                          <SourceChip source={row.source} />
+                        </div>
+                        <div>
+                          <dt className="text-muted">Internal approval</dt>
+                          <dd>{approval ? <>{personName(approval.personId)}, {formatDateShort(approval.source.at)}{approval.condition && ` · ${approval.condition}`}</> : 'No approval recorded'}</dd>
+                          {approval && <SourceChip source={approval.source} />}
+                        </div>
+                        <div>
+                          <dt className="text-muted">Current document</dt>
+                          <dd>{documentValue && clause ? `${plainValue(documentValue, cloudDeskDeal.termYears)} · ${document?.id}, clause ${clause.no}` : 'Clause unavailable'}</dd>
+                        </div>
+                      </dl>
+                      {row.termKey === 'price' && <p className="mb-3 text-sm">{priceReopened ? 'Fixed pricing reopened. CFO approval needs review.' : <>Impact if reopened · <MoneyFigure tag={priceChange(cloudDeskDeal, { kind: 'price', wording: 'fixed' }, { kind: 'price', wording: 'open_yearly', fromYear: 2 })} size="sm" /></>}</p>}
+                      {(row.termKey === 'payment' || row.termKey === 'term') && <p className="mb-3 text-sm">
+                        {termChanged ? 'Term changed. Reconfirm the payment concession with CloudDesk.' : 'CloudDesk agreed to 60-day payment if Meridian commits to three years.'}
+                        {payment && <span className="ml-2"><SourceChip source={payment.source} /></span>}
+                      </p>}
                       <div className="grid gap-6 lg:grid-cols-3">
                         <div>
                           <p className="mb-2.5 text-[10.5px] font-semibold uppercase tracking-wide text-muted">

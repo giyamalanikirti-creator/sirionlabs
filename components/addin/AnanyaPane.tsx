@@ -1,6 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { NextStage } from '@/components/demo/NextStage';
+import { ReaderPreview } from '@/components/outlook/ReaderPreview';
 import {
   Badge,
   Button,
@@ -24,11 +27,12 @@ import {
 import { useDemo } from '@/lib/store';
 import { cloudDeskDeal, messageById, personName, versions, deals, threadById } from '@/lib/data';
 import { rowAtRisk, rowPriceTag, dealAtRisk } from '@/lib/engines/atRisk';
+import { termEnd } from '@/lib/engines/handover';
 import { priceChange } from '@/lib/engines/pricing';
 import { matchThread, toHeader, SIGNAL_WEIGHTS } from '@/lib/engines/matcher';
 import { messages as allMessages } from '@/lib/data';
 import { RESTORE_NOTICE_DRAFT } from '@/lib/engines/wording';
-import { formatLakh, formatDateShort } from '@/lib/format';
+import { formatLakh, formatDateLong, formatDateShort } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 import { useSourceDrawer } from '@/lib/drawer';
 import { SourceDrawerBody } from '@/components/sirion/SourceDrawer';
@@ -52,6 +56,8 @@ export function AnanyaPane({
 }) {
   const s = usePaneStyles();
   const atRisk = dealAtRisk(rows, cloudDeskDeal);
+  const roundReviewed = useDemo((state) => Boolean(state.readerRuns.M8));
+  const sideDismissed = useDemo((st) => st.dismissedThreadIds.includes('T2'));
   const notices = useDemo((st) => st.notices).filter((n) => n.forPersonId === 'ananya');
 
   return (
@@ -59,16 +65,17 @@ export function AnanyaPane({
       <div className={s.headline}>
         <span className={s.headlineLabel}>CloudDesk renewal 2026–29</span>
         <span>
-          <span className={s.money}>{formatLakh(atRisk)}</span>{' '}
-          <span className={s.moneySuffix}>a year at risk</span>
+          <span className={s.money}>{busy || openMessageId === 'M8' && !roundReviewed ? 'Updating…' : formatLakh(atRisk)}</span>{' '}
+          <span className={s.moneySuffix}>a year at risk, averaged over the term</span>
         </span>
       </div>
 
       {notices.map((n, i) => (
         <MessageBar key={i} intent="warning" style={{ marginBottom: 10 }}>
           <MessageBarBody>
-            <MessageBarTitle>Someone conceded by email</MessageBarTitle>
+            <MessageBarTitle>CloudDesk term needs review</MessageBarTitle>
             {n.text}
+            {n.rowId && <p><Link href={`/deals/D-CLOUDDESK?row=${n.rowId}#${n.rowId}`}>Open the term in the ledger</Link></p>}
           </MessageBarBody>
         </MessageBar>
       ))}
@@ -81,16 +88,21 @@ export function AnanyaPane({
       )}
 
       {!busy && openMessageId === 'M8' && <RoundFourCard rows={rows} onDraftReply={onDraftReply} />}
-      {!busy && openMessageId === 'M12' && <SideThreadFlow rows={rows} />}
+      {!busy && openMessageId === 'M12' && <SideThreadFlow rows={rows} onDraftReply={onDraftReply} />}
       {!busy && openMessageId === 'M14' && <SigningCopyCard />}
       {!busy && openMessageId === 'M13' && <NewAskCard rows={rows} />}
 
-      <p className={s.sectionLabel}>All terms on this deal</p>
-      <LedgerList rows={rows} />
+      {!busy && openMessageId === 'M8' && <NextStage step={2} />}
+      {!busy && openMessageId === 'M12' && (rows.some((row) => row.id === 'R-credit' && row.state === 'agreed') || sideDismissed) && <NextStage step={3} />}
+      <ReaderPreview />
+
+      <details className={s.card}>
+        <summary>All {rows.length} terms on this deal</summary>
+        <LedgerList rows={rows} />
+      </details>
 
       <p className={s.note}>
-        Every row carries the email or clause it came from. Nothing here was summarised by a model:
-        the quotes are exact, and the ₹ figures are computed from your own invoices and renewals.
+        Estimates use invoice and renewal history.
       </p>
 
       <InlinePaneDrawer />
@@ -117,14 +129,17 @@ function RoundFourCard({
   const noticeTag = notice ? rowPriceTag(notice, cloudDeskDeal) : null;
   const noticeThreat = notice?.threats.find((t) => t.active && t.kind === 'version_change');
 
-  const moved = [price, notice].filter(Boolean).length;
+  const [compare, setCompare] = useState(false);
+  const end = termEnd(cloudDeskDeal);
+  const beforeEnd = (days: number) =>
+    formatDateLong(new Date(Date.parse(end) - days * 86_400_000).toISOString());
+  const oldClause = versions.find((v) => v.id === 'v3')?.clauses.find((c) => c.no === '14.2');
+  const newClause = versions.find((v) => v.id === 'v4')?.clauses.find((c) => c.no === '14.2');
 
   return (
     <div className={s.card}>
       <div className={s.cardTitle}>Round 4 · 14 Nov · {personName('rohan')}</div>
-      <div className={s.cardMeta}>
-        {moved} terms moved · read from the email text and the attached v4
-      </div>
+      <div className={s.cardMeta}>The email confirms one term. The attachment changes another.</div>
 
       {price && (
         <div className={s.termRow}>
@@ -167,23 +182,36 @@ function RoundFourCard({
               Not shown as a tracked change
             </Badge>
           </div>
+          <p>Agreed: 30 days’ notice. v4 asks for 90, so you must decide 60 days earlier.</p>
           <div style={{ marginTop: 8 }}>
             <span className={s.money}>{formatLakh(rowAtRisk(notice, cloudDeskDeal))}</span>{' '}
-            <span className={s.moneySuffix}>a year</span>
+            <span className={s.moneySuffix}>expected at the next renewal</span>
             {noticeTag?.exposureLakh !== undefined && (
               <div className={s.grey}>
-                Exposure if missed: one more year, {formatLakh(noticeTag.exposureLakh)}
+                Gross renewal exposure · {formatLakh(noticeTag.exposureLakh)}
               </div>
             )}
           </div>
           <div className={s.actions}>
-            <Button size="small" appearance="primary" onClick={() => open(noticeThreat.source, true)}>
-              See the change
+            <Button size="small" appearance="primary" aria-expanded={compare} onClick={() => setCompare(!compare)}>
+              Compare clause 14.2
             </Button>
             <Button size="small" onClick={() => onDraftReply(RESTORE_NOTICE_DRAFT)}>
               Draft a reply asking to restore
             </Button>
           </div>
+          {compare && (
+            <div className={s.quote}>
+              <p>Agreed · {oldClause?.text.split('30').map((part, index) => index ? <span key={index}><mark>30</mark>{part}</span> : part)}</p>
+              <p>v4 · {newClause?.text.split('90').map((part, index) => index ? <span key={index}><mark>90</mark>{part}</span> : part)}</p>
+              <dl>
+                <dt>Contract end</dt><dd>{beforeEnd(0)}</dd>
+                <dt>Last day to give notice in v4</dt><dd>{beforeEnd(90)}</dd>
+                <dt>Internal reminder in v4 · 45 days earlier</dt><dd>{beforeEnd(135)}</dd>
+              </dl>
+            </div>
+          )}
+          {noticeTag && <details><summary>How calculated</summary>{noticeTag.proof.map((line) => <p key={line}>{line}</p>)}</details>}
         </div>
       )}
     </div>
@@ -194,7 +222,7 @@ function RoundFourCard({
 /* Moment 2 — the side thread                                          */
 /* ------------------------------------------------------------------ */
 
-function SideThreadFlow({ rows }: { rows: LedgerRow[] }) {
+function SideThreadFlow({ rows, onDraftReply }: { rows: LedgerRow[]; onDraftReply: (body: string) => void }) {
   const linked = useDemo((st) => st.linkedThreadIds).includes('T2');
   const dismissed = useDemo((st) => st.dismissedThreadIds).includes('T2');
   const credit = rows.find((r) => r.id === 'R-credit');
@@ -206,7 +234,7 @@ function SideThreadFlow({ rows }: { rows: LedgerRow[] }) {
    */
   if (!linked && !dismissed) return <WeakMatchCard />;
 
-  if (credit?.state === 'needs_confirmation') return <ConfirmCreditCard row={credit} />;
+  if (credit?.state === 'needs_confirmation') return <ConfirmCreditCard row={credit} onDraftReply={onDraftReply} />;
   if (credit?.state === 'agreed' && linked) return <CreditConfirmedCard row={credit} />;
   return null;
 }
@@ -243,6 +271,9 @@ function WeakMatchCard() {
           {personName('vikram')} ↔ {personName('rohan')} · {formatDateShort('2026-11-15T09:40:00+05:30')}
         </div>
 
+        <p className={s.note}><strong>Possible match: same supplier, related subject.</strong> The message body stays unread until you link the thread.</p>
+        <details>
+          <summary>Match details</summary>
         {SIGNALS.map((sig) => (
           <div key={sig.label} className={s.signal}>
             {sig.on ? (
@@ -260,13 +291,8 @@ function WeakMatchCard() {
         ))}
 
         <Divider style={{ marginTop: 8, marginBottom: 8 }} />
-        <div style={{ fontSize: 12, fontWeight: 600 }}>
-          Weak match ({match.score.toFixed(1)}). Body not read yet.
-        </div>
-        <p className={s.note} style={{ marginTop: 4 }}>
-          We matched on sender and subject alone. Nobody has read a word of this thread, and nobody
-          will until you say it belongs here.
-        </p>
+        <p className={s.note}>Match score {match.score.toFixed(1)}</p>
+        </details>
 
         <div className={s.actions}>
           <Button
@@ -275,7 +301,7 @@ function WeakMatchCard() {
             icon={<LinkRegular />}
             onClick={() => link('T2')}
           >
-            Link to this deal
+            Link to this deal as Ananya
           </Button>
           <Button
             size="small"
@@ -292,16 +318,15 @@ function WeakMatchCard() {
   );
 }
 
-function ConfirmCreditCard({ row }: { row: LedgerRow }) {
+function ConfirmCreditCard({ row, onDraftReply }: { row: LedgerRow; onDraftReply: (body: string) => void }) {
   const s = usePaneStyles();
   const confirmRow = useDemo((st) => st.confirmRow);
   const toast = useDemo((st) => st.toast);
-  const [choice, setChoice] = useState('10');
+  const [choice, setChoice] = useState('');
   const [note, setNote] = useState('');
 
-  const alternatives = row.pendingConfirmation?.alternatives ?? [];
-  const ours = alternatives.find((a) => a.value.kind === 'service_credit' && a.value.pct === 10);
-  const theirs = alternatives.find((a) => a.value.kind === 'service_credit' && a.value.pct === 5);
+  const ourOffer = messageById('M7')!;
+  const vikramOffer = messageById('M10')!;
   const gap = priceChange(cloudDeskDeal, CREDIT_10, CREDIT_5);
 
   return (
@@ -312,21 +337,23 @@ function ConfirmCreditCard({ row }: { row: LedgerRow }) {
       </div>
       <p style={{ fontSize: 12.5, lineHeight: '18px', marginTop: 6 }}>
         Rohan wrote “{row.pendingConfirmation?.quote}”. Two offers were open:{' '}
-        <strong>10%</strong> (you, {ours ? formatDateShort(ours.source.at) : '13 Nov'}) and{' '}
+        <strong>10%</strong> (you, {formatDateShort(ourOffer.sentAt)}) and{' '}
         <strong>5%</strong> ({personName('vikram')},{' '}
-        {theirs ? formatDateShort(theirs.source.at) : '15 Nov'}, side thread). Which did CloudDesk
-        accept?
+        {formatDateShort(vikramOffer.sentAt)}, side thread).
+      </p>
+      <p className={s.cardTitle}>Which offer did Rohan accept?</p>
+      <p className={s.quote}>10% · “{ourOffer.body}”</p>
+      <p className={s.quote}>5% · “{vikramOffer.body}”
       </p>
 
       <div style={{ marginTop: 10 }}>
         <RadioGroup value={choice} onChange={(_, d) => setChoice(d.value)}>
-          <Radio value="10" label="10% — what you asked for on 13 Nov" />
+          <Radio value="10" label={`10% — Ananya, ${formatDateShort(ourOffer.sentAt)}`} />
           <Radio value="5" label={`5% — what Vikram offered on 15 Nov (${formatLakh(gap.costLakhPerYr)} a year less)`} />
-          <Radio value="unsure" label="Not sure, ask CloudDesk" />
         </RadioGroup>
       </div>
 
-      <Field label="How do you know? (optional)" style={{ marginTop: 10 }}>
+      <Field label="How did you confirm this?" style={{ marginTop: 10 }}>
         <Input
           size="small"
           value={note}
@@ -339,19 +366,19 @@ function ConfirmCreditCard({ row }: { row: LedgerRow }) {
         <Button
           size="small"
           appearance="primary"
-          disabled={choice === 'unsure'}
+          disabled={!choice || !note.trim()}
           onClick={() => {
-            confirmRow('R-credit', choice === '10' ? CREDIT_10 : CREDIT_5, note || undefined);
+            confirmRow('R-credit', choice === '10' ? CREDIT_10 : CREDIT_5, note.trim());
             toast('Service credit confirmed and written to the ledger.');
           }}
         >
           Confirm
         </Button>
-        {choice === 'unsure' && (
-          <span style={{ fontSize: 11, color: tokens.colorNeutralForeground3, alignSelf: 'center' }}>
-            The row stays open until someone knows.
-          </span>
-        )}
+        <Button size="small" appearance="primary" onClick={() => onDraftReply(
+          'Hi Rohan, could you confirm whether you accepted the 10% or the 5% service credit for uptime below 99.5%? Thanks, Ananya',
+        )}>
+          Ask CloudDesk to clarify
+        </Button>
       </div>
     </div>
   );
@@ -369,7 +396,7 @@ function CreditConfirmedCard({ row }: { row: LedgerRow }) {
       </div>
       <div className={s.termValue}>{plainValue(row.position)}</div>
       <p className={s.note} style={{ marginTop: 0 }}>
-        Confirmed by a person, with the call note kept beside the email.
+        Confirmed by {personName(row.source.byPersonId)} on {formatDateShort(row.source.at)}.
       </p>
       <div className={s.actions}>
         <Button size="small" onClick={() => open(row.source, true)}>

@@ -3,12 +3,13 @@
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import { KpiTile, PageHeader, SirionCard, Table, Td, Th } from '@/components/sirion/ui';
-import { Donut, HBars, StackedBars, TrendBarsLine } from '@/components/sirion/charts';
+import { Donut, HBars } from '@/components/sirion/charts';
 import { StatePill, NewAskBadge } from '@/components/sirion/StatePill';
 import { MoneyPlain } from '@/components/sirion/MoneyFigure';
 import { SourceChip } from '@/components/sirion/SourceChip';
+import { useDemo } from '@/lib/store';
 import { useLedger } from '@/lib/useDeal';
-import { cloudDeskDeal, deals, kpiHistory, sendWarnings, signingGapsData, termsFound } from '@/lib/data';
+import { cloudDeskDeal, deals, kpiHistory, termsFound } from '@/lib/data';
 import { rowAtRisk } from '@/lib/engines/atRisk';
 import { formatLakh, formatPct } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
@@ -16,6 +17,7 @@ import { plainValue } from '@/lib/plain';
 export function LeadDashboard() {
   const { rows, atRisk, allOpenAtRisk, counts, attention, signed, hydrated } = useLedger();
 
+  const roundReviewed = useDemo((state) => state.completedSteps.includes(1));
   const ns = kpiHistory.northStar[kpiHistory.northStar.length - 1];
   const northStarPct = Math.round((ns.clean / ns.audited) * 100);
   const signedSince = kpiHistory.signedSinceLastAudit + (signed ? 1 : 0);
@@ -34,31 +36,30 @@ export function LeadDashboard() {
   const outsideDocument =
     termsFound.split.filter((s) => s.source !== 'Word versions').reduce((a, b) => a + b.pct, 0);
 
-  // Short axis labels so five categories fit without colliding.
-  const SHORT: Record<string, string> = {
-    'Renewal notice': 'Renewal',
-    'Service credits': 'Credits',
-  };
-  const gapsData = signingGapsData.byTerm.map((t) => ({
-    name: SHORT[t.term] ?? t.term,
-    fixed: t.fixed,
-    waived: t.waived,
-  }));
-
-  const warningsData = sendWarnings.months.map((m, i) => ({
-    name: m,
-    shown: sendWarnings.shown[i],
-    looped: Math.round(sendWarnings.loopedInShare[i] * 100),
-  }));
-
   const needsConfirming = counts.needs;
 
   return (
     <>
       <PageHeader
         title="Supplier negotiations"
-        caption="What has actually been agreed, and what it is worth."
+        caption="Ananya negotiates supplier renewals across Outlook and Word. Deal Ledger ties what she agreed in email to the clauses her team is about to sign."
       />
+
+      <SirionCard title="Start here" className="mb-4">
+        <div className="flex flex-wrap gap-3 text-sm">
+          <Link className="rounded-md border border-line px-4 py-2 text-teal-900" href="/story">Read the case · 2 min</Link>
+          <Link className="rounded-md bg-teal-900 px-4 py-2 font-medium text-white" href="/outlook/ananya?msg=M8" onClick={() => useDemo.getState().startStage(1, true)}>Start the walkthrough · 3 min</Link>
+          <Link className="rounded-md border border-line px-4 py-2 text-teal-900" href="/deals">Explore freely</Link>
+        </div>
+      </SirionCard>
+
+      <SirionCard title={signed ? "CloudDesk renewal · Signed" : "CloudDesk renewal · New supplier draft"} className="mb-4">
+        <p className="text-sm text-ink">{signed ? 'Review the handover and see how the signed price is checked against invoices.' : 'Rohan’s email confirms pricing, but v4 quietly changes the renewal notice.'}</p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <Link href={signed ? "/contracts/C-2026-0417?tab=obligations" : "/outlook/ananya?msg=M8"} className="rounded-md bg-teal-900 px-4 py-2 text-sm font-medium text-white">{signed ? "See handover" : "Review supplier update"}</Link>
+          <Link href="/deals" className="rounded-md border border-line px-4 py-2 text-sm text-teal-900">Explore portfolio</Link>
+        </div>
+      </SirionCard>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
         <KpiTile
@@ -75,7 +76,7 @@ export function LeadDashboard() {
           }
         />
         <KpiTile
-          label="₹ at risk in open deals"
+          label="₹ a year at risk, averaged over the term"
           value={<span suppressHydrationWarning>{formatLakh(allOpenAtRisk)}</span>}
           caption={`${openDeals.length} open deals · ${needsConfirming} row${
             needsConfirming === 1 ? '' : 's'
@@ -91,7 +92,7 @@ export function LeadDashboard() {
                 />
               </dl>
               <p className="mt-2.5 text-[11px] leading-[16px] text-muted">
-                Expected ₹ a year, averaged over each term.
+                Expected annual average. Next-renewal costs are spread across the contract term.
               </p>
             </>
           }
@@ -109,32 +110,11 @@ export function LeadDashboard() {
         </SirionCard>
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-3">
+      <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-1">
         <SirionCard title="At risk by open deal" caption="₹ lakh a year, top 8">
           <HBars data={atRiskByDeal} unit=" lakh/yr" height={262} />
         </SirionCard>
 
-        <SirionCard title="Gaps caught at signing" caption={signingGapsData.window} sample>
-          <StackedBars
-            data={gapsData}
-            keys={[
-              { key: 'fixed', label: 'Fixed before signing' },
-              { key: 'waived', label: 'Waived with a reason' },
-            ]}
-            height={262}
-          />
-        </SirionCard>
-
-        <SirionCard title="Send warnings" caption="Shown, and how often procurement was looped in" sample>
-          <TrendBarsLine
-            data={warningsData}
-            barKey="shown"
-            barLabel="Warnings shown"
-            lineKey="looped"
-            lineLabel="Looped in procurement"
-            height={262}
-          />
-        </SirionCard>
       </div>
 
       <SirionCard
@@ -143,7 +123,13 @@ export function LeadDashboard() {
         className="mt-4"
         bodyClassName="px-0 pb-0 pt-0"
       >
-        {attention.length === 0 ? (
+        {!signed && !roundReviewed && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4 text-sm">
+            <span>CloudDesk · Supplier round 4 is ready for review.</span>
+            <Link href="/outlook/ananya?msg=M8" className="font-medium text-teal-900 underline">Review round</Link>
+          </div>
+        )}
+        {attention.length === 0 ? (signed || roundReviewed) && (
           <p className="px-6 py-8 text-center text-[13px] text-muted">
             Nothing is waiting on you. Every row is agreed and source-linked.
           </p>
@@ -156,7 +142,7 @@ export function LeadDashboard() {
                   <Th>Term</Th>
                   <Th>Agreed position</Th>
                   <Th>State</Th>
-                  <Th align="right">At risk / yr</Th>
+                  <Th align="right">Estimated impact</Th>
                   <Th>Source</Th>
                   <Th align="right" />
                 </tr>
@@ -184,7 +170,7 @@ export function LeadDashboard() {
                         </span>
                       </Td>
                       <Td align="right">
-                        <MoneyPlain lakh={risk} size="sm" suffix={null} tone={risk ? 'danger' : 'muted'} />
+                        <MoneyPlain lakh={risk} size="sm" suffix={row.termKey === 'renewal_notice' ? 'at next renewal' : 'per year on average'} tone={risk ? 'danger' : 'muted'} />
                       </Td>
                       <Td>
                         <SourceChip source={row.source} />
@@ -211,12 +197,6 @@ export function LeadDashboard() {
         )}
       </SirionCard>
 
-      <p className="mt-6 text-[11px] leading-[16px] text-muted">
-        Student prototype for the Sirion ISB assignment. Not a Sirion or Microsoft product. All
-        names and data are fictional. Cards marked “Sample data” are illustrative; every ₹ figure on
-        CloudDesk is computed from the seed data by{' '}
-        <code className="rounded bg-page px-1 py-[1px] text-[10.5px]">lib/engines</code>.
-      </p>
     </>
   );
 }

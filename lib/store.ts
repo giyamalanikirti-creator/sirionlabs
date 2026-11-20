@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import type {
   AiSource,
+  DocVersion,
   EmailMessage,
   Invoice,
   LedgerRow,
@@ -28,7 +29,7 @@ import {
   markSigningGaps,
   waiveGapForRow,
 } from '@/lib/engines/ledger';
-import { signingCheck } from '@/lib/engines/signing';
+import { signingCheck, supplierReturn } from '@/lib/engines/signing';
 import { handover, type ContractRecord, demoInvoices, FAST_FORWARD_INVOICE } from '@/lib/engines/handover';
 import { extractValue } from '@/lib/engines/diff';
 import { cloudDeskDeal, messageById, versionById } from '@/lib/data';
@@ -43,6 +44,7 @@ export interface SendOutcome {
   termKey?: TermKey;
   decision: 'allow' | 'warn' | 'could_not_check';
   choice?: 'loop_in' | 'dont_send' | 'send_anyway';
+  actionable?: boolean;
 }
 
 export interface Notice {
@@ -50,6 +52,7 @@ export interface Notice {
   text: string;
   forPersonId: string;
   read?: boolean;
+  rowId?: string;
 }
 
 interface DemoState {
@@ -69,6 +72,8 @@ interface DemoState {
     waived: { termKey: TermKey; reason: string }[];
     sentBackAt?: string;
     checkedAt?: string;
+    returnedCopy?: DocVersion;
+    submittedCopy?: DocVersion;
   };
   signedAt?: string;
   contract?: ContractRecord;
@@ -85,6 +90,8 @@ interface DemoState {
   // actions
   setClock: (iso: string) => void;
   setRole: (role: Role) => void;
+  startStage: (step: 1 | 2 | 3 | 4 | 5, restart?: boolean) => void;
+  previewStage: (step: 1 | 2 | 3 | 4 | 5) => void;
   advanceTo: (step: Step) => void;
   markRead: (messageId: string) => void;
   applyReader: (result: ReaderResult, opts: { messageId?: string; versionId?: string }) => void;
@@ -93,6 +100,7 @@ interface DemoState {
   confirmRow: (rowId: string, value: TermValue, note?: string) => void;
   setDraft: (key: string, body: string) => void;
   recordSend: (outcome: SendOutcome) => void;
+  rateLastWarning: (personId: string, actionable: boolean) => void;
   sendConcession: (termKey: TermKey, value: TermValue, quote: string, personId: string) => void;
   sendMessage: (message: EmailMessage) => void;
   runSigningCheck: () => void;
@@ -160,6 +168,30 @@ export const useDemo = create<DemoState>()(
             : { readMessageIds: [...s.readMessageIds, messageId] },
         ),
 
+      startStage: (step, restart = false) => {
+        if (step === 5) return;
+        const state = get();
+        const previous = (step - 1) as Step;
+        const alreadyStarted = state.clock >= STEP_CLOCK[step];
+        if ((restart && alreadyStarted) || state.clock < STEP_CLOCK[previous]) {
+          state.advanceTo(previous);
+        }
+      },
+
+      previewStage: (step) => {
+        if (step === 5) {
+          get().advanceTo(6);
+          return;
+        }
+        if (step === 4) {
+          get().advanceTo(3);
+          get().setClock(STEP_CLOCK[4]);
+          get().runSigningCheck();
+          return;
+        }
+        get().advanceTo(step);
+      },
+
       /** Replay every earlier step from cached fixtures, with no AI calls. */
       advanceTo: (step) => {
         const rows = ledgerAtStep(step);
@@ -167,11 +199,13 @@ export const useDemo = create<DemoState>()(
         for (let i = 0; i <= step; i++) completed.push(i as Step);
         const readIds = ['M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7'];
         if (step >= 1) readIds.push('M8');
-        if (step >= 2) readIds.push('M9', 'M10', 'M11', 'M12');
+        if (step >= 2) readIds.push('M9', 'M10', 'M11', 'M12', 'T2');
         if (step >= 3) readIds.push('M13');
         if (step >= 4) readIds.push('M14');
 
         set({
+          ...BASE,
+          sirionRole: get().sirionRole,
           clock: STEP_CLOCK[step],
           ledger: rows,
           completedSteps: completed,
@@ -184,7 +218,12 @@ export const useDemo = create<DemoState>()(
           ],
         });
 
-        if (step >= 5) get().sign();
+        if (step >= 5) {
+          get().runSigningCheck();
+          get().insertAll();
+          get().sendBack();
+          get().sign();
+        }
         if (step >= 6) get().fastForwardInvoice();
       },
 
@@ -192,6 +231,7 @@ export const useDemo = create<DemoState>()(
         const { rows, events } = applyReaderResult(get().ledger, result.updates, opts.versionId);
         set((s) => ({
           ledger: rows,
+          completedSteps: opts.messageId === 'M8' && !s.completedSteps.includes(1) ? [...s.completedSteps, 1] : s.completedSteps,
           readerRuns: opts.messageId
             ? { ...s.readerRuns, [opts.messageId]: result.source }
             : s.readerRuns,
@@ -213,6 +253,7 @@ export const useDemo = create<DemoState>()(
       dismissThread: (threadId) =>
         set((s) => ({
           dismissedThreadIds: [...s.dismissedThreadIds, threadId],
+          completedSteps: threadId === 'T2' && !s.completedSteps.includes(2) ? [...s.completedSteps, 2] : s.completedSteps,
           events: [...s.events, { at: s.clock, text: `Thread ${threadId} marked as not this deal.` }],
         })),
 
@@ -239,10 +280,18 @@ export const useDemo = create<DemoState>()(
         set((s) => ({
           sendOutcomes: [...s.sendOutcomes, outcome],
           completedSteps:
-            outcome.choice && !s.completedSteps.includes(3)
+            (outcome.choice || outcome.personId === 'vikram' && outcome.decision === 'allow' && s.clock === STEP_CLOCK[3]) && !s.completedSteps.includes(3)
               ? [...s.completedSteps, 3]
               : s.completedSteps,
         })),
+
+      rateLastWarning: (personId, actionable) => {
+        const outcomes = get().sendOutcomes;
+        const index = outcomes.findLastIndex((outcome) => outcome.personId === personId && outcome.decision === 'warn');
+        if (index < 0) return;
+        set({ sendOutcomes: outcomes.map((outcome, i) => i === index ? { ...outcome, actionable } : outcome) });
+        get().toast('Warning feedback saved.');
+      },
 
       sendConcession: (termKey, value, quote, personId) => {
         const at = get().clock;
@@ -260,6 +309,7 @@ export const useDemo = create<DemoState>()(
             {
               at,
               forPersonId: 'ananya',
+              rowId: row?.id,
               text: `Vikram told CloudDesk "${quote}" (${formatDateTime(at)}). Agreed: ${plainValue(
                 row?.position ?? value,
               )}.`,
@@ -335,7 +385,14 @@ export const useDemo = create<DemoState>()(
       },
 
       sendBack: () => {
-        const at = get().clock;
+        const state = get();
+        if (state.signing.sentBackAt || !state.signing.checkedAt) return;
+        const original = signingCheck(state.ledger, versionById('v6')!, cloudDeskDeal);
+        if (original.needsConfirmation.length || original.gaps.some((gap) =>
+          !state.signing.inserted.includes(gap.termKey) && !state.signing.waived.some((row) => row.termKey === gap.termKey),
+        )) return;
+        const at = state.clock;
+        const count = state.signing.inserted.length;
         const sent: EmailMessage = {
           id: 'M15',
           threadId: 'T1',
@@ -353,32 +410,50 @@ export const useDemo = create<DemoState>()(
               dealIdTag: 'DL-CLOUDDESK-2026',
             },
           ],
-          body: 'Thanks Priya. Three clauses did not match what we agreed, so I have marked them up with tracked changes and left a note on each. Signed copy attached for your review. Ananya',
+          body: 'Thanks Priya. Please review the attached copy and return it for signature. Ananya',
           mailboxes: ['ananya'],
         };
         set((s) => ({
-          signing: { ...s.signing, sentBackAt: at },
+          signing: { ...s.signing, sentBackAt: at, submittedCopy: supplierReturn(versionById('v6')!, state.ledger, at) },
           sentMessages: [...s.sentMessages, sent],
           completedSteps: s.completedSteps.includes(4) ? s.completedSteps : [...s.completedSteps, 4],
-          events: [...s.events, { at, text: 'v7 sent back to CloudDesk with 3 tracked changes.' }],
+          events: [...s.events, { at, text: `v7 sent back to CloudDesk with ${count} tracked changes.` }],
         }));
       },
 
       sign: () => {
         const at = STEP_CLOCK[5];
-        const rows = closeAllThreats(get().ledger, at);
+        const state = get();
+        if (!state.signing.sentBackAt || state.signedAt) return;
+        const submitted = state.signing.submittedCopy;
+        const copy = submitted
+          ? { ...submitted, sentAt: at }
+          : supplierReturn(versionById('v6')!, state.ledger.filter((row) => state.signing.inserted.includes(row.termKey)), at);
+        const result = signingCheck(state.ledger, copy, cloudDeskDeal);
+        const matched = new Set(result.matches.map((row) => row.rowId));
+        const waived = new Set(state.signing.waived.map((row) => row.termKey));
+        if (result.needsConfirmation.length || state.ledger.some((row) => !matched.has(row.id) && !waived.has(row.termKey))) {
+          state.toast('The returned copy still has terms to verify.');
+          return;
+        }
+        const rows = closeAllThreats(state.ledger, at).map((row): LedgerRow =>
+          matched.has(row.id) ? { ...row, signing: 'match' } : row,
+        );
         set((s) => ({
           ledger: rows,
+          signing: { ...s.signing, returnedCopy: copy },
           signedAt: at,
           clock: at,
           completedSteps: s.completedSteps.includes(5) ? s.completedSteps : [...s.completedSteps, 5],
-          events: [...s.events, { at, text: 'CloudDesk accepted the changes and signed (v7).' }],
+          events: [...s.events, { at, text: 'CloudDesk returned v7. The signed clauses were checked against the ledger.' }],
         }));
       },
 
       saveToSirion: () => {
-        const v6 = versionById('v6')!;
-        const record = handover(get().ledger, v6, cloudDeskDeal);
+        const state = get();
+        if (!state.signedAt || state.contract) return;
+        const copy = state.signing.returnedCopy ?? versionById('v6')!;
+        const record = handover(state.ledger, copy, cloudDeskDeal);
         set((s) => ({
           contract: record,
           invoices: demoInvoices(record),
@@ -394,6 +469,7 @@ export const useDemo = create<DemoState>()(
 
       fastForwardInvoice: () => {
         if (!get().contract) get().saveToSirion();
+        if (!get().contract) return;
         set((s) => ({
           invoiceFastForward: true,
           clock: STEP_CLOCK[6],

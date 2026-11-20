@@ -28,7 +28,7 @@ const CONFIDENCE_LABEL: Record<PriceTag['confidence'], string> = {
 export function MoneyFigure({
   tag,
   size = 'md',
-  suffix = 'a year',
+  suffix = 'per year on average',
   showExposure = true,
   className,
 }: {
@@ -68,12 +68,12 @@ export function MoneyFigure({
         <span className={cn(sizes[size], 'text-teal-900 underline decoration-dotted decoration-teal-900/30 underline-offset-4')}>
           {formatLakh(tag.costLakhPerYr)}
         </span>
-        {suffix && <span className="text-[11.5px] text-muted">{suffix}</span>}
+        {suffix && <span className="text-[11.5px] text-muted">{tag.basis === 'own_renewals' ? 'expected at the next renewal' : suffix}</span>}
       </button>
 
       {showExposure && tag.exposureLakh !== undefined && (
         <span className="mt-0.5 text-[11px] text-muted">
-          Exposure if missed: one more year, {formatLakh(tag.exposureLakh)}
+          Gross renewal exposure · {formatLakh(tag.exposureLakh)}
         </span>
       )}
 
@@ -81,7 +81,7 @@ export function MoneyFigure({
         <span className="dl-fade-in absolute bottom-full left-0 z-[90] mb-2 block w-[340px] rounded-lg border border-line bg-white p-4 text-left shadow-pop">
           <span className="mb-2 flex items-center justify-between gap-2">
             <span className="text-[11px] font-semibold uppercase tracking-wide text-muted">
-              How this is worked out
+              How calculated
             </span>
             <span className="rounded-full bg-page px-2 py-[1px] text-[10px] text-muted">
               {CONFIDENCE_LABEL[tag.confidence]}
@@ -111,7 +111,7 @@ export function MoneyFigure({
 export function MoneyPlain({
   lakh,
   size = 'md',
-  suffix = 'a year',
+  suffix = 'per year on average',
   tone = 'teal',
 }: {
   lakh: number | null;

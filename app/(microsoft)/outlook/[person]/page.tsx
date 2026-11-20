@@ -16,7 +16,7 @@ export default function OutlookPage({ params }: { params: Promise<{ person: stri
 
   return (
     <Suspense fallback={<div style={{ padding: 24, fontSize: 13 }}>Loading Outlook…</div>}>
-      <OutlookApp person={person} />
+      <OutlookApp key={person} person={person} />
     </Suspense>
   );
 }

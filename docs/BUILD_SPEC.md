@@ -12,7 +12,7 @@ These corrections are already built into every section below. Apply them to `con
 
 | # | Brief said | This spec does | Why |
 | --- | --- | --- | --- |
-| 1 | Renewal notice agreed at 90 days, cut to 30 in v4, "₹60 lakh at risk" | Agreed at **30 days**. v4 quietly moves it to **90**. Priced as an expected cost, **₹3.4 lakh a year**. ₹60 lakh is shown only as grey "exposure" text | A shorter notice helps the buyer, and ₹60 lakh exists under any auto-renew clause |
+| 1 | The assignment brief gives an earlier renewal example | Agreed at **30 days**. v4 quietly moves it to **90**. Priced as an expected cost, **₹3.4 lakh expected at the next renewal**. ₹60 lakh is shown only as grey "exposure" text | A shorter notice helps the buyer, and ₹60 lakh exists under any auto-renew clause |
 | 2 | ₹ figures in four different units | Every ₹ figure is **expected ₹ a year, averaged over the term**. Exposure is secondary text | Lets "sorted by rupees" actually work |
 | 3 | 6.3% price rise "from the supplier's proposal" | **6.4%**, the mean yearly rise across the company's own 9 software contracts with open price revision (invoices). Compounds from year 2 | The supplier's proposal has no number; this keeps to "own data only" |
 | 4 | Row states "Changed this round" and "Reopened" overlap | **Reopened** = a row that was Agreed has changed. **Changed this round** = a row that was Open has moved | Removes the overlap |
@@ -37,10 +37,10 @@ A web app with three surfaces that share one demo state:
 
 **Five moments, about 3 minutes** (full script in §15):
 
-1. **A supplier email is read as a round** (Outlook, procurement lead). Round 4 arrives. Price is now agreed from the email text. v4 quietly changed the renewal notice from 30 to 90 days, which costs ₹3.4 lakh a year.
+1. **A supplier email is read as a round** (Outlook, procurement lead). Round 4 arrives. Price is now agreed from the email text. v4 quietly changed the renewal notice from 30 to 90 days, which costs ₹3.4 lakh in expectation at the next renewal.
 2. **A side thread is pulled into the same deal** (Outlook, lead). A weak-match thread between the IT head and the supplier is linked. One row needs confirming (10% or 5% service credit?) and the lead confirms 10%.
 3. **Warning at Send** (Outlook, IT head). The IT head types "Yearly price revision is fine with us." and presses Send. The Smart Alert shows **₹3.9 lakh a year**, and he loops in procurement. An evaluator can type their own sentence.
-4. **Signing check** (Word, lead). The signing copy v6 has 3 gaps worth **₹7.6 lakh a year**, sorted by ₹. "Insert agreed wording" adds tracked changes and supplier-safe comments.
+4. **Signing check** (Word, lead). The signing copy v6 has 3 gaps with their individual time horizons labelled. "Insert agreed wording" adds tracked changes and supplier-safe comments.
 5. **Handover to Sirion** (Sirion app). The signed contract and ledger go to the contract record. Obligations are created. Fast-forward to Dec 2027: an invoice of ₹5,32,000 is flagged as ₹32,000 above the agreed price.
 
 **Who appears:** the procurement lead (main user), the IT head (business owner), the CFO, Legal and the supplier. The Sirion app has a role switcher. The demo strip switches between surfaces and mailboxes.
@@ -508,7 +508,7 @@ Settings (`lib/settings.ts`): `COST_OF_MONEY = 0.10` (Finance can change it), `M
 **Proof sentences** (built from the numbers; examples for CloudDesk):
 
 - Price: "9 of your software contracts allow a yearly price revision. Their prices rose 6.4% a year on average (invoices, 2024–26). On ₹60 lakh, that is ₹3.8 lakh in year 2 and ₹7.9 lakh in year 3: ₹3.9 lakh a year averaged over the 3-year term."
-- Renewal: "With 60–90 days' notice, 5 of your 12 past renewals went through without a review. With 30 days, 1 of 10 did. Unreviewed renewals carried 18% unused seats on average. (5/12 − 1/10) × 18% × ₹60 lakh = ₹3.4 lakh a year."
+- Renewal: "With 60–90 days' notice, 5 of your 12 past renewals went through without a review. With 30 days, 1 of 10 did. Unreviewed renewals carried 18% unused seats on average. (5/12 − 1/10) × 18% × ₹60 lakh = ₹3.4 lakh expected at the next renewal."
 - Payment: "Paying 15 days sooner on ₹60 lakh a year, at Finance's 10% cost of money: 15 ÷ 365 × ₹60 lakh × 10% ≈ ₹25,000 a year."
 - Credit: "CloudDesk missed 99.5% uptime in 2 of the last 12 months. The gap between a 10% and a 5% credit on a ₹5 lakh monthly fee, twice a year, is ₹50,000 a year."
 
@@ -610,14 +610,14 @@ Lakh to one decimal place (₹3.9 lakh). Below ₹1 lakh, rupees rounded to the 
 | Price: fixed → 5% cap from year 3 (fallback) | 0.92 | ₹92,000 a year |
 | Price: fixed → 3% cap from year 2 (typed example) | 1.6712352 | ₹1.7 lakh a year |
 | Payment: 60 → 45 days | 0.2465753 | ₹25,000 a year |
-| Renewal notice: 30 → 90 days | 3.42 | ₹3.4 lakh a year |
+| Renewal notice: 30 → 90 days | 3.42 | ₹3.4 lakh expected at the next renewal |
 | Renewal exposure | 60 | ₹60 lakh (grey text) |
 | Service credit: 10% → 5% | 0.5 | ₹50,000 a year |
 | CloudDesk at risk, start (14 Nov 10:00) | 4.42192 | ₹4.4 lakh a year |
-| After moment 1 (round 4 read) | 3.92 | ₹3.9 lakh a year |
-| After moment 2 (credit confirmed at 10%) | 3.42 | ₹3.4 lakh a year |
-| After M13 arrives (new ask on price) | 7.34192 | ₹7.3 lakh a year |
-| Signing check on v6: 3 gaps total | 7.5884953 | ₹7.6 lakh a year |
+| After moment 1 (round 4 read) | 1.64 | ₹1.6 lakh per year on average |
+| After moment 2 (credit confirmed at 10%) | 1.14 | ₹1.1 lakh per year on average |
+| After M13 arrives (new ask on price) | 5.06192 | ₹5.1 lakh per year on average |
+| Signing check on v6: 3 gaps total | 5.3084953 | ₹5.3 lakh per year on average |
 | After signing | 0 | none |
 | All open deals at risk, start | 25.82192 | ₹25.8 lakh a year |
 | All open deals at risk, after signing | 21.4 | ₹21.4 lakh a year |
@@ -703,7 +703,7 @@ For the scripted case: "Price is fixed for 3 years (CloudDesk's email of 14 Nov,
 | --- | --- |
 | "Yearly price revision is fine with us." | Warn: price, ₹3.9 lakh a year |
 | "Sure, we can pay in 45 days." | Warn: payment, ₹25,000 a year |
-| "90 days' notice for renewal works for us." | Warn: renewal notice, ₹3.4 lakh a year |
+| "90 days' notice for renewal works for us." | Warn: renewal notice, ₹3.4 lakh expected at the next renewal |
 | "A 5% service credit is fine." | Warn: service credit, ₹50,000 a year |
 | "Let's discuss pricing when Ananya is back." | Allow |
 
@@ -807,7 +807,7 @@ Uses the layout in §4B. Ananya's inbox holds T1, T3, T4, D3, D4 and filler mail
 
 - Card "**Round 4 · 14 Nov · Rohan Iyer** · 2 terms moved":
     - **Annual price**: badge Agreed. "Fixed for 3 years", with the quote chip "we can hold the price at ₹12,000 a seat for the full three years".
-    - **Renewal notice**: badge Reopened. "30 → 90 days in v4, clause 14.2". Tags: "Not mentioned in the email" and "Not shown as a tracked change". Figure **₹3.4 lakh a year**, with grey text "Exposure if missed: one more year, ₹60 lakh". Buttons: "See the change" (opens the source drawer in-pane) and "Draft a reply asking to restore". The draft uses M11's text and is supplier-safe.
+    - **Renewal notice**: badge Reopened. "30 → 90 days in v4, clause 14.2". Tags: "Not mentioned in the email" and "Not shown as a tracked change". Figure **₹3.4 lakh expected at the next renewal**, with grey text "Exposure if missed: one more year, ₹60 lakh". Buttons: "See the change" (opens the source drawer in-pane) and "Draft a reply asking to restore". The draft uses M11's text and is supplier-safe.
 - Compact ledger list (7 rows with badges and ₹ at risk), plus the header figure "₹3.9 lakh a year at risk".
 
 **Moment 2 (demo clock 16 Nov 17:45, M12 opened):**
@@ -818,7 +818,7 @@ Uses the layout in §4B. Ananya's inbox holds T1, T3, T4, D3, D4 and filler mail
     - "Rohan wrote 'On service credits, fine with that.' Two offers were open: **10%** (you, 13 Nov) and **5%** (Vikram, 15 Nov, side thread). Which did CloudDesk accept?"
     - Radio: 10% · 5% · Not sure, ask CloudDesk. Note field: "How do you know? (optional)", pre-filled placeholder "Confirmed with Rohan by phone, 16 Nov". Button: **Confirm**.
 - After confirming: Agreed 10%, with sources = call note + M12. History includes "15 Nov: Vikram offered 5% in a side thread (₹50,000 a year less)".
-- Header figure: "₹3.4 lakh a year at risk".
+- Header figure: "₹1.1 lakh per year on average at risk".
 
 **When v6 arrives (M14 opened):** the pane shows "Email says: 'We've accepted your changes.' Open the signing copy to check." Clicking the attachment opens `/word/v6`.
 
@@ -843,10 +843,10 @@ Uses the layout in §4B. Ananya's inbox holds T1, T3, T4, D3, D4 and filler mail
 
 Uses the layout in §4C. The document renders v6. The Deal Ledger pane opens automatically and shows the **Signing check**:
 
-- Summary card: "**3 gaps · ₹7.6 lakh a year** · 4 rows match", plus "Deal ID found in this file: DL-CLOUDDESK-2026". If a row still needs confirming, show a MessageBar at the top.
+- Summary card: "**4 matched · 0 awaiting supplier acceptance · 3 unresolved**", plus "Deal ID found in this file: DL-CLOUDDESK-2026". If a row still needs confirming, show a MessageBar at the top.
 - Gap cards in ₹ order:
     1. **Annual price**: Agreed "fixed for 3 years". This copy, clause 9.1: "Supplier may revise the Fees once in each contract year by written notice." **₹3.9 lakh a year**. Chip "Agreed in CloudDesk's email, 14 Nov". Note "Neha Kapoor's approval (12 Nov) depends on this".
-    2. **Renewal notice**: Agreed 30 days. This copy, clause 14.2: 90 days. **₹3.4 lakh a year**. Note "Changed in v4, you put it back in v5, still 90 days here".
+    2. **Renewal notice**: Agreed 30 days. This copy, clause 14.2: 90 days. **₹3.4 lakh expected at the next renewal**. Note "Changed in v4, you put it back in v5, still 90 days here".
     3. **Payment terms**: Agreed 60 days. This copy, clause 9.3: 45 days. **₹25,000 a year**. Note "Traded for the 3-year term (10 Nov)".
 - Each card has buttons: **Insert agreed wording** · Go to clause · Waive… (waiving needs a reason).
 - Matches (collapsed Accordion): Term ✓ · Service credit 10% ✓ (confirmed 16 Nov) · Exit support ✓ · Liability cap ✓ (Legal).
@@ -983,7 +983,7 @@ Read BUILD_SPEC §10.1–§10.4 and match 04-…png, 02-…png, 03-…png, 09-�
 
 **Phase 7: Outlook moments 1 and 2 (reader)**
 ```
-Read BUILD_SPEC §9.1, §9.3, §9.5, §10.5 and §8.4. Build the real inbox from messages.json filtered by demo clock and mailbox, the reading pane with attachments (docx opens /word/[versionId]), /api/reader (live + fixtures + quote validation + AI badge), and the Deal Ledger pane for Ananya: Round 4 card, compact ledger, side-thread suggestion with signals, Link, the Needs-confirmation card with Confirm, and the v6 statement notice. Done when, with and without an API key, step 1 shows price Agreed and renewal Reopened with ₹3.4 lakh a year (hidden edit tagged), step 2 ends with service credit Agreed at 10% via a call note, and the header shows ₹3.4 lakh a year.
+Read BUILD_SPEC §9.1, §9.3, §9.5, §10.5 and §8.4. Build the real inbox from messages.json filtered by demo clock and mailbox, the reading pane with attachments (docx opens /word/[versionId]), /api/reader (live + fixtures + quote validation + AI badge), and the Deal Ledger pane for Ananya: Round 4 card, compact ledger, side-thread suggestion with signals, Link, the Needs-confirmation card with Confirm, and the v6 statement notice. Done when, with and without an API key, step 1 shows price Agreed and renewal Reopened with ₹3.4 lakh expected at the next renewal. Step 2 requires the reviewer to select and explain an offer, or ask CloudDesk to clarify.
 ```
 
 **Phase 8: Outlook moment 3 (warning at Send)**
@@ -993,7 +993,7 @@ Read BUILD_SPEC §4E, §9.2 and §10.6. Build Vikram's mailbox, inline reply, th
 
 **Phase 9: Word moment 4 (signing check)**
 ```
-Read BUILD_SPEC §4C, §8.6–§8.7 and §10.7. Render v6 as paginated A4 pages from versions.json, the signing-check pane with gaps in ₹ order and notes, Insert agreed wording (tracked change + supplier-safe comment, scroll to clause), Insert all, Waive with reason, Ready-to-sign state and Send back (creates v7 and a sent message). Done when v6 shows 3 gaps · ₹7.6 lakh a year · 4 match, inserting all three gives 7 of 7 with three tracked changes and three comments, and no comment fails isSupplierSafe.
+Read BUILD_SPEC §4C, §8.6–§8.7 and §10.7. Render v6 as paginated A4 pages from versions.json, the signing-check pane with gaps in ₹ order and notes, Insert agreed wording (tracked change + supplier-safe comment, scroll to clause), Insert all, Waive with reason, Pending supplier acceptance and Send back (creates v7 and a sent message). Done when v6 shows 4 matches and 3 gaps. Inserting all three produces 3 proposed edits and 4 matches. Checking the returned copy shows 7 matches, and no comment fails isSupplierSafe.
 ```
 
 **Phase 10: Handover and invoices (moment 5)**
@@ -1030,15 +1030,15 @@ Read BUILD_SPEC §14. Make sure npm test, npm run lint and npm run build pass, n
 
 ## 15. Demo script (about 3 minutes)
 
-| Step | Time | Surface / person | Action | Viewer sees |
-| --- | --- | --- | --- | --- |
-| 0 | 0:00 | Sirion app · lead | Glance at dashboard, click CloudDesk | 12 open deals, ₹25.8 lakh a year at risk; 42% of agreed terms were outside the document |
-| 1 | 0:10 | Ananya's Outlook | Open Rohan's 14 Nov email | Round 4: price agreed from the email; renewal notice 30 → 90 hidden in v4, **₹3.4 lakh a year** |
-| 2 | 0:40 | Ananya's Outlook | Open the 16 Nov email → Link side thread → choose 10% + note → Confirm | Weak match, body not read until linked; "fine with that" is ambiguous; confirmed via call note |
-| 3 | 1:20 | Vikram's Outlook | Reply to Rohan: "Yearly price revision is fine with us." → Send → Loop in procurement → holding reply → Send | Smart Alert: **₹3.9 lakh a year**, approved by the CFO; evaluator types their own sentence |
-| 4 | 2:00 | Word (v6) | Signing check → Insert all 3 → Send back | "We've accepted your changes" vs **3 gaps, ₹7.6 lakh a year**; tracked changes with supplier-safe comments |
-| 5 | 2:40 | Sirion app | Fast-forward signing → Save to Sirion → Obligations → Invoices → Fast-forward to Dec 2027 | Renewal reminder 16 Sep 2029; invoice **₹32,000 over**, citing clause 9.1 with the email as history |
-| 6 | 3:10 | Insights (optional) | Show reader accuracy and the rethink lines | Honest numbers and guardrails |
+Five guided stages follow the CloudDesk work item on Home. Annual averages spread the next-renewal impact over the three-year term when combined with annual costs.
+
+| Stage | Surface | Reviewer action |
+| --- | --- | --- |
+| Review round | Ananya’s Outlook | Open the 14 Nov email and compare clause 14.2. The change from 30 to 90 days means CloudDesk requires notice 60 days earlier than agreed. |
+| Resolve side thread | Ananya’s Outlook | Review the header-only match, then decide whether to link the thread. Compare the two offers and record how the decision was confirmed, or ask CloudDesk to clarify. |
+| Check reply | Vikram’s Outlook | Try the annual revision sentence. Review the CFO’s condition and the ₹11.8 lakh estimated cost over the term. Add Ananya to Cc and send a holding reply. |
+| Verify signing copy | Word | Run the check and insert the price correction. The tracked change and supplier comment remain pending until the returned copy is checked. |
+| See handover | Sirion app | Verify the returned copy and save to Sirion. Review the notice deadline and internal reminder, then open the December invoice exception for ₹32,000. |
 
 ---
 

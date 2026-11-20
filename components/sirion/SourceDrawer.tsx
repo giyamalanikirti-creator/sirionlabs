@@ -24,7 +24,7 @@ function Highlighted({ body, quote }: { body: string; quote: string }) {
 
 function EmailSource({ source }: { source: SourceRef }) {
   const m = source.messageId ? messageById(source.messageId) : undefined;
-  if (!m) return <p className="text-[12.5px] text-muted">That email is not in the demo data.</p>;
+  if (!m) return <p className="text-[12.5px] text-muted">This email is unavailable.</p>;
   const from = personByEmail(m.from);
 
   return (
@@ -56,7 +56,7 @@ function VersionSource({ source }: { source: SourceRef }) {
   const version = source.versionId ? versionById(source.versionId) : undefined;
   const clause = version?.clauses.find((c) => c.no === source.clauseNo);
   if (!version || !clause) {
-    return <p className="text-[12.5px] text-muted">That clause is not in the demo data.</p>;
+    return <p className="text-[12.5px] text-muted">This clause is unavailable.</p>;
   }
 
   const ordered = [...versions].sort((a, b) => a.sentAt.localeCompare(b.sentAt));
