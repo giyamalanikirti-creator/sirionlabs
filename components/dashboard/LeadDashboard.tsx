@@ -7,6 +7,7 @@ import { Donut, HBars } from '@/components/sirion/charts';
 import { StatePill, NewAskBadge } from '@/components/sirion/StatePill';
 import { MoneyPlain } from '@/components/sirion/MoneyFigure';
 import { SourceChip } from '@/components/sirion/SourceChip';
+import { useDemo } from '@/lib/store';
 import { useLedger } from '@/lib/useDeal';
 import { cloudDeskDeal, deals, kpiHistory, termsFound } from '@/lib/data';
 import { rowAtRisk } from '@/lib/engines/atRisk';
@@ -16,6 +17,7 @@ import { plainValue } from '@/lib/plain';
 export function LeadDashboard() {
   const { rows, atRisk, allOpenAtRisk, counts, attention, signed, hydrated } = useLedger();
 
+  const roundReviewed = useDemo((state) => state.completedSteps.includes(1));
   const ns = kpiHistory.northStar[kpiHistory.northStar.length - 1];
   const northStarPct = Math.round((ns.clean / ns.audited) * 100);
   const signedSince = kpiHistory.signedSinceLastAudit + (signed ? 1 : 0);
@@ -43,8 +45,16 @@ export function LeadDashboard() {
         caption="Ananya negotiates supplier renewals across Outlook and Word. Deal Ledger ties what she agreed in email to the clauses her team is about to sign."
       />
 
+      <SirionCard title="Start here" className="mb-4">
+        <div className="flex flex-wrap gap-3 text-sm">
+          <Link className="rounded-md border border-line px-4 py-2 text-teal-900" href="/story">Read the case · 2 min</Link>
+          <Link className="rounded-md bg-teal-900 px-4 py-2 font-medium text-white" href="/outlook/ananya?msg=M8" onClick={() => useDemo.getState().startStage(1, true)}>Start the walkthrough · 3 min</Link>
+          <Link className="rounded-md border border-line px-4 py-2 text-teal-900" href="/deals">Explore freely</Link>
+        </div>
+      </SirionCard>
+
       <SirionCard title={signed ? "CloudDesk renewal · Signed" : "CloudDesk renewal · New supplier draft"} className="mb-4">
-        <p className="text-sm text-ink">{signed ? 'Review the handover and see how the signed price is checked against invoices.' : 'Rohan has confirmed fixed pricing. Review what changed in the attached contract.'}</p>
+        <p className="text-sm text-ink">{signed ? 'Review the handover and see how the signed price is checked against invoices.' : 'Rohan’s email confirms pricing, but v4 quietly changes the renewal notice.'}</p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
           <Link href={signed ? "/contracts/C-2026-0417?tab=obligations" : "/outlook/ananya?msg=M8"} className="rounded-md bg-teal-900 px-4 py-2 text-sm font-medium text-white">{signed ? "See handover" : "Review supplier update"}</Link>
           <Link href="/deals" className="rounded-md border border-line px-4 py-2 text-sm text-teal-900">Explore portfolio</Link>
@@ -66,7 +76,7 @@ export function LeadDashboard() {
           }
         />
         <KpiTile
-          label="₹ at risk in open deals"
+          label="₹ a year at risk, averaged over the term"
           value={<span suppressHydrationWarning>{formatLakh(allOpenAtRisk)}</span>}
           caption={`${openDeals.length} open deals · ${needsConfirming} row${
             needsConfirming === 1 ? '' : 's'
@@ -113,7 +123,13 @@ export function LeadDashboard() {
         className="mt-4"
         bodyClassName="px-0 pb-0 pt-0"
       >
-        {attention.length === 0 ? (
+        {!signed && !roundReviewed && (
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4 text-sm">
+            <span>CloudDesk · Supplier round 4 is ready for review.</span>
+            <Link href="/outlook/ananya?msg=M8" className="font-medium text-teal-900 underline">Review round</Link>
+          </div>
+        )}
+        {attention.length === 0 ? (signed || roundReviewed) && (
           <p className="px-6 py-8 text-center text-[13px] text-muted">
             Nothing is waiting on you. Every row is agreed and source-linked.
           </p>

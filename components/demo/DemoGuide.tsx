@@ -1,13 +1,14 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { X } from 'lucide-react';
+import { Check, X } from 'lucide-react';
 import { useDemo } from '@/lib/store';
 import { GUIDE_STAGES } from '@/lib/demo/guide';
 
 export function DemoGuide() {
   const router = useRouter();
   const open = useDemo((s) => s.guideOpen);
+  const completed = useDemo((s) => s.completedSteps);
   const setOpen = useDemo((s) => s.setGuideOpen);
 
   if (!open) return null;
@@ -26,7 +27,7 @@ export function DemoGuide() {
         <ol className="thin-scroll flex-1 space-y-2.5 overflow-y-auto px-6 py-4">
           {GUIDE_STAGES.map((stage) => (
             <li key={stage.step} className="rounded-xl border border-line p-4">
-              <h3 className="text-sm font-semibold text-ink">{stage.title}</h3>
+              <h3 className="text-sm font-semibold text-ink">{completed.includes(stage.step) && <Check size={14} className="mr-1 inline text-teal-900" aria-label="Completed" />} {stage.title}</h3>
               <p className="mt-1 text-xs leading-5 text-muted">{stage.instruction}</p>
               <div className="mt-3 flex flex-wrap gap-2 text-xs">
                 <button className="rounded-md bg-teal-900 px-3 py-1.5 text-white" onClick={() => {

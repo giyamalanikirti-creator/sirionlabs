@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { forcedToolCall, MODEL_FAST } from '@/lib/server/anthropic';
+import { callModelTool, MODEL_FAST } from '@/lib/server/anthropic';
 import { CHECK_CONCESSION_SCHEMA, sendCheckOutputSchema, sendCheckRequestSchema } from '@/lib/server/schemas';
 import { SEND_CHECK_SYSTEM, sendCheckUserContent } from '@/lib/server/prompts';
 import { ledgerSnapshot } from '@/lib/server/context';
@@ -58,7 +58,7 @@ export async function POST(request: Request) {
   let checkedBy: SendCheckResult['checkedBy'] = 'rules';
   let source: AiSource = 'rules';
 
-  const ai = await forcedToolCall({
+  const ai = await callModelTool({
     model: MODEL_FAST,
     system: SEND_CHECK_SYSTEM,
     userContent: sendCheckUserContent({

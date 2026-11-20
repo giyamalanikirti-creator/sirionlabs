@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { DemoStrip } from './DemoStrip';
 import { DemoGuide } from './DemoGuide';
 import { Toasts } from './Toasts';
@@ -8,7 +9,7 @@ import { Toasts } from './Toasts';
 export function DemoChrome({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen flex-col overflow-hidden">
-      <DemoStrip />
+      <Suspense><DemoStrip /></Suspense>
       <div className="relative min-h-0 flex-1">{children}</div>
       <DemoGuide />
       <Toasts />

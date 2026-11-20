@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { forcedToolCall, MODEL_SMART, fixturesOnly } from '@/lib/server/anthropic';
+import { callModelTool, MODEL_SMART, fixturesOnly } from '@/lib/server/anthropic';
 import { PROPOSE_LEDGER_UPDATES_SCHEMA, readerOutputSchema, readerRequestSchema } from '@/lib/server/schemas';
 import { READER_SYSTEM, readerUserContent } from '@/lib/server/prompts';
 import { diffBlock, ledgerSnapshot, messagesBlock, peopleDirectory } from '@/lib/server/context';
@@ -99,7 +99,7 @@ export async function POST(request: Request) {
 
   const rows: LedgerRow[] = initialLedger();
 
-  const result = await forcedToolCall({
+  const result = await callModelTool({
     model: MODEL_SMART,
     system: READER_SYSTEM,
     userContent: readerUserContent({

@@ -116,13 +116,14 @@ export function SigningPane({
           <div style={{ fontSize: 12.5, marginBottom: 6 }}>
             Agreed wording · <strong>{gap.agreedPlain}</strong>
           </div>
-          <div className={s.quote}>
-            Signing copy · clause {gap.clauseNo} {gap.clauseText}
-          </div>
+          <details className={s.quote}>
+            <summary>Signing copy · clause {gap.clauseNo} · {gap.docPlain}</summary>
+            <p>{gap.clauseText}</p>
+          </details>
           {gap.costLakhPerYr !== null && (
             <div style={{ marginTop: 8 }}>
               <span className={s.money}>{formatLakh(gap.costLakhPerYr)}</span>{' '}
-              <span className={s.moneySuffix}>{gap.termKey === 'renewal_notice' ? 'expected at the next renewal' : 'per year on average'}</span>
+              <span className={s.moneySuffix}>{gap.termKey === 'renewal_notice' ? 'expected once at the next renewal' : 'per year on average'}</span>
               {gap.priceTag.exposureLakh && <p>Gross renewal exposure · {formatLakh(gap.priceTag.exposureLakh)}</p>}
               <details><summary>How calculated</summary>{gap.priceTag.proof.map((line) => <p key={line}>{line}</p>)}</details>
             </div>

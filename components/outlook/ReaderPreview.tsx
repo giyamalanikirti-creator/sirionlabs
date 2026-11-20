@@ -10,7 +10,7 @@ interface PreviewResult {
 }
 
 export function ReaderPreview() {
-  const [email, setEmail] = useState(PREVIEW_EMAIL);
+  const [email, setEmail] = useState('');
   const [result, setResult] = useState<PreviewResult>();
   const [busy, setBusy] = useState(false);
 
@@ -37,7 +37,7 @@ export function ReaderPreview() {
       <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Try your own email</summary>
       <p style={{ margin: '8px 0' }}>Preview what the reader extracts from a supplier email.</p>
       <Field label="Supplier email">
-        <Textarea value={email} maxLength={2500} resize="vertical" disabled={busy} onChange={(_, data) => {
+        <Textarea placeholder="Paste or type a supplier email" value={email} maxLength={2500} resize="vertical" disabled={busy} onChange={(_, data) => {
           setEmail(data.value);
           setResult(undefined);
         }} />
@@ -50,10 +50,10 @@ export function ReaderPreview() {
         }}>Replay example</Button>
       </div>
       <div aria-live="polite">
-        {result?.source === 'unavailable' && <p>Live inference is unavailable. Replay the example to see a saved extraction.</p>}
+        {result?.source === 'unavailable' && <p>Live inference is unavailable. You can still open a saved example.</p>}
         {result?.extraction && (
           <dl style={{ marginTop: 8 }}>
-            <dt><strong>{result.source === 'live' ? 'Live extraction' : 'Replayed extraction'}</strong></dt>
+            <dt><strong>{result.source === 'live' ? 'Live extraction' : 'Saved example'}</strong></dt>
             <dd>{result.extraction.term || 'No supported term found'}</dd>
             {result.extraction.quote && <><dt>Exact quote</dt><dd>“{result.extraction.quote}”</dd></>}
             <dt>Condition</dt><dd>{result.extraction.condition || 'None identified'}</dd>

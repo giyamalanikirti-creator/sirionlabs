@@ -57,7 +57,7 @@ const useStyles = makeStyles({
 
 export const AI_BADGE_LABEL: Record<AiSource, string> = {
   live: 'AI: live',
-  cached: 'Replayed result',
+  cached: 'Saved example',
   rules: 'Checked by rules',
 };
 

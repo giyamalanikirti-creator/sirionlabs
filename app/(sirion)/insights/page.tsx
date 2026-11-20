@@ -134,7 +134,7 @@ export default function InsightsPage() {
           )}
         </SirionCard>
 
-        <SirionCard title="Warnings reviewers judged actionable" caption="Feedback is collected in the alert, alongside the send decision.">
+        <SirionCard title="Warnings reviewers judged actionable" caption="Feedback is collected after reviewing the warning.">
           <p className="text-2xl font-semibold text-teal-900">{ratedWarnings.length ? `${Math.round(actionableWarnings / ratedWarnings.length * 100)}%` : '—'}</p>
           <p className="mt-1 text-sm text-muted">{ratedWarnings.length ? `${actionableWarnings} of ${ratedWarnings.length} rated warnings in this session` : 'No warnings rated in this session.'}</p>
         </SirionCard>
@@ -199,8 +199,8 @@ function ReaderAccuracy({ data }: { data: EvalFile }) {
     return (
       <SirionCard title="Reader accuracy">
         <EmptyState
-          title="Not run yet"
-          body="Run `npm run eval:reader` with an API key to score the reader against the 32-item test set. The result is written to data/reader_eval_results.json and shown here."
+          title="Accuracy results pending"
+          body="The 32-example live reader assessment has no published score yet."
         />
       </SirionCard>
     );

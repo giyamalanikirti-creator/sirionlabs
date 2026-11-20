@@ -16,6 +16,7 @@ import { formatListTime } from '@/lib/format';
 const useStyles = makeStyles({
   pane: {
     width: '360px',
+    '@media (max-width: 1400px)': { width: '270px' },
     flexShrink: 0,
     display: 'flex',
     flexDirection: 'column',

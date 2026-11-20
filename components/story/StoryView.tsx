@@ -21,7 +21,7 @@ function headings(markdown: string) {
     });
 }
 
-const MAP_ANCHOR = '## 4. Journey and pain points';
+const MAP_ANCHOR = '## 4. The walkthrough';
 
 function Heading({ children }: { children?: React.ReactNode }) {
   const text = String(children);
@@ -37,13 +37,14 @@ function Heading({ children }: { children?: React.ReactNode }) {
 }
 
 export function StoryView({ markdown }: { markdown: string }) {
-  const toc = headings(markdown);
+  const [main, appendix] = markdown.split('<!-- technical-appendix -->');
+  const toc = headings(main);
   const [active, setActive] = useState(toc[0]?.id);
 
   /* The stakeholder visual belongs with §3, right after its table. */
-  const splitAt = markdown.indexOf(MAP_ANCHOR);
-  const before = splitAt < 0 ? markdown : markdown.slice(0, splitAt);
-  const after = splitAt < 0 ? '' : markdown.slice(splitAt);
+  const splitAt = main.indexOf(MAP_ANCHOR);
+  const before = splitAt < 0 ? main : main.slice(0, splitAt);
+  const after = splitAt < 0 ? '' : main.slice(splitAt);
 
   return (
     <div className="flex gap-8">
@@ -76,6 +77,10 @@ export function StoryView({ markdown }: { markdown: string }) {
             <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ h2: Heading }}>{before}</ReactMarkdown>
             <StakeholderMap />
             {after && <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ h2: Heading }}>{after}</ReactMarkdown>}
+            {appendix && <details className="mt-8 rounded-lg border border-line p-4">
+              <summary className="cursor-pointer font-semibold text-teal-900">Technical appendix and related work</summary>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{appendix}</ReactMarkdown>
+            </details>}
           </article>
         </SirionCard>
       </div>

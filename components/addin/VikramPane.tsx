@@ -43,7 +43,7 @@ export function VikramPane({
           what a reply would be moving.
         </p>
         <p className={s.sectionLabel}>What's agreed</p>
-        <LedgerList rows={rows} />
+        <LedgerList rows={rows.filter((row) => ['agreed', 'reopened', 'missing_at_signing'].includes(row.state))} compact />
         <InlinePaneDrawer />
       </div>
     );

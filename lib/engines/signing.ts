@@ -84,15 +84,16 @@ export function signingCheck(
     });
   }
 
-  // Largest ₹ first; terms with no ₹ figure go last.
+  const annualized = (gap: SigningGap) => (gap.costLakhPerYr ?? 0) / (gap.termKey === 'renewal_notice' ? deal.termYears : 1);
+  // Sort on the same annual basis as the combined total.
   gaps.sort((a, b) => {
     if (a.costLakhPerYr === null && b.costLakhPerYr === null) return 0;
     if (a.costLakhPerYr === null) return 1;
     if (b.costLakhPerYr === null) return -1;
-    return b.costLakhPerYr - a.costLakhPerYr;
+    return annualized(b) - annualized(a);
   });
 
-  const totalAtRiskLakh = gaps.reduce((s, g) => s + (g.costLakhPerYr ?? 0) / (g.termKey === 'renewal_notice' ? deal.termYears : 1), 0);
+  const totalAtRiskLakh = gaps.reduce((s, g) => s + annualized(g), 0);
 
   return {
     gaps,

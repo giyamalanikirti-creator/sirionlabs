@@ -73,6 +73,7 @@ interface DemoState {
     sentBackAt?: string;
     checkedAt?: string;
     returnedCopy?: DocVersion;
+    submittedCopy?: DocVersion;
   };
   signedAt?: string;
   contract?: ContractRecord;
@@ -99,6 +100,7 @@ interface DemoState {
   confirmRow: (rowId: string, value: TermValue, note?: string) => void;
   setDraft: (key: string, body: string) => void;
   recordSend: (outcome: SendOutcome) => void;
+  rateLastWarning: (personId: string, actionable: boolean) => void;
   sendConcession: (termKey: TermKey, value: TermValue, quote: string, personId: string) => void;
   sendMessage: (message: EmailMessage) => void;
   runSigningCheck: () => void;
@@ -167,17 +169,12 @@ export const useDemo = create<DemoState>()(
         ),
 
       startStage: (step, restart = false) => {
+        if (step === 5) return;
         const state = get();
         const previous = (step - 1) as Step;
         const alreadyStarted = state.clock >= STEP_CLOCK[step];
         if ((restart && alreadyStarted) || state.clock < STEP_CLOCK[previous]) {
           state.advanceTo(previous);
-        }
-        if (step === 5 && !get().signing.sentBackAt && !get().signedAt) {
-          get().advanceTo(4);
-          get().runSigningCheck();
-          get().insertAll();
-          get().sendBack();
         }
       },
 
@@ -186,8 +183,13 @@ export const useDemo = create<DemoState>()(
           get().advanceTo(6);
           return;
         }
+        if (step === 4) {
+          get().advanceTo(3);
+          get().setClock(STEP_CLOCK[4]);
+          get().runSigningCheck();
+          return;
+        }
         get().advanceTo(step);
-        if (step === 4) get().runSigningCheck();
       },
 
       /** Replay every earlier step from cached fixtures, with no AI calls. */
@@ -229,6 +231,7 @@ export const useDemo = create<DemoState>()(
         const { rows, events } = applyReaderResult(get().ledger, result.updates, opts.versionId);
         set((s) => ({
           ledger: rows,
+          completedSteps: opts.messageId === 'M8' && !s.completedSteps.includes(1) ? [...s.completedSteps, 1] : s.completedSteps,
           readerRuns: opts.messageId
             ? { ...s.readerRuns, [opts.messageId]: result.source }
             : s.readerRuns,
@@ -250,6 +253,7 @@ export const useDemo = create<DemoState>()(
       dismissThread: (threadId) =>
         set((s) => ({
           dismissedThreadIds: [...s.dismissedThreadIds, threadId],
+          completedSteps: threadId === 'T2' && !s.completedSteps.includes(2) ? [...s.completedSteps, 2] : s.completedSteps,
           events: [...s.events, { at: s.clock, text: `Thread ${threadId} marked as not this deal.` }],
         })),
 
@@ -276,10 +280,18 @@ export const useDemo = create<DemoState>()(
         set((s) => ({
           sendOutcomes: [...s.sendOutcomes, outcome],
           completedSteps:
-            outcome.choice && !s.completedSteps.includes(3)
+            (outcome.choice || outcome.personId === 'vikram' && outcome.decision === 'allow' && s.clock === STEP_CLOCK[3]) && !s.completedSteps.includes(3)
               ? [...s.completedSteps, 3]
               : s.completedSteps,
         })),
+
+      rateLastWarning: (personId, actionable) => {
+        const outcomes = get().sendOutcomes;
+        const index = outcomes.findLastIndex((outcome) => outcome.personId === personId && outcome.decision === 'warn');
+        if (index < 0) return;
+        set({ sendOutcomes: outcomes.map((outcome, i) => i === index ? { ...outcome, actionable } : outcome) });
+        get().toast('Warning feedback saved.');
+      },
 
       sendConcession: (termKey, value, quote, personId) => {
         const at = get().clock;
@@ -402,7 +414,7 @@ export const useDemo = create<DemoState>()(
           mailboxes: ['ananya'],
         };
         set((s) => ({
-          signing: { ...s.signing, sentBackAt: at },
+          signing: { ...s.signing, sentBackAt: at, submittedCopy: supplierReturn(versionById('v6')!, state.ledger, at) },
           sentMessages: [...s.sentMessages, sent],
           completedSteps: s.completedSteps.includes(4) ? s.completedSteps : [...s.completedSteps, 4],
           events: [...s.events, { at, text: `v7 sent back to CloudDesk with ${count} tracked changes.` }],
@@ -413,7 +425,10 @@ export const useDemo = create<DemoState>()(
         const at = STEP_CLOCK[5];
         const state = get();
         if (!state.signing.sentBackAt || state.signedAt) return;
-        const copy = supplierReturn(versionById('v6')!, state.ledger, at);
+        const submitted = state.signing.submittedCopy;
+        const copy = submitted
+          ? { ...submitted, sentAt: at }
+          : supplierReturn(versionById('v6')!, state.ledger.filter((row) => state.signing.inserted.includes(row.termKey)), at);
         const result = signingCheck(state.ledger, copy, cloudDeskDeal);
         const matched = new Set(result.matches.map((row) => row.rowId));
         const waived = new Set(state.signing.waived.map((row) => row.termKey));

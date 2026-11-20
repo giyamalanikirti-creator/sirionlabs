@@ -1,7 +1,6 @@
 'use client';
 
 /** The signing copy, rendered as A4 pages with tracked changes — §4C. */
-import { useEffect, useRef, useState } from 'react';
 import { makeStyles, shorthands, tokens } from '@fluentui/react-components';
 import type { Clause, DocVersion } from '@/lib/types';
 
@@ -14,9 +13,10 @@ const MARGIN = 96;
 const CONTENT_H = PAGE_H - MARGIN * 2;
 
 const useStyles = makeStyles({
-  stack: { display: 'flex', flexDirection: 'column', alignItems: 'center', rowGap: '24px' },
+  stack: { width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', rowGap: '24px' },
   page: {
-    width: `${PAGE_W}px`,
+    width: `min(${PAGE_W}px, 100%)`,
+    boxSizing: 'border-box',
     minHeight: `${PAGE_H}px`,
     backgroundColor: '#FFFFFF',
     boxShadow: '0 1px 4px rgba(0,0,0,0.14), 0 0 1px rgba(0,0,0,0.1)',
@@ -45,8 +45,7 @@ const useStyles = makeStyles({
     backgroundColor: '#767676',
   },
   pageNo: {
-    position: 'absolute',
-    bottom: '48px',
+    marginTop: '24px',
     left: 0,
     right: 0,
     textAlign: 'center',
@@ -64,7 +63,7 @@ const useStyles = makeStyles({
     ...shorthands.border('1px', 'solid', '#E0E0E0'),
     ...shorthands.borderRadius('8px'),
     ...shorthands.padding('10px', '12px'),
-    marginBottom: '10px',
+    marginTop: '8px',
     boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
   },
   commentHead: { display: 'flex', alignItems: 'center', columnGap: '8px', marginBottom: '6px' },
@@ -178,28 +177,10 @@ export function WordDocument({
   const pages = paginate(version.clauses);
   const editFor = (no: string) => edits.find((e) => e.clauseNo === no);
 
-  const localRefs = useRef<Record<string, HTMLDivElement | null>>({});
-  const [offsets, setOffsets] = useState<Record<string, number>>({});
-
-  // Each comment card sits level with the text it is attached to. Measuring
-  // the laid-out page is only possible after it has rendered.
-  useEffect(() => {
-    const next: Record<string, number> = {};
-    for (const cm of comments) {
-      const el = localRefs.current[cm.clauseNo];
-      const page = el?.closest('[data-page]') as HTMLElement | null;
-      if (el && page) {
-        next[cm.clauseNo] = el.getBoundingClientRect().top - page.getBoundingClientRect().top;
-      }
-    }
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setOffsets((prev) => (JSON.stringify(prev) === JSON.stringify(next) ? prev : next));
-  }, [comments, edits, version.id]);
-
   return (
     <div className={s.stack}>
       {pages.map((clauses, pageIndex) => (
-        <div key={pageIndex} style={{ display: 'flex', alignItems: 'flex-start' }}>
+        <div key={pageIndex} style={{ display: 'flex', justifyContent: 'center', width: '100%' }}>
           <div className={s.page} data-page={pageIndex}>
             {pageIndex === 0 && (
               <>
@@ -214,23 +195,29 @@ export function WordDocument({
 
             {clauses.map((c) => {
               const edit = editFor(c.no);
-              const hasComment = comments.some((cm) => cm.clauseNo === c.no);
+              const comment = comments.find((cm) => cm.clauseNo === c.no);
               return (
                 <div
                   key={c.no}
                   className={s.clause}
                   ref={(el) => {
                     if (anchorRefs) anchorRefs.current[c.no] = el;
-                    localRefs.current[c.no] = el;
                   }}
                 >
                   {edit && <span className={s.changeBar} />}
                   <div className={s.heading}>
                     {c.no} {c.title}
                   </div>
-                  <div className={hasComment ? s.anchor : undefined}>
+                  <div className={comment ? s.anchor : undefined}>
                     <ClauseBody clause={c} edit={edit} highlighted={highlightedClause === c.no} />
                   </div>
+                  {comment && <aside className={s.commentCard} aria-label="Comment on this clause">
+                    <div className={s.commentHead}>
+                      <span className={s.commentAvatar}>{comment.initials}</span>
+                      <span className={s.commentAuthor}>{comment.author}</span>
+                    </div>
+                    <div className={s.commentText}>{comment.text}</div>
+                  </aside>}
                 </div>
               );
             })}
@@ -238,31 +225,6 @@ export function WordDocument({
             <div className={s.pageNo}>{pageIndex + 1}</div>
           </div>
 
-          <div className={s.commentsCol} style={{ position: 'relative', minHeight: PAGE_H }}>
-            {comments
-              .filter((cm) => clauses.some((c) => c.no === cm.clauseNo))
-              .map((cm) => (
-                <div
-                  key={cm.clauseNo}
-                  className={s.commentCard}
-                  style={
-                    offsets[cm.clauseNo] !== undefined
-                      ? { position: 'absolute', top: offsets[cm.clauseNo], left: 16, right: 16 }
-                      : undefined
-                  }
-                >
-                  <div className={s.commentHead}>
-                    <span className={s.commentAvatar}>{cm.initials}</span>
-                    <span>
-                      <span className={s.commentAuthor}>{cm.author}</span>{' '}
-                      <span className={s.commentTime}>Just now</span>
-                    </span>
-                  </div>
-                  <div className={s.commentText}>{cm.text}</div>
-                  <div className={s.replyBox}>Reply</div>
-                </div>
-              ))}
-          </div>
         </div>
       ))}
     </div>

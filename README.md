@@ -29,7 +29,7 @@ npm run dev          # http://localhost:3000
 ```
 
 The whole demo runs **with no API key**. Every AI call falls back to a stored fixture or to
-rules, and the pane says which: "AI: live", "AI: cached" or "Checked by rules".
+rules, and the pane says which: "AI: live", "Saved example" or "Checked by rules".
 
 To run the AI live:
 

@@ -56,6 +56,7 @@ export function AnanyaPane({
 }) {
   const s = usePaneStyles();
   const atRisk = dealAtRisk(rows, cloudDeskDeal);
+  const roundReviewed = useDemo((state) => Boolean(state.readerRuns.M8));
   const sideDismissed = useDemo((st) => st.dismissedThreadIds.includes('T2'));
   const notices = useDemo((st) => st.notices).filter((n) => n.forPersonId === 'ananya');
 
@@ -64,8 +65,8 @@ export function AnanyaPane({
       <div className={s.headline}>
         <span className={s.headlineLabel}>CloudDesk renewal 2026–29</span>
         <span>
-          <span className={s.money}>{formatLakh(atRisk)}</span>{' '}
-          <span className={s.moneySuffix}>per year on average at risk</span>
+          <span className={s.money}>{busy || openMessageId === 'M8' && !roundReviewed ? 'Updating…' : formatLakh(atRisk)}</span>{' '}
+          <span className={s.moneySuffix}>a year at risk, averaged over the term</span>
         </span>
       </div>
 
@@ -181,7 +182,7 @@ function RoundFourCard({
               Not shown as a tracked change
             </Badge>
           </div>
-          <p>CloudDesk now requires us to give notice 60 days earlier than agreed.</p>
+          <p>Agreed: 30 days’ notice. v4 asks for 90, so you must decide 60 days earlier.</p>
           <div style={{ marginTop: 8 }}>
             <span className={s.money}>{formatLakh(rowAtRisk(notice, cloudDeskDeal))}</span>{' '}
             <span className={s.moneySuffix}>expected at the next renewal</span>
@@ -270,6 +271,9 @@ function WeakMatchCard() {
           {personName('vikram')} ↔ {personName('rohan')} · {formatDateShort('2026-11-15T09:40:00+05:30')}
         </div>
 
+        <p className={s.note}><strong>Possible match: same supplier, related subject.</strong> The message body stays unread until you link the thread.</p>
+        <details>
+          <summary>Match details</summary>
         {SIGNALS.map((sig) => (
           <div key={sig.label} className={s.signal}>
             {sig.on ? (
@@ -287,13 +291,8 @@ function WeakMatchCard() {
         ))}
 
         <Divider style={{ marginTop: 8, marginBottom: 8 }} />
-        <div style={{ fontSize: 12, fontWeight: 600 }}>
-          Weak match ({match.score.toFixed(1)}). Body not read yet.
-        </div>
-        <p className={s.note} style={{ marginTop: 4 }}>
-          We matched on sender and subject alone. Nobody has read a word of this thread, and nobody
-          will until you say it belongs here.
-        </p>
+        <p className={s.note}>Match score {match.score.toFixed(1)}</p>
+        </details>
 
         <div className={s.actions}>
           <Button

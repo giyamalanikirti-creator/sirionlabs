@@ -165,6 +165,7 @@ export const useChromeStyles = makeStyles({
   folderPane: {
     width: '220px',
     flexShrink: 0,
+    '@media (max-width: 1400px)': { width: '116px' },
     ...shorthands.borderRight('1px', 'solid', tokens.colorNeutralStroke2),
     ...shorthands.padding('10px', '8px'),
     overflowY: 'auto',

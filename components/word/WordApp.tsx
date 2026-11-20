@@ -15,7 +15,7 @@ import { agreedWording } from '@/lib/engines/wording';
 import { diffVersions, extractValue, lastOwnVersion } from '@/lib/engines/diff';
 
 const useLocal = makeStyles({
-  canvasInner: { display: 'flex', justifyContent: 'center' },
+  canvasInner: { display: 'flex', justifyContent: 'center', minWidth: 0 },
 });
 
 export function WordApp({ versionId }: { versionId: string }) {
@@ -33,7 +33,7 @@ export function WordApp({ versionId }: { versionId: string }) {
   const checkedAt = useDemo((st) => st.signing.checkedAt);
 
   const [paneOpen, setPaneOpen] = useState(true);
-  const [highlightedClause, setHighlightedClause] = useState(versionId === 'v6' || versionId === 'v7' ? '9.1' : undefined);
+  const [highlightedClause, setHighlightedClause] = useState<string>();
   const anchorRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   const rows = hydrated ? storedRows : ledgerAtStep(4);
@@ -50,7 +50,7 @@ export function WordApp({ versionId }: { versionId: string }) {
   }, [hydrated, versionId, clock]);
 
   useEffect(() => {
-    if (versionId === 'v6' || versionId === 'v7') anchorRefs.current['9.1']?.scrollIntoView({ block: 'center' });
+    if (versionId === 'v7') anchorRefs.current['9.1']?.scrollIntoView({ block: 'center' });
   }, [versionId, version]);
 
   /* Tracked changes and comments come from the rows whose wording we inserted. */
@@ -126,7 +126,7 @@ export function WordApp({ versionId }: { versionId: string }) {
               checkedAt ? <SigningPane rows={rows} version={version} onGoToClause={goToClause} /> : (
                 <div style={{ display: 'grid', gap: 12 }}>
                   <p>CloudDesk says it accepted the changes. Compare the signing copy with the ledger before sending it for signature.</p>
-                  <Button appearance="primary" onClick={runSigningCheck}>Run signing check</Button>
+                  <Button appearance="primary" onClick={() => { runSigningCheck(); goToClause('9.1'); }}>Run signing check</Button>
                 </div>
               )
             ) : versionId === 'v7' ? (

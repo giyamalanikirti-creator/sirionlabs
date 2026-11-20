@@ -84,7 +84,6 @@ export function OutlookApp({ person }: { person: Person }) {
   const [ccAdded, setCcAdded] = useState(false);
   const [checking, setChecking] = useState(false);
   const [alert, setAlert] = useState<SendCheckResult | null>(null);
-  const [actionable, setActionable] = useState<boolean>();
   const showPreview = person === 'vikram' && params.get('result') === 'warning';
   const dismissPreview = () => router.replace('/outlook/vikram?msg=M13');
   const previewDialog = showPreview && hydrated
@@ -260,7 +259,6 @@ export function OutlookApp({ person }: { person: Person }) {
       finishSend(result);
       return;
     }
-    setActionable(undefined);
     setAlert(result);
   };
 
@@ -287,7 +285,6 @@ export function OutlookApp({ person }: { person: Person }) {
       termKey: result.match?.termKey,
       decision: result.decision,
       choice,
-      actionable: choice ? actionable : undefined,
     });
     setComposing(false);
     setAlert(null);
@@ -318,7 +315,6 @@ export function OutlookApp({ person }: { person: Person }) {
       termKey: alert?.match?.termKey,
       decision: alert?.decision ?? 'warn',
       choice: 'loop_in',
-      actionable,
     });
     setAlert(null);
   };
@@ -337,7 +333,6 @@ export function OutlookApp({ person }: { person: Person }) {
       termKey: alert?.match?.termKey,
       decision: alert?.decision ?? 'warn',
       choice: 'dont_send',
-      actionable,
     });
     setAlert(null);
   };
@@ -436,6 +431,11 @@ export function OutlookApp({ person }: { person: Person }) {
                       toast('Holding reply added to draft.');
                     }}
                   />
+                  {loopIn && <details style={{ marginTop: 12, fontSize: 12 }}>
+                    <summary>Rate this warning</summary>
+                    <Button size="small" onClick={() => useDemo.getState().rateLastWarning(person, true)}>Useful</Button>
+                    <Button size="small" onClick={() => useDemo.getState().rateLastWarning(person, false)}>Not useful</Button>
+                  </details>}
                   {completedSteps.includes(3) && <NextStage step={4} />}
                   </>
                 )}
@@ -467,8 +467,6 @@ export function OutlookApp({ person }: { person: Person }) {
           title={alert.dialog.title}
           takeActionLabel={alert.dialog.takeActionLabel}
           source={alert.source}
-          actionable={actionable}
-          onAssess={alert.decision === 'warn' ? setActionable : undefined}
           onTakeAction={onTakeAction}
           onDontSend={onDontSend}
           onSendAnyway={onSendAnyway}

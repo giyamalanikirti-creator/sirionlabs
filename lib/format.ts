@@ -113,7 +113,7 @@ export function formatDemoDate(iso: string): string {
     weekday: 'short',
     timeZone: IST,
   }).format(d);
-  return `${weekday} ${formatDateTime(iso)}`;
+  return `${weekday} ${formatDateLong(iso)} · ${formatTime(iso)}`;
 }
 
 /** Outlook-style relative time in the message list. */

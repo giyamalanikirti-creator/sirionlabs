@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Bell, Check, FileText, Repeat } from 'lucide-react';
 import {
@@ -19,6 +19,7 @@ import { useDemo } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { useLedger } from '@/lib/useDeal';
 import { cloudDeskDeal, personName, versions } from '@/lib/data';
+import { approverFor } from '@/lib/engines/sendDialog';
 import { checkInvoice } from '@/lib/engines/invoices';
 import { formatDateLong, formatInr, formatLakh } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
@@ -26,6 +27,11 @@ import { CONTRACT_ID } from '@/lib/settings';
 
 export function ContractRecord({ initialTab = 'overview' }: { initialTab?: string }) {
   const [tab, setTab] = useState(initialTab);
+  const top = useRef<HTMLDivElement>(null);
+  const changeTab = (id: string) => {
+    setTab(id);
+    requestAnimationFrame(() => top.current?.scrollIntoView({ block: 'start' }));
+  };
   const [showInvoiceHistory, setShowInvoiceHistory] = useState(false);
   const hydrated = useHydrated();
   const { rows } = useLedger();
@@ -42,8 +48,8 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
     return (
       <SirionCard title="CloudDesk helpdesk subscription">
         <EmptyState
-          title="This contract has not been handed over yet"
-          body="Once the signing copy matches what was agreed and CloudDesk signs, the agreed terms become obligations and invoice rules here, each linked back to its clause and its email."
+          title={signedAt ? 'Returned copy verified and signed' : signing.sentBackAt ? 'CloudDesk returned the corrected signing copy' : 'The signing copy is still under review'}
+          body={signedAt ? 'The signed clauses have been checked against the ledger. Save the contract to create its obligations and invoice rules.' : signing.sentBackAt ? `CloudDesk accepted ${signing.inserted.length} submitted corrections. Verify the returned copy before signing.` : 'Resolve or record a waiver for each discrepancy in Word, then send the reviewed copy to CloudDesk.'}
         />
         <div className="mt-4 flex gap-2">
           {!signedAt && signing.sentBackAt && (
@@ -78,6 +84,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
 
   return (
     <>
+      <div ref={top} />
       <SirionCard className="mb-4" bodyClassName="px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div>
@@ -105,7 +112,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
 
       <Tabs
         active={tab}
-        onChange={setTab}
+        onChange={changeTab}
         tabs={[
           { id: 'overview', label: 'Overview' },
           { id: 'terms', label: 'Agreed terms' },
@@ -192,7 +199,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
                   <SourceChip source={r.source} />
                 </Td>
                 <Td className="text-[12px] text-muted">
-                  {r.approvedBy ? personName(r.approvedBy.personId) : '—'}
+                  {r.termKey === 'price' ? (approverFor(rows, r.termKey) ? `${approverFor(rows, r.termKey)} · if pricing stays fixed` : '—') : r.approvedBy ? personName(r.approvedBy.personId) : '—'}
                 </Td>
               </tr>
             ))}
@@ -250,7 +257,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
           ))}
         </div>
         <div className="px-6 py-4">
-          <Button variant="primary" onClick={() => { useDemo.getState().fastForwardInvoice(); setTab('invoices'); }}>Next · See December invoice</Button>
+          <Button variant="primary" onClick={() => { useDemo.getState().fastForwardInvoice(); changeTab('invoices'); }}>Next · See December invoice</Button>
         </div>
       </SirionCard>
     );

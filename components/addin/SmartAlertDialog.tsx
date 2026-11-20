@@ -50,8 +50,6 @@ export function SmartAlertDialog({
   title,
   takeActionLabel,
   source,
-  actionable,
-  onAssess,
   onTakeAction,
   onDontSend,
   onSendAnyway,
@@ -61,8 +59,6 @@ export function SmartAlertDialog({
   title: string;
   takeActionLabel: string;
   source: AiSource;
-  actionable?: boolean;
-  onAssess?: (value: boolean) => void;
   onTakeAction: () => void;
   onDontSend: () => void;
   onSendAnyway?: () => void;
@@ -101,15 +97,9 @@ export function SmartAlertDialog({
                 </ReactMarkdown>
               </div>
               <div style={{ marginTop: 6 }}>
-                <AiBadge source={source} />
+                {source !== 'rules' && <AiBadge source={source} />}
               </div>
-              {onAssess && (
-                <div role="group" aria-label="Was this warning actionable?" style={{ marginTop: 12 }}>
-                  <span style={{ marginRight: 8 }}>Was this warning actionable?</span>
-                  <Button size="small" appearance={actionable === true ? 'primary' : 'subtle'} aria-pressed={actionable === true} onClick={() => onAssess(true)}>Yes</Button>
-                  <Button size="small" appearance={actionable === false ? 'primary' : 'subtle'} aria-pressed={actionable === false} onClick={() => onAssess(false)}>No</Button>
-                </div>
-              )}
+
             </DialogContent>
             <DialogActions>
               <Button appearance="primary" onClick={onTakeAction} ref={reviewButton}>

@@ -48,11 +48,6 @@ if (!key) {
   console.error('\nNo ANTHROPIC_API_KEY set.');
   console.error('The reader is an AI feature, so there is nothing honest to measure without one.');
   console.error('Set the key and run again:  ANTHROPIC_API_KEY=... npm run eval:reader\n');
-  writeFileSync(
-    join(DATA, 'reader_eval_results.json'),
-    `${JSON.stringify({ notRun: true, reason: 'no ANTHROPIC_API_KEY' }, null, 2)}\n`,
-    'utf8',
-  );
   process.exit(1);
 }
 
@@ -105,7 +100,7 @@ Call propose_ledger_updates with what these messages change about the ledger.`;
   const response = await client.messages.create({
     model: MODEL,
     max_tokens: 1200,
-    system: READER_SYSTEM,
+    system: `${READER_SYSTEM}\nCall propose_ledger_updates once, even if the update list is empty. Do not return plain text.`,
     tools: [
       {
         name: 'propose_ledger_updates',
@@ -114,12 +109,13 @@ Call propose_ledger_updates with what these messages change about the ledger.`;
         input_schema: SCHEMA as never,
       },
     ],
-    tool_choice: { type: 'tool', name: 'propose_ledger_updates' },
+    tool_choice: { type: 'auto' },
     messages: [{ role: 'user', content }],
   });
 
-  const block = response.content.find((c) => c.type === 'tool_use');
-  const input = block && block.type === 'tool_use' ? (block.input as Record<string, unknown>) : {};
+  const block = response.content.find((c) => c.type === 'tool_use' && c.name === 'propose_ledger_updates');
+  if (!block || block.type !== 'tool_use') throw new Error('No typed reader response');
+  const input = block.input as Record<string, unknown>;
   const updates = (input.updates as Record<string, unknown>[]) ?? [];
 
   // Drop any update whose quote is not in the text, exactly as the route does.
@@ -179,6 +175,7 @@ async function main() {
       const mark = r.score === 'correct' ? '✓' : r.score === 'safe' ? '~' : '✗';
       console.log(`  ${mark} ${r.id}  ${r.text.slice(0, 54)}`);
     } catch (error) {
+      if (error instanceof Anthropic.AuthenticationError || error instanceof Anthropic.PermissionDeniedError || error instanceof Anthropic.NotFoundError) throw error;
       console.log(`  ! ${item.id}  failed: ${(error as Error).message}`);
       results.push({
         id: item.id,
@@ -209,4 +206,7 @@ async function main() {
   console.log('Written to data/reader_eval_results.json');
 }
 
-void main();
+void main().catch((error: unknown) => {
+  console.error(error instanceof Error ? error.message : error);
+  process.exitCode = 1;
+});
