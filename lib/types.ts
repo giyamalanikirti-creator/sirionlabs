@@ -141,6 +141,8 @@ export interface LedgerRow {
   };
   signing?: 'match' | 'gap' | 'inserted' | 'waived';
   waiveReason?: string;
+  /** Set when the lead offered a playbook fallback or walk-away at signing. */
+  playbookPosition?: 'fallback' | 'walk-away';
 }
 
 export interface PriceTag {

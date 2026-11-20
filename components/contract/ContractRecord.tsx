@@ -18,7 +18,10 @@ import { StatePill } from '@/components/sirion/StatePill';
 import { useDemo } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { useLedger } from '@/lib/useDeal';
-import { cloudDeskDeal, personName, versions } from '@/lib/data';
+import { cloudDeskDeal, personName, versionById, versions } from '@/lib/data';
+import { handover } from '@/lib/engines/handover';
+import { supplierReturn } from '@/lib/engines/signing';
+import type { InvoiceRule } from '@/lib/types';
 import { approverFor } from '@/lib/engines/sendDialog';
 import { checkInvoice } from '@/lib/engines/invoices';
 import { formatDateLong, formatInr, formatLakh } from '@/lib/format';
@@ -38,46 +41,83 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
   const contract = useDemo((s) => s.contract);
   const signedAt = useDemo((s) => s.signedAt);
   const signing = useDemo((s) => s.signing);
-  const saveToSirion = useDemo((s) => s.saveToSirion);
-  const sign = useDemo((s) => s.sign);
+  const signAndSave = useDemo((s) => s.signAndSave);
   const toast = useDemo((s) => s.toast);
 
   if (!hydrated) return null;
 
   if (!contract) {
+    const preview = signing.sentBackAt
+      ? handover(rows, signing.submittedCopy ?? supplierReturn(versionById('v6')!, rows, signing.sentBackAt), cloudDeskDeal)
+      : null;
     return (
       <SirionCard title="CloudDesk helpdesk subscription">
-        <EmptyState
-          title={signedAt ? 'Returned copy verified and signed' : signing.sentBackAt ? 'CloudDesk returned the corrected signing copy' : 'The signing copy is still under review'}
-          body={signedAt ? 'The signed clauses have been checked against the ledger. Save the contract to create its obligations and invoice rules.' : signing.sentBackAt ? `CloudDesk accepted ${signing.inserted.length} submitted corrections. Verify the returned copy before signing.` : 'Resolve or record a waiver for each discrepancy in Word, then send the reviewed copy to CloudDesk.'}
-        />
-        <div className="mt-4 flex gap-2">
-          {!signedAt && signing.sentBackAt && (
-            <Button
-              variant="primary"
-              onClick={() => {
-                sign();
-                if (useDemo.getState().signedAt) toast('Returned v7 checked and signed.');
-              }}
-            >
-              Verify returned copy and sign
-            </Button>
-          )}
-          {signedAt && (
-            <Button
-              variant="primary"
-              onClick={() => {
-                saveToSirion();
-                toast('Agreed terms handed over to Sirion.');
-              }}
-            >
-              Save to Sirion
-            </Button>
-          )}
-          <Link href={signing.sentBackAt ? '/deals/D-CLOUDDESK' : '/word/v6'}>
-            <Button>{signing.sentBackAt ? 'Back to the deal' : 'Review signing copy in Word'}</Button>
-          </Link>
-        </div>
+        {!preview ? (
+          <>
+            <EmptyState
+              title="The signing copy is still under review"
+              body="Resolve or record a waiver for each discrepancy in Word, then send the reviewed copy to CloudDesk."
+            />
+            <div className="mt-4 flex gap-2">
+              <Link href="/word/v6">
+                <Button>Review signing copy in Word</Button>
+              </Link>
+            </div>
+          </>
+        ) : (
+          <div>
+            <p className="text-[13px] font-medium text-ink">E-signature complete · CloudDesk returned v7</p>
+            <p className="mt-1 text-[12.5px] leading-[19px] text-muted">
+              The signed clauses are checked against the ledger when you save. One screen: review what Sirion will
+              track, then save.
+            </p>
+            <div className="mt-4 grid gap-4 lg:grid-cols-2">
+              <div>
+                <p className="mb-2 text-[10.5px] font-semibold uppercase tracking-wide text-muted">
+                  {preview.obligations.length} obligations for Sirion&apos;s Obligations agent
+                </p>
+                <ul className="space-y-1.5">
+                  {preview.obligations.map((o) => (
+                    <li key={o.id} className="rounded-md border border-line px-3 py-2 text-[12px] leading-[17px]">
+                      <span className="font-medium text-ink">{o.title}</span>
+                      <span className="block text-[11px] text-muted">
+                        Clause {o.clauseNo}
+                        {o.due ? ` · due ${formatDateLong(o.due)}` : ''}
+                        {o.recurring ? ` · ${o.recurring}` : ''} · from ledger row {o.ledgerRowId}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="mb-2 text-[10.5px] font-semibold uppercase tracking-wide text-muted">
+                  {preview.rules.length} invoice rules
+                </p>
+                <ul className="space-y-1.5">
+                  {preview.rules.map((r, i) => (
+                    <li key={i} className="rounded-md border border-line px-3 py-2 text-[12px] leading-[17px] text-ink">
+                      {ruleText(r)}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+            <div className="mt-4 flex gap-2">
+              <Button
+                variant="primary"
+                onClick={() => {
+                  signAndSave();
+                  if (useDemo.getState().contract) toast('Signed copy verified. Agreed terms handed over to Sirion.');
+                }}
+              >
+                Review and save
+              </Button>
+              <Link href="/deals/D-CLOUDDESK">
+                <Button>Back to the deal</Button>
+              </Link>
+            </div>
+          </div>
+        )}
       </SirionCard>
     );
   }
@@ -508,3 +548,10 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 }
 
 export { CONTRACT_ID };
+
+function ruleText(rule: InvoiceRule): string {
+  if (rule.kind === 'fixed_monthly') {
+    return `Bill at most ${formatInr(rule.amountInr ?? 0)} a month until ${formatDateLong(rule.validTo)} · clause ${rule.clauseNo}`;
+  }
+  return `Credit ${rule.pct}% of the month's fee when uptime is below ${rule.uptimeTarget}% · clause ${rule.clauseNo}`;
+}

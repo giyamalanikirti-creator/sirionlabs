@@ -25,6 +25,7 @@ import {
   applySentConcession,
   closeAllThreats,
   confirmRow as confirmRowEngine,
+  applyPlaybookPositionForRow,
   insertWordingForRow,
   markSigningGaps,
   waiveGapForRow,
@@ -32,7 +33,7 @@ import {
 import { signingCheck, supplierReturn } from '@/lib/engines/signing';
 import { handover, type ContractRecord, demoInvoices, FAST_FORWARD_INVOICE } from '@/lib/engines/handover';
 import { extractValue } from '@/lib/engines/diff';
-import { cloudDeskDeal, messageById, versionById } from '@/lib/data';
+import { CLARIFY_REPLY, CLARIFY_REPLY_QUOTE, cloudDeskDeal, messageById, versionById } from '@/lib/data';
 import { plainValue } from '@/lib/plain';
 import { formatDateTime } from '@/lib/format';
 
@@ -45,6 +46,13 @@ export interface SendOutcome {
   decision: 'allow' | 'warn' | 'could_not_check';
   choice?: 'loop_in' | 'dont_send' | 'send_anyway';
   actionable?: boolean;
+}
+
+export interface ReviewRequest {
+  kind: 'review' | 'approval';
+  personId: string;
+  versionId: string;
+  at: string;
 }
 
 export interface Notice {
@@ -63,6 +71,17 @@ interface DemoState {
   readerRuns: Record<string, AiSource>;
   linkedThreadIds: string[];
   dismissedThreadIds: string[];
+  /** Threads linked automatically (same supplier domain), which can be undone. */
+  autoLinkedThreadIds: string[];
+  ledgerBeforeLink?: LedgerRow[];
+  /** Supplier files filed in Sirion as the next version (Sirion's plugin does this today). */
+  syncedVersionIds: string[];
+  reviewRequests: ReviewRequest[];
+  /** Rounds the lead has answered with "Respond to round". */
+  respondedMessageIds: string[];
+  clarifySentAt?: string;
+  /** New deals started from an email (SwiftShip). */
+  startedDealIds: string[];
   sentMessages: EmailMessage[];
   drafts: Record<string, string>;
   sendOutcomes: SendOutcome[];
@@ -96,6 +115,16 @@ interface DemoState {
   markRead: (messageId: string) => void;
   applyReader: (result: ReaderResult, opts: { messageId?: string; versionId?: string }) => void;
   linkThread: (threadId: string) => void;
+  autoLinkThread: (threadId: string) => void;
+  undoLink: (threadId: string) => void;
+  syncVersion: (versionId: string) => void;
+  unsyncVersion: (versionId: string) => void;
+  requestReview: (kind: 'review' | 'approval', versionId: string) => void;
+  respondToRound: (messageId: string) => void;
+  clarifyCredit: () => void;
+  applyPlaybookPosition: (rowId: string, value: TermValue, label: 'fallback' | 'walk-away') => void;
+  signAndSave: () => void;
+  startDeal: (dealId: string) => void;
   dismissThread: (threadId: string) => void;
   confirmRow: (rowId: string, value: TermValue, note?: string) => void;
   setDraft: (key: string, body: string) => void;
@@ -129,6 +158,13 @@ const BASE = {
   readerRuns: {} as Record<string, AiSource>,
   linkedThreadIds: [] as string[],
   dismissedThreadIds: [] as string[],
+  autoLinkedThreadIds: [] as string[],
+  ledgerBeforeLink: undefined,
+  syncedVersionIds: [] as string[],
+  reviewRequests: [] as ReviewRequest[],
+  respondedMessageIds: [] as string[],
+  clarifySentAt: undefined,
+  startedDealIds: [] as string[],
   sentMessages: [] as EmailMessage[],
   drafts: {} as Record<string, string>,
   sendOutcomes: [] as SendOutcome[],
@@ -211,6 +247,8 @@ export const useDemo = create<DemoState>()(
           completedSteps: completed,
           readMessageIds: readIds,
           linkedThreadIds: step >= 2 ? ['T2'] : [],
+          autoLinkedThreadIds: step >= 2 ? ['T2'] : [],
+          syncedVersionIds: step >= 1 ? ['v4'] : [],
           readerRuns: Object.fromEntries(readIds.map((id) => [id, 'cached' as AiSource])),
           events: [
             ...get().events,
@@ -248,6 +286,113 @@ export const useDemo = create<DemoState>()(
             { at: s.clock, text: `Thread ${threadId} linked to CloudDesk. Bodies read for the first time.` },
           ],
         }));
+      },
+
+      autoLinkThread: (threadId) => {
+        const state = get();
+        if (state.linkedThreadIds.includes(threadId) || state.dismissedThreadIds.includes(threadId)) return;
+        set((s) => ({
+          ledgerBeforeLink: s.ledger,
+          linkedThreadIds: [...s.linkedThreadIds, threadId],
+          autoLinkedThreadIds: [...s.autoLinkedThreadIds, threadId],
+          events: [
+            ...s.events,
+            { at: s.clock, text: `Thread ${threadId} linked to CloudDesk automatically: same supplier domain, and Rohan named its sender.` },
+          ],
+        }));
+      },
+
+      undoLink: (threadId) => {
+        const state = get();
+        const { [threadId]: _dropped, ...runs } = state.readerRuns;
+        void _dropped;
+        set((s) => ({
+          ledger: s.ledgerBeforeLink ?? s.ledger,
+          ledgerBeforeLink: undefined,
+          readerRuns: runs,
+          linkedThreadIds: s.linkedThreadIds.filter((id) => id !== threadId),
+          autoLinkedThreadIds: s.autoLinkedThreadIds.filter((id) => id !== threadId),
+          dismissedThreadIds: [...s.dismissedThreadIds, threadId],
+          completedSteps: threadId === 'T2' && !s.completedSteps.includes(2) ? [...s.completedSteps, 2] : s.completedSteps,
+          events: [...s.events, { at: s.clock, text: `Link undone: thread ${threadId} is not this deal, and what was read from it was removed.` }],
+        }));
+      },
+
+      syncVersion: (versionId) => {
+        if (get().syncedVersionIds.includes(versionId)) return;
+        set((s) => ({
+          syncedVersionIds: [...s.syncedVersionIds, versionId],
+          events: [...s.events, { at: s.clock, text: `${versionId} filed in Sirion as the next version of the CloudDesk contract.` }],
+        }));
+      },
+
+      unsyncVersion: (versionId) =>
+        set((s) => ({
+          syncedVersionIds: s.syncedVersionIds.filter((id) => id !== versionId),
+          events: [...s.events, { at: s.clock, text: `${versionId} removed from the contract's versions.` }],
+        })),
+
+      requestReview: (kind, versionId) => {
+        const personId = kind === 'review' ? 'arjun' : 'neha';
+        set((s) => ({
+          reviewRequests: [...s.reviewRequests, { kind, personId, versionId, at: s.clock }],
+          events: [...s.events, { at: s.clock, text: `${versionId} sent for ${kind}.` }],
+        }));
+      },
+
+      respondToRound: (messageId) => {
+        set((s) => ({
+          respondedMessageIds: s.respondedMessageIds.includes(messageId) ? s.respondedMessageIds : [...s.respondedMessageIds, messageId],
+          events: [...s.events, { at: s.clock, text: 'Round 4 answered: reply drafted and v5 prepared with clause 14.2 restored as a tracked change.' }],
+        }));
+      },
+
+      clarifyCredit: () => {
+        const state = get();
+        if (state.clarifySentAt) return;
+        const rows = confirmRowEngine(state.ledger, 'R-credit', { kind: 'service_credit', pct: 10, uptimeTarget: 99.5 }, {
+          at: CLARIFY_REPLY.sentAt,
+          byPersonId: 'rohan',
+          source: {
+            kind: 'email',
+            messageId: CLARIFY_REPLY.id,
+            quote: CLARIFY_REPLY_QUOTE,
+            at: CLARIFY_REPLY.sentAt,
+            byPersonId: 'rohan',
+          },
+        });
+        set((s) => ({
+          clarifySentAt: s.clock,
+          ledger: rows,
+          sentMessages: [...s.sentMessages, CLARIFY_REPLY],
+          completedSteps: s.completedSteps.includes(2) ? s.completedSteps : [...s.completedSteps, 2],
+          events: [
+            ...s.events,
+            { at: CLARIFY_REPLY.sentAt, text: 'Rohan replied in the supplier thread: 10% service credit. Written to the ledger with his quote.' },
+          ],
+        }));
+      },
+
+      applyPlaybookPosition: (rowId, value, label) => {
+        const rows = applyPlaybookPositionForRow(get().ledger, rowId, value, label, get().clock);
+        const row = rows.find((r) => r.id === rowId);
+        if (!row) return;
+        set((s) => ({
+          ledger: rows,
+          signing: { ...s.signing, inserted: [...new Set([...s.signing.inserted, row.termKey])] },
+          events: [...s.events, { at: s.clock, text: `${row.label}: playbook ${label} inserted as a tracked change.` }],
+        }));
+      },
+
+      startDeal: (dealId) =>
+        set((s) => ({
+          startedDealIds: s.startedDealIds.includes(dealId) ? s.startedDealIds : [...s.startedDealIds, dealId],
+          events: [...s.events, { at: s.clock, text: `${dealId} created from an email, with the intake filled in from the email and the PDF quote.` }],
+        })),
+
+      signAndSave: () => {
+        get().sign();
+        if (get().signedAt) get().saveToSirion();
       },
 
       dismissThread: (threadId) =>
@@ -512,6 +657,12 @@ export const useDemo = create<DemoState>()(
       name: 'deal-ledger-demo',
       storage: createJSONStorage(() => localStorage),
       version: 1,
+      // A toast belongs to the moment it was raised; never replay it after a reload.
+      partialize: (state) => {
+        const { lastToast: _toast, ...rest } = state;
+        void _toast;
+        return rest;
+      },
     },
   ),
 );

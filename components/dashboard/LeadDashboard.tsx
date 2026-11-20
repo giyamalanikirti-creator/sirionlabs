@@ -11,6 +11,7 @@ import { useDemo } from '@/lib/store';
 import { useLedger } from '@/lib/useDeal';
 import { cloudDeskDeal, deals, kpiHistory, termsFound } from '@/lib/data';
 import { rowAtRisk } from '@/lib/engines/atRisk';
+import { rowHeadlineShare } from '@/lib/engines/playbook';
 import { formatLakh, formatPct } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 
@@ -76,7 +77,7 @@ export function LeadDashboard() {
           }
         />
         <KpiTile
-          label="₹ a year at risk, averaged over the term"
+          label="₹ a year if signed as is, across open deals"
           value={<span suppressHydrationWarning>{formatLakh(allOpenAtRisk)}</span>}
           caption={`${openDeals.length} open deals · ${needsConfirming} row${
             needsConfirming === 1 ? '' : 's'
@@ -111,7 +112,7 @@ export function LeadDashboard() {
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-1">
-        <SirionCard title="At risk by open deal" caption="₹ lakh a year, top 8">
+        <SirionCard title="If signed as is, by open deal" caption="₹ lakh a year, top 8">
           <HBars data={atRiskByDeal} unit=" lakh/yr" height={262} />
         </SirionCard>
 
@@ -149,7 +150,8 @@ export function LeadDashboard() {
               </thead>
               <tbody>
                 {attention.map((row) => {
-                  const risk = rowAtRisk(row, cloudDeskDeal);
+                  const risk = rowHeadlineShare(row, cloudDeskDeal);
+                  const gross = rowAtRisk(row, cloudDeskDeal);
                   const newAsk = row.threats.some((t) => t.active && t.kind === 'new_ask');
                   return (
                     <tr key={row.id} className="transition-colors hover:bg-page/60">
@@ -170,7 +172,10 @@ export function LeadDashboard() {
                         </span>
                       </Td>
                       <Td align="right">
-                        <MoneyPlain lakh={risk} size="sm" suffix={row.termKey === 'renewal_notice' ? 'at next renewal' : 'per year on average'} tone={risk ? 'danger' : 'muted'} />
+                        <MoneyPlain lakh={risk} size="sm" suffix="a year" tone={risk ? 'danger' : 'muted'} />
+                        {row.termKey === 'renewal_notice' && gross !== null && (
+                          <span className="block text-[10.5px] text-muted">{formatLakh(gross)} at the next renewal</span>
+                        )}
                       </Td>
                       <Td>
                         <SourceChip source={row.source} />

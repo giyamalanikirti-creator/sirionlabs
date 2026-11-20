@@ -145,8 +145,8 @@ describe('at risk through the demo', () => {
     const displayTotal = deals
       .filter((d) => !d.interactive)
       .reduce((s, d) => s + (d.display?.atRiskLakh ?? 0), 0);
-    expect(displayTotal + dealAtRisk(initialLedger(), deal)).toBeCloseTo(25.82192, 4);
-    expect(displayTotal).toBeCloseTo(21.4, 4);
+    expect(displayTotal + dealAtRisk(initialLedger(), deal)).toBeCloseTo(20.32192, 4);
+    expect(displayTotal).toBeCloseTo(15.9, 4);
   });
 });
 

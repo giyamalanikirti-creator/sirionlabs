@@ -62,6 +62,7 @@ export function Compose({
   onDiscard,
   sending,
   suggestions,
+  attachments = [],
 }: {
   to: string[];
   cc: string[];
@@ -72,6 +73,7 @@ export function Compose({
   onDiscard: () => void;
   sending: boolean;
   suggestions?: ReactNode;
+  attachments?: string[];
 }) {
   const s = useStyles();
 
@@ -124,6 +126,26 @@ export function Compose({
         <div className={s.fieldRow}>
           <span className={s.subject}>{subject}</span>
         </div>
+        {attachments.length > 0 && (
+          <div className={s.fieldRow}>
+            {attachments.map((name) => (
+              <span
+                key={name}
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 6,
+                  fontSize: 12.5,
+                  padding: '4px 8px',
+                  border: `1px solid ${tokens.colorNeutralStroke2}`,
+                  borderRadius: 4,
+                }}
+              >
+                <AttachRegular fontSize={14} /> {name}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className={s.toolbar}>

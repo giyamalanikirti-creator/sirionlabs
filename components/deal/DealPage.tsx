@@ -8,7 +8,7 @@ import { MoneyPlain } from '@/components/sirion/MoneyFigure';
 import { useLedger } from '@/lib/useDeal';
 import { useDemo } from '@/lib/store';
 import { cloudDeskDeal, personName } from '@/lib/data';
-import { formatLakh, formatDateLong } from '@/lib/format';
+import { formatLakh, formatDateLong, HEADLINE_SUFFIX } from '@/lib/format';
 import { LedgerTab } from './LedgerTab';
 import { RoundsTab } from './RoundsTab';
 import { ThreadsTab } from './ThreadsTab';
@@ -72,7 +72,7 @@ export function DealPage({ initialRow }: { initialRow?: string }) {
             <div className="text-right">
               <MoneyPlain lakh={signed ? 0 : atRisk} size="xl" suffix={null} tone={atRisk > 0 ? 'danger' : 'teal'} />
               <p className="mt-0.5 text-[12px] text-muted">
-                {signed ? 'at risk — signed and enforced' : 'a year at risk, averaged over the term'}
+                {signed ? 'at risk — signed and enforced' : HEADLINE_SUFFIX}
               </p>
             </div>
             <div className="flex gap-2">

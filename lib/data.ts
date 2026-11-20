@@ -44,8 +44,32 @@ export const personByEmail = (email: string): Person | undefined =>
   people.find((p) => p.email.toLowerCase() === email.toLowerCase());
 export const personName = (id: string): string => personById(id)?.name ?? id;
 
+/**
+ * Scripted replies that arrive in response to something the user does in the
+ * demo (they are not in the seeded inbox). The source drawer can still open them.
+ */
+export const CLARIFY_REPLY: EmailMessage = {
+  id: 'M12R',
+  threadId: 'T1',
+  from: 'rohan.iyer@clouddesk.example',
+  to: ['ananya.rao@meridian.example'],
+  cc: ['priya.nair@clouddesk.example'],
+  subject: 'RE: CloudDesk renewal 2026–29',
+  sentAt: '2026-11-16T18:20:00+05:30',
+  attachments: [],
+  body:
+    'Sorry for the confusion, Ananya. We accept the 10% service credit for any month below 99.5% uptime, as you proposed on 13 Nov. Rohan',
+  mailboxes: ['ananya'],
+};
+export const CLARIFY_REPLY_QUOTE = 'We accept the 10% service credit for any month below 99.5% uptime';
+
+const EXTRA_MESSAGES: EmailMessage[] = [CLARIFY_REPLY];
+export function registerExtraMessages(list: EmailMessage[]) {
+  for (const m of list) if (!EXTRA_MESSAGES.some((x) => x.id === m.id)) EXTRA_MESSAGES.push(m);
+}
+
 export const messageById = (id: string): EmailMessage | undefined =>
-  messages.find((m) => m.id === id);
+  messages.find((m) => m.id === id) ?? EXTRA_MESSAGES.find((m) => m.id === id);
 export const versionById = (id: string): DocVersion | undefined => versions.find((v) => v.id === id);
 export const threadById = (id: string): Thread | undefined => threads.find((t) => t.id === id);
 export const dealById = (id: string): Deal | undefined => deals.find((d) => d.id === id);

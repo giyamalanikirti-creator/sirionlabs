@@ -116,11 +116,11 @@ describe('hand-written seed', () => {
     expect(deals.filter((d) => d.interactive)).toHaveLength(1);
   });
 
-  it('display-only deals add up to ₹21.4 lakh a year at risk', () => {
+  it('display-only deals add up to ₹15.9 lakh a year at risk', () => {
     const total = deals
       .filter((d) => !d.interactive)
       .reduce((s, d) => s + (d.display?.atRiskLakh ?? 0), 0);
-    expect(Math.round(total * 10) / 10).toBe(21.4);
+    expect(Math.round(total * 10) / 10).toBe(15.9);
   });
 
   it('has six versions, each a full agreement covering all seven tracked terms', () => {

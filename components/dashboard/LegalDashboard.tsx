@@ -64,7 +64,7 @@ export function LegalDashboard() {
                   <StatePill state="agreed" />
                 </Td>
                 <Td>{r.signing ? <SigningBadge signing={r.signing} /> : <span className="text-[11.5px]">Not checked yet</span>}</Td>
-                <Td className="text-[11.5px]">sample</Td>
+                <Td className="text-[11.5px]">demo data</Td>
               </tr>
             ))}
           </tbody>

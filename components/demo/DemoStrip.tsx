@@ -10,8 +10,8 @@ import { STEP_CLOCK } from '@/lib/demo/steps';
 
 const SURFACES = [
   { label: 'Sirion app', href: '/' },
-  { label: "Ananya · Procurement (Outlook)", href: '/outlook/ananya' },
-  { label: "Vikram · IT head (Outlook)", href: '/outlook/vikram' },
+  { label: "Ananya’s inbox · Procurement", href: '/outlook/ananya' },
+  { label: "Vikram’s inbox · IT head", href: '/outlook/vikram' },
   { label: 'Word (signing copy)', href: '/word/v6', needsV6: true },
 ];
 
@@ -114,7 +114,8 @@ export function DemoStrip() {
           </span>)}
         </span>
         <span className="min-w-0 flex-1 truncate text-muted">{current.step === 5 && invoiceReached ? 'One year later · December 2027 invoice' : current.time}</span>
-        {next && <button className="rounded bg-teal-900 px-3 py-1 text-white disabled:opacity-40" disabled={!completed.includes(current.step)} onClick={() => {
+        {next && !completed.includes(current.step) && <span className="hidden whitespace-nowrap text-[11px] text-muted md:inline">To continue: {current.hint}</span>}
+        {next && <button className="rounded bg-teal-900 px-3 py-1 text-white disabled:opacity-40" disabled={!completed.includes(current.step)} title={completed.includes(current.step) ? undefined : current.hint} onClick={() => {
           useDemo.getState().startStage(next.step);
           router.push(next.href);
         }}>Next · {next.title}</button>}

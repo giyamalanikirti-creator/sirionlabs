@@ -27,15 +27,15 @@
     "interactive": false,
     "dealIdTag": "DL-SWIFTSHIP-2026",
     "display": {
-      "round": 3,
-      "threads": 4,
+      "round": 2,
+      "threads": 2,
       "rows": {
-        "agreed": 4,
+        "agreed": 2,
         "open": 2,
-        "needs": 1,
+        "needs": 0,
         "reopened": 0
       },
-      "atRiskLakh": 3.6
+      "atRiskLakh": 0.7
     }
   },
   {
@@ -73,15 +73,15 @@
     "stage": "signing",
     "interactive": false,
     "display": {
-      "round": 5,
-      "threads": 6,
+      "round": 3,
+      "threads": 2,
       "rows": {
-        "agreed": 6,
+        "agreed": 3,
         "open": 0,
         "needs": 0,
-        "reopened": 0
+        "reopened": 1
       },
-      "atRiskLakh": 4.2
+      "atRiskLakh": 1.6
     }
   },
   {

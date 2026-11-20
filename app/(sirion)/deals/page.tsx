@@ -6,10 +6,10 @@ import { Filter, Search } from 'lucide-react';
 import { Button, PageHeader, SirionCard, Table, TableFooter, Td, Th } from '@/components/sirion/ui';
 import { MoneyPlain } from '@/components/sirion/MoneyFigure';
 import { useLedger } from '@/lib/useDeal';
-import { useDemo } from '@/lib/store';
 import { deals, personName } from '@/lib/data';
 import { formatLakh } from '@/lib/format';
 import type { Deal } from '@/lib/types';
+import { listedAtRisk } from '@/lib/demo/moreDeals';
 
 const VIEWS = [
   { id: 'mine', label: 'Waiting on me' },
@@ -32,11 +32,10 @@ export default function DealsPage() {
   const [view, setView] = useState<string>('open');
   const [query, setQuery] = useState('');
   const { atRisk, counts, signed } = useLedger();
-  const toast = useDemo((s) => s.toast);
 
   const rowsFor = (d: Deal) =>
     d.interactive ? counts : d.display!.rows;
-  const riskFor = (d: Deal) => (d.interactive ? (signed ? 0 : atRisk) : d.display!.atRiskLakh);
+  const riskFor = (d: Deal) => (d.interactive ? (signed ? 0 : atRisk) : listedAtRisk(d));
   const stageFor = (d: Deal) => (d.interactive && signed ? 'signed' : d.stage);
   const roundFor = (d: Deal) => (d.interactive ? (signed ? 7 : 4) : d.display!.round);
 
@@ -117,16 +116,8 @@ export default function DealsPage() {
                   <Th align="right">Value / yr</Th>
                   <Th align="center">Round</Th>
                   <Th align="center">Threads</Th>
-                  <Th align="center">
-                    Rows
-                    <div className="mt-1 flex flex-wrap justify-center gap-1 text-[10px] font-normal">
-                      <span className="rounded bg-mint px-1 text-teal-900">Agreed</span>
-                      <span className="rounded border border-line bg-white px-1 text-muted">Open</span>
-                      <span className="rounded bg-lime px-1 text-ink">Needs confirming</span>
-                      <span className="rounded bg-amber-bg px-1 text-amber-fg">Reopened</span>
-                    </div>
-                  </Th>
-                  <Th align="right">₹ at risk / yr</Th>
+                  <Th>Terms</Th>
+                  <Th align="right">₹ a year if signed as is</Th>
                   <Th>Stage</Th>
                   <Th>Owner</Th>
                 </tr>
@@ -138,10 +129,7 @@ export default function DealsPage() {
                   return (
                     <tr
                       key={d.id}
-                      onClick={() => {
-                        if (d.interactive) router.push(`/deals/${d.id}`);
-                        else toast('Deal details are unavailable');
-                      }}
+                      onClick={() => router.push(`/deals/${d.id}`)}
                       className="cursor-pointer transition-colors hover:bg-page/60"
                     >
                       <Td>
@@ -163,13 +151,8 @@ export default function DealsPage() {
                       <Td align="center" className="text-muted">
                         {d.interactive ? 4 : d.display!.threads}
                       </Td>
-                      <Td align="center">
-                        <span className="inline-flex gap-1">
-                          <Pip n={r.agreed} title="Agreed" className="bg-mint text-teal-900" />
-                          <Pip n={r.open} title="Open" className="border border-line bg-white text-muted" />
-                          <Pip n={r.needs} title="Needs confirming" className="bg-lime text-ink" />
-                          <Pip n={r.reopened} title="Reopened" className="bg-amber-bg text-amber-fg" />
-                        </span>
+                      <Td>
+                        <TermCounts r={r} />
                       </Td>
                       <Td align="right">
                         <MoneyPlain
@@ -196,15 +179,24 @@ export default function DealsPage() {
   );
 }
 
-function Pip({ n, title, className }: { n: number; title: string; className: string }) {
+/** Term counts as words, so they never read as one run-together number. */
+function TermCounts({ r }: { r: { agreed: number; open: number; needs: number; reopened: number } }) {
+  const total = r.agreed + r.open + r.needs + r.reopened;
+  const flags = [
+    r.needs ? { n: r.needs, label: 'to confirm', className: 'bg-lime text-ink' } : null,
+    r.reopened ? { n: r.reopened, label: 'reopened', className: 'bg-amber-bg text-amber-fg' } : null,
+    r.open ? { n: r.open, label: 'open', className: 'border border-line bg-white text-muted' } : null,
+  ].filter(Boolean) as { n: number; label: string; className: string }[];
   return (
-    <span
-      title={title}
-      className={`flex h-[20px] min-w-[20px] items-center justify-center rounded px-1 text-[10.5px] font-semibold ${className} ${
-        n === 0 ? 'opacity-35' : ''
-      }`}
-    >
-      {n}
+    <span className="flex flex-wrap items-center gap-1 text-[11.5px]">
+      <span className="whitespace-nowrap text-ink">
+        {r.agreed} of {total} agreed
+      </span>
+      {flags.map((f) => (
+        <span key={f.label} className={`whitespace-nowrap rounded px-1.5 py-[1px] text-[10.5px] font-medium ${f.className}`}>
+          {f.n} {f.label}
+        </span>
+      ))}
     </span>
   );
 }

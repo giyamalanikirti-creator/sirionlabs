@@ -27,7 +27,11 @@ import { CheckmarkCircleFilled, DocumentRegular } from '@fluentui/react-icons';
 import { useDemo } from '@/lib/store';
 import { cloudDeskDeal } from '@/lib/data';
 import { signingCheck } from '@/lib/engines/signing';
-import { formatLakh } from '@/lib/format';
+import { formatLakh, HEADLINE_SUFFIX } from '@/lib/format';
+import { dealAtRisk } from '@/lib/engines/atRisk';
+import { playbookOptions } from '@/lib/engines/playbook';
+import { MoveBox, OriginTag } from './SirionBlocks';
+import type { TermValue } from '@/lib/types';
 import { useSourceDrawer } from '@/lib/drawer';
 import { InlinePaneDrawer } from './AnanyaPane';
 import { usePaneStyles } from './paneStyles';
@@ -47,6 +51,7 @@ export function SigningPane({
   const insertWording = useDemo((st) => st.insertWording);
   const insertAll = useDemo((st) => st.insertAll);
   const waiveGap = useDemo((st) => st.waiveGap);
+  const applyPlaybook = useDemo((st) => st.applyPlaybookPosition);
   const sendBack = useDemo((st) => st.sendBack);
   const sentBackAt = useDemo((st) => st.signing.sentBackAt);
   const signed = version.id === 'v7';
@@ -69,7 +74,13 @@ export function SigningPane({
   return (
     <div style={{ position: 'relative' }}>
       <div className={s.headline}>
-        <span className={s.headlineLabel}>Signing check · {version.fileName}</span>
+        <span className={s.headlineLabel}>Signing check · {version.fileName}{!signed ? ' · ran when the copy arrived' : ''}</span>
+        {!signed && unresolved > 0 && (
+          <span style={{ display: 'block' }}>
+            <span className={s.money}>{formatLakh(dealAtRisk(rows, cloudDeskDeal))}</span>{' '}
+            <span className={s.moneySuffix}>{HEADLINE_SUFFIX}</span>
+          </span>
+        )}
         {
           <span>{result.matches.length} matched · {pending} awaiting supplier acceptance · {unresolved} unresolved{waived ? ` · ${waived} waived` : ''}</span>
         }
@@ -122,9 +133,9 @@ export function SigningPane({
           </details>
           {gap.costLakhPerYr !== null && (
             <div style={{ marginTop: 8 }}>
-              <span className={s.money}>{formatLakh(gap.costLakhPerYr)}</span>{' '}
-              <span className={s.moneySuffix}>{gap.termKey === 'renewal_notice' ? 'expected once at the next renewal' : 'per year on average'}</span>
-              {gap.priceTag.exposureLakh && <p>Gross renewal exposure · {formatLakh(gap.priceTag.exposureLakh)}</p>}
+              <span className={s.money}>{formatLakh(gap.termKey === 'renewal_notice' ? gap.costLakhPerYr / cloudDeskDeal.termYears : gap.costLakhPerYr)}</span>{' '}
+              <span className={s.moneySuffix}>{HEADLINE_SUFFIX}</span>
+              {gap.termKey === 'renewal_notice' && <p className={s.grey}>{formatLakh(gap.costLakhPerYr)} expected at the next renewal, spread over {cloudDeskDeal.termYears} years{gap.priceTag.exposureLakh ? ` · gross exposure ${formatLakh(gap.priceTag.exposureLakh)}` : ''}</p>}
               <details><summary>How calculated</summary>{gap.priceTag.proof.map((line) => <p key={line}>{line}</p>)}</details>
             </div>
           )}
@@ -140,18 +151,27 @@ export function SigningPane({
             </Badge>
           </div>
           {gap.note && <p className={s.note}>{gap.note}</p>}
+          {gap.termKey === 'payment' && (
+            <p className={s.grey}>v6 reverted payment terms to the 45 days of v3, with no tracked change. v4 and v5 said 60.</p>
+          )}
+          {(() => {
+            const row = rows.find((r) => r.id === gap.rowId);
+            return row ? <MoveBox row={row} /> : null;
+          })()}
+          <RedlineOptions
+            row={rows.find((r) => r.id === gap.rowId)!}
+            onInsert={() => {
+              onGoToClause(gap.clauseNo);
+              insertWording(gap.rowId);
+              toast(`Agreed wording inserted in clause ${gap.clauseNo}.`);
+            }}
+            onPlaybook={(value, label) => {
+              onGoToClause(gap.clauseNo);
+              applyPlaybook(gap.rowId, value, label);
+              toast(`Playbook ${label} inserted in clause ${gap.clauseNo}.`);
+            }}
+          />
           <div className={s.actions}>
-            <Button
-              size="small"
-              appearance="primary"
-              onClick={() => {
-                onGoToClause(gap.clauseNo);
-                insertWording(gap.rowId);
-                toast(`Agreed wording inserted in clause ${gap.clauseNo}.`);
-              }}
-            >
-              Insert agreed wording
-            </Button>
             <Button size="small" onClick={() => onGoToClause(gap.clauseNo)}>
               Go to clause
             </Button>
@@ -171,7 +191,7 @@ export function SigningPane({
               color="informative"
               size="small"
             >
-              {row.signing === 'inserted' ? 'Awaiting supplier acceptance' : 'Waived'}
+              {row.signing === 'inserted' ? (row.playbookPosition ? `Playbook ${row.playbookPosition} sent` : 'Awaiting supplier acceptance') : 'Waived'}
             </Badge>
           </div>
           <p className={s.note} style={{ marginTop: 2 }}>
@@ -192,7 +212,7 @@ export function SigningPane({
             toast(`Agreed wording inserted in ${openGaps.length} clauses.`);
           }}
         >
-          Insert all {openGaps.length}
+          Fix all {openGaps.length} with agreed wording
         </Button>
       )}
 
@@ -289,6 +309,50 @@ export function SigningPane({
       </Dialog>
 
       <InlinePaneDrawer />
+    </div>
+  );
+}
+
+/** Redline Agent suggestions: agreed wording, plus the playbook's fallback and walk-away, each priced. */
+function RedlineOptions({
+  row,
+  onInsert,
+  onPlaybook,
+}: {
+  row: LedgerRow;
+  onInsert: () => void;
+  onPlaybook: (value: TermValue, label: 'fallback' | 'walk-away') => void;
+}) {
+  const s = usePaneStyles();
+  if (!row) return null;
+  const options = playbookOptions(row, cloudDeskDeal);
+  return (
+    <div style={{ marginTop: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginBottom: 4 }}>
+        <span className={s.sectionLabel} style={{ margin: 0 }}>Redline Agent suggestions</span>
+        <OriginTag kind="today" />
+      </div>
+      {options.map((opt) => (
+        <div key={opt.kind} className={s.listRow} style={{ alignItems: 'flex-start' }}>
+          <span className={s.listName}>
+            <span style={{ display: 'block', fontWeight: 600 }}>{opt.label}</span>
+            <span className={s.listValue}>
+              {opt.plain}
+              {opt.condition ? `, ${opt.condition}` : ''} · {opt.costText}
+            </span>
+          </span>
+          <Button
+            size="small"
+            appearance={opt.kind === 'agreed' ? 'primary' : 'secondary'}
+            onClick={() => (opt.kind === 'agreed' ? onInsert() : onPlaybook(opt.value, opt.kind === 'fallback' ? 'fallback' : 'walk-away'))}
+          >
+            {opt.kind === 'agreed' ? 'Insert agreed wording' : opt.kind === 'fallback' ? 'Use fallback' : 'Walk-away'}
+          </Button>
+        </div>
+      ))}
+      <p className={s.grey} style={{ marginTop: 4 }}>
+        <OriginTag kind="new" /> ₹ figures and the email source come from Deal Ledger.
+      </p>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import { SourceChip } from '@/components/sirion/SourceChip';
 import { MoneyFigure } from '@/components/sirion/MoneyFigure';
 import { cloudDeskDeal, personName, versionById } from '@/lib/data';
 import { rowPriceTag } from '@/lib/engines/atRisk';
+import { recommendedMove } from '@/lib/engines/playbook';
 import { extractValue } from '@/lib/engines/diff';
 import { priceChange } from '@/lib/engines/pricing';
 import { useDemo } from '@/lib/store';
@@ -172,6 +173,7 @@ export function LedgerTab({ rows, initialRow }: { rows: LedgerRow[]; initialRow?
                                 ))}
                             </ul>
                           )}
+                          <RecommendedMoveBox row={row} />
                           {tag && tag.costLakhPerYr !== null && (
                             <div className="mt-3 rounded-lg bg-white p-3">
                               {tag.proof.map((p, i) => (
@@ -239,3 +241,27 @@ const THREAT_LABELS: Record<string, string> = {
   sent_concession: 'Our side conceded',
   signing_copy: 'The signing copy says',
 };
+
+/** What to do next on a flagged row, and the leverage behind it (Ironclad-style renewal brief). */
+function RecommendedMoveBox({ row }: { row: LedgerRow }) {
+  const move = recommendedMove(row, cloudDeskDeal);
+  if (!move) return null;
+  return (
+    <div className="mt-3 rounded-lg border border-teal-900/20 bg-mint/30 p-3 text-[11.5px] leading-[17px]">
+      <p className="mb-1 font-semibold text-teal-900">Recommended move</p>
+      <p className="text-ink">{move.ask}</p>
+      {move.fallback && (
+        <p className="mt-1 text-ink">
+          <span className="text-muted">Fallback · </span>
+          {move.fallback}
+        </p>
+      )}
+      {move.leverage && (
+        <p className="mt-1 text-ink">
+          <span className="text-muted">Leverage · </span>
+          {move.leverage}
+        </p>
+      )}
+    </div>
+  );
+}

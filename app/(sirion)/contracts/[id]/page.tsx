@@ -1,8 +1,11 @@
 'use client';
 
 import { Suspense, use } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { notFound, useSearchParams } from 'next/navigation';
 import { ContractRecord } from '@/components/contract/ContractRecord';
+import { PastContractView } from '@/components/contract/PastContractView';
+import { pastContracts } from '@/lib/data';
+import { CONTRACT_ID } from '@/lib/settings';
 
 function Inner() {
   const params = useSearchParams();
@@ -10,7 +13,12 @@ function Inner() {
 }
 
 export default function Page({ params }: { params: Promise<{ id: string }> }) {
-  use(params);
+  const { id } = use(params);
+  if (id !== CONTRACT_ID) {
+    const past = pastContracts.find((c) => c.id === id);
+    if (!past) notFound();
+    return <PastContractView contract={past} />;
+  }
   return (
     <Suspense fallback={null}>
       <Inner />

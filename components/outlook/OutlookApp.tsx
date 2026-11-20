@@ -8,11 +8,16 @@ import { MessageList } from './MessageList';
 import { ReadingPane } from './ReadingPane';
 import { Compose } from './Compose';
 import { PaneFrame } from '@/components/addin/PaneFrame';
-import { AnanyaPane } from '@/components/addin/AnanyaPane';
+import { AnanyaPane, type DraftOptions } from '@/components/addin/AnanyaPane';
 import { VikramPane } from '@/components/addin/VikramPane';
 import { ProgressDialog, SmartAlertDialog } from '@/components/addin/SmartAlertDialog';
 import { NextStage } from '@/components/demo/NextStage';
 import { TrySentence } from './TrySentence';
+import { SwiftShipPane } from '@/components/addin/SwiftShipPane';
+import { SWIFTSHIP_MESSAGES } from '@/lib/demo/moreDeals';
+import { registerExtraMessages } from '@/lib/data';
+
+registerExtraMessages(SWIFTSHIP_MESSAGES);
 import { useDemo, cachedReaderFor } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { initialLedger, STEP_CLOCK } from '@/lib/demo/steps';
@@ -83,6 +88,7 @@ export function OutlookApp({ person }: { person: Person }) {
   const [draft, setDraft] = useState('');
   const [ccAdded, setCcAdded] = useState(false);
   const [checking, setChecking] = useState(false);
+  const [draftOpts, setDraftOpts] = useState<DraftOptions>({});
   const [alert, setAlert] = useState<SendCheckResult | null>(null);
   const showPreview = person === 'vikram' && params.get('result') === 'warning';
   const dismissPreview = () => router.replace('/outlook/vikram?msg=M13');
@@ -93,6 +99,7 @@ export function OutlookApp({ person }: { person: Person }) {
 
   const inbox = useMemo(() => [
     ...inboxFor(person, clock),
+    ...SWIFTSHIP_MESSAGES.filter((m) => m.mailboxes.includes(person) && m.sentAt <= clock),
     ...sentMessages.filter((message) => message.mailboxes.includes(person) && message.from !== owner.email),
   ].sort((a, b) => b.sentAt.localeCompare(a.sentAt)), [person, clock, owner.email, sentMessages]);
 
@@ -147,9 +154,20 @@ export function OutlookApp({ person }: { person: Person }) {
     setComposing(false);
     setLoopIn(undefined);
     setCcAdded(false);
+    const message = messageById(id);
+    if (person === 'ananya' && message && threadById(message.threadId)?.dealId === cloudDeskDeal.id) {
+      // Sirion's plugin files the supplier's draft as the next version on its own; Undo is in the pane.
+      const state = useDemo.getState();
+      for (const file of message.attachments) {
+        if (file.versionId && !state.readMessageIds.includes(id)) state.syncVersion(file.versionId);
+      }
+      // Same supplier domain, and Rohan names Vikram: link the side thread, with Undo.
+      if (id === 'M12') state.autoLinkThread('T2');
+      // The clean copy has arrived: run the signing check without waiting for a button.
+      if (id === 'M14' && !state.signing.checkedAt) state.runSigningCheck();
+    }
     if (useDemo.getState().readMessageIds.includes(id)) return;
     markRead(id);
-    const message = messageById(id);
     if (message && threadById(message.threadId)?.dealId === cloudDeskDeal.id) void runReader([id], id);
   };
 
@@ -210,7 +228,10 @@ export function OutlookApp({ person }: { person: Person }) {
   const [replyAllCc, setReplyAllCc] = useState<string[]>([]);
   const cc = [...new Set([...replyAllCc, ...(ccAdded ? [lead.email] : [])])];
 
-  const openReply = (body = '', replyAll = false) => {
+  const openReply = (body = '', replyAll = false, opts: DraftOptions = {}) => {
+    // Vikram replying to Rohan's price request: start from the reply he would write, so the check at Send has something to catch.
+    if (!body && person === 'vikram' && selected?.id === 'M13') body = 'Yearly price revision is fine with us.';
+    setDraftOpts(opts);
     setReplyAllCc(replyAll && selected ? [...selected.to, ...selected.cc].filter((address) => address !== owner.email && !replyTo.includes(address)) : []);
     setComposing(true);
     setDraft(body);
@@ -271,7 +292,15 @@ export function OutlookApp({ person }: { person: Person }) {
       cc,
       subject: replySubject,
       sentAt: clock,
-      attachments: [],
+      attachments: draftOpts.attachVersionId
+        ? [{
+            fileName: `CloudDesk_MSA_${draftOpts.attachVersionId}.docx`,
+            sizeKb: 94,
+            versionId: draftOpts.attachVersionId,
+            fingerprint: `fp-${draftOpts.attachVersionId}`,
+            dealIdTag: cloudDeskDeal.dealIdTag,
+          }]
+        : [],
       body: draft,
       mailboxes: [person, ...[...replyTo, ...cc].flatMap((address) => {
         const recipient = personByEmail(address)?.id;
@@ -299,6 +328,17 @@ export function OutlookApp({ person }: { person: Person }) {
       });
     }
     toast('Sent');
+    if (draftOpts.kind === 'clarify') {
+      // Rohan answers in the same supplier thread; his reply becomes the source for the row.
+      setTimeout(() => {
+        useDemo.getState().clarifyCredit();
+        useDemo.getState().toast('Rohan replied: 10% service credit. Written to the ledger with his quote.');
+        setFolder('inbox');
+        setSelectedId('M12R');
+      }, 1200);
+    }
+    if (draftOpts.kind === 'respond') useDemo.getState().syncVersion('v5');
+    setDraftOpts({});
     setFolder('sent');
     setSelectedId(message.id);
     setLoopIn(undefined);
@@ -385,11 +425,13 @@ export function OutlookApp({ person }: { person: Person }) {
                   onSend={doSend}
                   onDiscard={() => {
                     setComposing(false);
+                    setDraftOpts({});
                     setDraft('');
                     setLoopIn(undefined);
                     setCcAdded(false);
                   }}
                   sending={checking}
+                  attachments={draftOpts.attachVersionId ? [`CloudDesk_MSA_${draftOpts.attachVersionId}.docx`] : []}
                 />
               ) : (
                 <ReadingPane message={selected} onReply={() => openReply()} onReplyAll={() => openReply('', true)} />
@@ -406,14 +448,16 @@ export function OutlookApp({ person }: { person: Person }) {
 
             {paneOpen && (
               <PaneFrame width={340} source={cloudDeskContext ? readerSource : undefined} footerHref={cloudDeskContext ? undefined : '/deals'} onClose={() => setPaneOpen(false)}>
-                {!cloudDeskContext ? (
+                {selected && SWIFTSHIP_MESSAGES.some((m) => m.id === selected.id) ? (
+                  <SwiftShipPane messageId={selected.id} />
+                ) : !cloudDeskContext ? (
                   <p style={{ fontSize: 13 }}>No linked deal for this message.</p>
                 ) : person === 'ananya' ? (
                   <AnanyaPane
                     rows={rows}
                     openMessageId={selected?.id}
                     busy={busy}
-                    onDraftReply={(body) => openReply(body)}
+                    onDraftReply={(body, opts) => openReply(body, false, opts)}
                   />
                 ) : (
                   <>

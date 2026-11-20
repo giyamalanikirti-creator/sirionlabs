@@ -6,6 +6,7 @@ import { Bell, Check, ChevronDown, CircleHelp, Search } from 'lucide-react';
 import { useDemo, type Role } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { formatDateTime } from '@/lib/format';
+import { dealById } from '@/lib/data';
 
 const ROLES: { id: Role; name: string; role: string; initials: string }[] = [
   { id: 'lead', name: 'Ananya Rao', role: 'Procurement lead', initials: 'AR' },
@@ -24,8 +25,11 @@ const CRUMBS: Record<string, string> = {
 
 function breadcrumb(pathname: string): string[] {
   if (CRUMBS[pathname]) return ['Deal Ledger', CRUMBS[pathname]];
-  if (pathname.startsWith('/deals/')) return ['Deal Ledger', 'Deals', 'CloudDesk renewal 2026–29'];
-  if (pathname.startsWith('/contracts/')) return ['Deal Ledger', 'Contracts', 'C-2026-0417'];
+  if (pathname.startsWith('/deals/')) {
+    const id = decodeURIComponent(pathname.split('/')[2] ?? '');
+    return ['Deal Ledger', 'Deals', id === 'D-CLOUDDESK' ? 'CloudDesk renewal 2026–29' : dealById(id)?.supplier ?? id];
+  }
+  if (pathname.startsWith('/contracts/')) return ['Deal Ledger', 'Contracts', decodeURIComponent(pathname.split('/')[2] ?? '')];
   return ['Deal Ledger'];
 }
 

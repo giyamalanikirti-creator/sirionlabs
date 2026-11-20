@@ -244,7 +244,7 @@ export function confirmRow(
   rows: LedgerRow[],
   rowId: string,
   value: TermValue,
-  opts: { note?: string; at: string; byPersonId: string; messageId?: string },
+  opts: { note?: string; at: string; byPersonId: string; messageId?: string; source?: SourceRef },
 ): LedgerRow[] {
   const next = clone(rows);
   const row = next.find((r) => r.id === rowId);
@@ -268,7 +268,7 @@ export function confirmRow(
 
   row.position = value;
   row.state = 'agreed';
-  row.source = callNote ?? emailSource ?? row.source;
+  row.source = opts.source ?? callNote ?? emailSource ?? row.source;
   if (value.kind === 'service_credit') {
     row.supplierNote = `Reflects the ${value.pct}% service credit for months below ${value.uptimeTarget}% uptime.`;
   }
@@ -490,5 +490,35 @@ export function closeAllThreats(rows: LedgerRow[], at: string): LedgerRow[] {
       byPersonId: 'ananya',
     });
   }
+  return next;
+}
+
+/**
+ * The lead chose a playbook fallback or walk-away position instead of the
+ * agreed wording. The ledger now records that position as what we are
+ * offering, so the returned copy is checked against it, and the history keeps
+ * what had been agreed before.
+ */
+export function applyPlaybookPositionForRow(
+  rows: LedgerRow[],
+  rowId: string,
+  value: TermValue,
+  label: 'fallback' | 'walk-away',
+  at: string,
+): LedgerRow[] {
+  const next = clone(rows);
+  const row = next.find((r) => r.id === rowId);
+  if (!row) return next;
+  const before = row.position;
+  row.position = value;
+  row.signing = 'inserted';
+  row.state = 'agreed';
+  row.playbookPosition = label;
+  addHistory(
+    row,
+    at,
+    `Playbook ${label} offered instead of the agreed ${plainValue(before)}: ${plainValue(value)}. Inserted as a tracked change.`,
+    { kind: 'manual', quote: `Playbook ${label}: ${plainValue(value)}`, at, byPersonId: 'ananya' },
+  );
   return next;
 }

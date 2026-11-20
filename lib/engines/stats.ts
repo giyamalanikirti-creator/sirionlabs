@@ -94,3 +94,10 @@ export function groupLabel(days: number): string {
   if (g === 'long') return "60–90 days'";
   return `${days} days`;
 }
+
+/** A contract's monthly uptime record, oldest first. */
+export function serviceEventsFor(contractId: string): { month: string; uptimePct: number }[] {
+  return serviceEvents
+    .filter((e) => e.contractId === contractId)
+    .sort((a, b) => a.month.localeCompare(b.month));
+}

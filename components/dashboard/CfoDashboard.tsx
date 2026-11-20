@@ -43,7 +43,7 @@ export function CfoDashboard() {
         <KpiTile
           label="Commitments approved this quarter"
           value="₹4.6 crore"
-          caption="Across 5 supplier deals · sample data"
+          caption="Across 5 supplier deals · demo data"
         />
 
         <SirionCard title="Conditions to watch" className="lg:col-span-2">
@@ -117,7 +117,7 @@ export function CfoDashboard() {
                   <StatePill state="agreed" />
                 </Td>
                 <Td>—</Td>
-                <Td className="text-[11.5px]">Email · {a.at} · sample</Td>
+                <Td className="text-[11.5px]">Email · {a.at} · demo data</Td>
               </tr>
             ))}
           </tbody>

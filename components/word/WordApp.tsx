@@ -1,7 +1,10 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, makeStyles } from '@fluentui/react-components';
+import { Spinner, makeStyles } from '@fluentui/react-components';
+import Link from 'next/link';
+import { OriginTag } from '@/components/addin/SirionBlocks';
+import { useDemo as useDemoStore } from '@/lib/store';
 import { useWordStyles, WordRibbon, WordStatusBar, WordTitleBar } from './chrome';
 import { countWords, paginate, WordDocument, type CommentCard, type TrackedEdit } from './Document';
 import { PaneFrame } from '@/components/addin/PaneFrame';
@@ -45,9 +48,14 @@ export function WordApp({ versionId }: { versionId: string }) {
       advanceTo(3);
       return;
     }
-    if (clock < STEP_CLOCK[4]) setClock(STEP_CLOCK[4]);
+    if (clock < STEP_CLOCK[4]) {
+      setClock(STEP_CLOCK[4]);
+      return;
+    }
+    // The clean copy has arrived: check it on its own rather than waiting for a button.
+    if (!checkedAt) runSigningCheck();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, versionId, clock]);
+  }, [hydrated, versionId, clock, checkedAt]);
 
   useEffect(() => {
     if (versionId === 'v7') anchorRefs.current['9.1']?.scrollIntoView({ block: 'center' });
@@ -58,6 +66,20 @@ export function WordApp({ versionId }: { versionId: string }) {
     if (!version) return { edits: [] as TrackedEdit[], comments: [] as CommentCard[] };
     const e: TrackedEdit[] = [];
     const c: CommentCard[] = [];
+    if (version.id === 'v5') {
+      // Our turn: v5 restores clause 14.2, shown as a tracked change against the supplier's v4.
+      const v4 = versionById('v4');
+      for (const change of v4 ? diffVersions(v4, version) : []) {
+        e.push({ clauseNo: change.clauseNo, before: change.before, after: change.after, tail: '' });
+        c.push({
+          clauseNo: change.clauseNo,
+          author: 'Ananya Rao',
+          initials: 'AR',
+          text: rows.find((row) => row.termKey === change.termKey)?.supplierNote ?? 'Restored to the wording agreed in v3.',
+        });
+      }
+      return { edits: e, comments: c };
+    }
     for (const row of rows) {
       if (version.id !== 'v6' || row.signing !== 'inserted') continue;
       const clause = version.clauses.find((cl) => cl.termKey === row.termKey);
@@ -124,11 +146,12 @@ export function WordApp({ versionId }: { versionId: string }) {
           <PaneFrame width={330} onClose={() => setPaneOpen(false)}>
             {versionId === 'v6' ? (
               checkedAt ? <SigningPane rows={rows} version={version} onGoToClause={goToClause} /> : (
-                <div style={{ display: 'grid', gap: 12 }}>
-                  <p>CloudDesk says it accepted the changes. Compare the signing copy with the ledger before sending it for signature.</p>
-                  <Button appearance="primary" onClick={() => { runSigningCheck(); goToClause('9.1'); }}>Run signing check</Button>
+                <div style={{ display: 'flex', gap: 8, alignItems: 'center', fontSize: 13 }}>
+                  <Spinner size="tiny" /> Checking the signing copy against the ledger…
                 </div>
               )
+            ) : versionId === 'v5' ? (
+              <OurTurnPane edits={edits} />
             ) : versionId === 'v7' ? (
               <SigningPane rows={rows} version={version} onGoToClause={goToClause} />
             ) : (
@@ -138,6 +161,32 @@ export function WordApp({ versionId }: { versionId: string }) {
         )}
       </div>
       <WordStatusBar pages={pages} words={countWords(version)} />
+    </div>
+  );
+}
+
+/** v5 is our turn: what we changed, and the next step. */
+function OurTurnPane({ edits }: { edits: TrackedEdit[] }) {
+  const responded = useDemoStore((st) => st.respondedMessageIds.includes('M8'));
+  return (
+    <div style={{ display: 'grid', gap: 10, fontSize: 12.5, lineHeight: '18px' }}>
+      <div>
+        <OriginTag kind="new" />
+      </div>
+      <strong>Our turn · round 5 · v5</strong>
+      <p>
+        {edits.length} tracked change{edits.length === 1 ? '' : 's'} against CloudDesk&apos;s v4, each with a
+        supplier-safe comment. Everything else in v4 matches the ledger.
+      </p>
+      {edits.map((edit) => (
+        <p key={edit.clauseNo} style={{ background: '#F3F6F6', borderRadius: 4, padding: '6px 8px' }}>
+          Clause {edit.clauseNo}: restored to the agreed wording.
+        </p>
+      ))}
+      <p style={{ color: '#5F7377' }}>
+        {responded ? 'The reply to Rohan is drafted in Outlook with this file attached.' : 'Use “Respond to round” in Outlook to draft the reply with this file attached.'}
+      </p>
+      <Link href="/outlook/ananya?msg=M8">Back to Outlook</Link>
     </div>
   );
 }

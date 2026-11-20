@@ -463,9 +463,9 @@ export interface Invoice { id: string; contractId: string; month: string; amount
 
 | Supplier | Type | Fee (₹ lakh/yr) | Stage | Round | Rows A/O/N/R | At risk (₹ lakh/yr) | Owner |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| SwiftShip Logistics | logistics | 36 | rounds | 3 | 4/2/1/0 | 3.6 | Ananya |
+| SwiftShip Logistics | logistics | 36 | rounds | 2 | 2/2/0/0 | 0.7 | Ananya |
 | Nimbus HR Cloud | software | 24 | rounds | 2 | 3/3/0/1 | 2.9 | Ananya |
-| BrightStaff Services | staffing | 85 | signing | 5 | 6/0/0/0 | 4.2 | Karan |
+| BrightStaff Services | staffing | 85 | signing | 3 | 3/0/0/1 | 1.6 | Karan |
 | CleanCo Facilities | facilities | 18 | rounds | 4 | 5/1/0/0 | 0.9 | Karan |
 | DataVault | software | 30 | rounds | 1 | 1/5/0/0 | 2.4 | Ananya |
 | HelpHub | software | 12 | signing | 4 | 5/0/1/0 | 0.8 | Meera |
@@ -475,7 +475,7 @@ export interface Invoice { id: string; contractId: string; month: string; amount
 | Kaveri Consulting | consultants | 15 | signing | 4 | 4/0/0/0 | 0.5 | Karan |
 | SecureGate Facilities | facilities | 9 | rounds | 1 | 1/3/0/0 | 0.3 | Meera |
 
-Sum of display-only at risk = **21.4**. Clicking a display-only deal shows the toast "Demo: only CloudDesk is interactive".
+Sum of display-only at risk = **15.9**. BrightStaff (1.6) and SwiftShip (0.7) are scripted deals (`lib/demo/moreDeals.ts`); their figures equal the engine values in `lib/engines/otherTerms.ts`, rounded, and `tests/other-terms.test.ts` checks that. Every other deal opens a read-only ledger, so no click leads nowhere.
 
 ### 7.3 Dashboard and insights data (sample, labelled "Sample data" in the UI)
 
@@ -619,8 +619,10 @@ Lakh to one decimal place (₹3.9 lakh). Below ₹1 lakh, rupees rounded to the 
 | After M13 arrives (new ask on price) | 5.06192 | ₹5.1 lakh per year on average |
 | Signing check on v6: 3 gaps total | 5.3084953 | ₹5.3 lakh per year on average |
 | After signing | 0 | none |
-| All open deals at risk, start | 25.82192 | ₹25.8 lakh a year |
-| All open deals at risk, after signing | 21.4 | ₹21.4 lakh a year |
+| All open deals at risk, start | 20.32192 | ₹20.3 lakh a year |
+| All open deals at risk, after signing | 15.9 | ₹15.9 lakh a year |
+| BrightStaff markup 8% → 10% (rate card) | 1.5740741 | ₹1.6 lakh a year |
+| SwiftShip fuel threshold ₹92 → ₹88 | 0.72 | ₹72,000 a year |
 | Term commitment | 180 | ₹1.8 crore |
 | Dec 2027 invoice over agreed price | 0.32 | ₹32,000 |
 | Renewal deadline / reminder | — | 31 Oct 2029 / 16 Sep 2029 |
@@ -766,7 +768,7 @@ app/
 **Procurement lead (default).** 2-column grid on desktop:
 
 1. **KPI: "Signed with no agreed term missing"** (north star, audited): **65%**. Caption: "13 of 20 audited · Jul–Sep 2026 · 3 signed since, awaiting audit". After CloudDesk signs: "4 signed since".
-2. **KPI: "₹ at risk in open deals"**: **₹25.8 lakh a year** at start. Caption: "12 open deals · {n} rows need confirming". Live from engines and the store.
+2. **KPI: "₹ at risk in open deals"**: **₹20.3 lakh a year** at start. Caption: "12 open deals · {n} rows need confirming". Live from engines and the store.
 3. **"At risk by open deal"**: single-series teal bars, top 8 deals.
 4. **"Where agreed terms were found"**: donut from `terms_found.json` with leader labels. Caption: "42% were agreed outside the document".
 5. **"Gaps caught at signing"**: stacked bars by term (fixed = teal-900, waived = mint).
@@ -978,7 +980,7 @@ Read BUILD_SPEC §11 and §4F. Build lib/store.ts (Zustand + persist) with all a
 
 **Phase 6: Sirion app pages**
 ```
-Read BUILD_SPEC §10.1–§10.4 and match 04-…png, 02-…png, 03-…png, 09-…png. Build the dashboard (all four role views), /deals with saved views, and /deals/D-CLOUDDESK with Ledger, Rounds, Threads, Signing and Activity tabs and the source drawer. Done when the lead dashboard shows 65% and ₹25.8 lakh a year at step 0, the CloudDesk header shows ₹4.4 lakh a year, every number comes from engines/seed/store, and source chips open the right email or clause.
+Read BUILD_SPEC §10.1–§10.4 and match 04-…png, 02-…png, 03-…png, 09-…png. Build the dashboard (all four role views), /deals with saved views, and /deals/D-CLOUDDESK with Ledger, Rounds, Threads, Signing and Activity tabs and the source drawer. Done when the lead dashboard shows 65% and ₹20.3 lakh a year at step 0, the CloudDesk header shows ₹4.4 lakh a year, every number comes from engines/seed/store, and source chips open the right email or clause.
 ```
 
 **Phase 7: Outlook moments 1 and 2 (reader)**
@@ -998,7 +1000,7 @@ Read BUILD_SPEC §4C, §8.6–§8.7 and §10.7. Render v6 as paginated A4 pages 
 
 **Phase 10: Handover and invoices (moment 5)**
 ```
-Read BUILD_SPEC §8.8 and §10.8. Add Save to Sirion after signing, /contracts with CloudDesk first after handover, and the record page with Overview, Agreed terms, Obligations, Invoices (rules, table, Fast-forward to Dec 2027 → ₹32,000 flag citing clause 9.1 with the 14 Nov email as history) and Documents. Update dashboards (at risk drops to ₹21.4 lakh a year; "4 signed since, awaiting audit"; CFO condition shows "Fixed in signed copy ✓"). Done when the full chain from step 4 to step 6 works with no API key.
+Read BUILD_SPEC §8.8 and §10.8. Add Save to Sirion after signing, /contracts with CloudDesk first after handover, and the record page with Overview, Agreed terms, Obligations, Invoices (rules, table, Fast-forward to Dec 2027 → ₹32,000 flag citing clause 9.1 with the 14 Nov email as history) and Documents. Update dashboards (at risk drops to ₹15.9 lakh a year; "4 signed since, awaiting audit"; CFO condition shows "Fixed in signed copy ✓"). Done when the full chain from step 4 to step 6 works with no API key.
 ```
 
 **Phase 11: Insights, reader eval, story, polish**

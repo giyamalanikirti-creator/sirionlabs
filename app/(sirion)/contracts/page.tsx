@@ -29,7 +29,6 @@ export default function ContractsPage() {
   const router = useRouter();
   const hydrated = useHydrated();
   const contract = useDemo((s) => s.contract);
-  const toast = useDemo((s) => s.toast);
   const [query, setQuery] = useState('');
 
   const rows = pastContracts.filter((c) =>
@@ -103,7 +102,7 @@ export default function ContractsPage() {
             {rows.map((c) => (
               <tr
                 key={c.id}
-                onClick={() => toast('Contract details are unavailable')}
+                onClick={() => router.push(`/contracts/${c.id}`)}
                 className="cursor-pointer transition-colors hover:bg-page/60"
               >
                 <Td className="font-medium">{c.name}</Td>

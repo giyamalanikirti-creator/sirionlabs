@@ -191,3 +191,6 @@ export function numberToWords(n: number): string {
 export function indianGroup(amount: number): string {
   return new Intl.NumberFormat('en-IN', { maximumFractionDigits: 0 }).format(amount);
 }
+
+/** The one way a deal's ₹ figure is described everywhere: pane, Home, Deals and the deal page. */
+export const HEADLINE_SUFFIX = 'a year if signed as is';

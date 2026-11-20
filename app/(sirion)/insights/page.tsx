@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { EmptyState, PageHeader, SirionCard } from '@/components/sirion/ui';
+import { PageHeader, SirionCard } from '@/components/sirion/ui';
 import { GuardrailLine, StackedBars, TrendBarsLine } from '@/components/sirion/charts';
 import { guardrails, kpiHistory, sendWarnings, signingGapsData } from '@/lib/data';
 import { useDemo } from '@/lib/store';
@@ -195,16 +195,8 @@ export default function InsightsPage() {
 function ReaderAccuracy({ data }: { data: EvalFile }) {
   const [open, setOpen] = useState(false);
 
-  if (!data || data.notRun || !data.totals || !data.items) {
-    return (
-      <SirionCard title="Reader accuracy">
-        <EmptyState
-          title="Accuracy results pending"
-          body="The 32-example live reader assessment has no published score yet."
-        />
-      </SirionCard>
-    );
-  }
+  // Model accuracy is never invented: until `npm run eval:reader` has run with a key, the card is left out.
+  if (!data || data.notRun || !data.totals || !data.items) return null;
 
   const { correct, safe, wrong, total } = data.totals;
 

@@ -66,10 +66,10 @@ export function SirionCard({
 export function SamplePill() {
   return (
     <span
-      title="Illustrative data, so the screen reads like a real one"
+      title="Illustrative demo numbers for the pilot dashboards. CloudDesk figures are live from the ledger."
       className="shrink-0 rounded-full border border-line bg-page px-2 py-[1px] text-[10px] font-medium uppercase tracking-wide text-muted"
     >
-      Sample data
+      Demo data
     </span>
   );
 }
@@ -276,10 +276,9 @@ export function Td({
 
 export function TableFooter({ total, shown }: { total: number; shown?: number }) {
   return (
-    <div className="flex items-center justify-between px-4 py-2.5 text-[11.5px] text-muted">
-      <span>Rows per page 10</span>
+    <div className="flex items-center justify-end px-4 py-2.5 text-[11.5px] text-muted">
       <span>
-        1–{shown ?? total} of {total}
+        Showing {total === 0 ? 0 : 1}–{shown ?? total} of {total}
       </span>
     </div>
   );

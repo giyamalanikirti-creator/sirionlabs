@@ -3,7 +3,7 @@
 import { Badge, tokens } from '@fluentui/react-components';
 import type { LedgerRow, RowState } from '@/lib/types';
 import { cloudDeskDeal, personName } from '@/lib/data';
-import { rowAtRisk } from '@/lib/engines/atRisk';
+import { rowHeadlineShare } from '@/lib/engines/playbook';
 import { formatLakh } from '@/lib/format';
 import { plainValue, STATE_LABELS } from '@/lib/plain';
 import { usePaneStyles } from './paneStyles';
@@ -32,7 +32,7 @@ export function LedgerList({ rows, compact = false }: { rows: LedgerRow[]; compa
   return (
     <div>
       {rows.map((r) => {
-        const risk = rowAtRisk(r, cloudDeskDeal);
+        const risk = rowHeadlineShare(r, cloudDeskDeal);
         return (
           <div key={r.id} className={s.listRow}>
             <span className={s.listName}>
@@ -42,7 +42,7 @@ export function LedgerList({ rows, compact = false }: { rows: LedgerRow[]; compa
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
               {compact ? <span className={s.listValue}>{r.owner === 'legal' ? 'Legal' : personName(cloudDeskDeal.ownerId)}</span> : risk ? (
                 <span style={{ fontSize: 11.5, color: tokens.colorPaletteDarkOrangeForeground1 }}>
-                  {formatLakh(risk)} {r.termKey === 'renewal_notice' ? 'at next renewal' : '/year avg.'}
+                  {formatLakh(risk)} a year
                 </span>
               ) : null}
               <StateBadge state={r.state} />
