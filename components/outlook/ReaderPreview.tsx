@@ -35,7 +35,7 @@ export function ReaderPreview() {
   return (
     <details style={{ margin: '12px 0', fontSize: 13 }}>
       <summary style={{ cursor: 'pointer', fontWeight: 600 }}>Try your own email</summary>
-      <p style={{ margin: '8px 0' }}>Use a fictional supplier email. Live preview sends the text to the reader and leaves the deal unchanged.</p>
+      <p style={{ margin: '8px 0' }}>Preview what the reader extracts from a supplier email.</p>
       <Field label="Supplier email">
         <Textarea value={email} maxLength={2500} resize="vertical" disabled={busy} onChange={(_, data) => {
           setEmail(data.value);

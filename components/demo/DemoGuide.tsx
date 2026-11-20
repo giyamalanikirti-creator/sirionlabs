@@ -14,11 +14,11 @@ export function DemoGuide() {
 
   return (
     <div className="ds-scope fixed inset-0 z-[150] flex justify-end">
-      <button aria-label="Close the demo guide" onClick={() => setOpen(false)} className="absolute inset-0 bg-ink/25" />
-      <aside className="dl-slide-in relative flex h-full w-[460px] max-w-full flex-col bg-white shadow-drawer" aria-label="Demo guide">
+      <button aria-label="Close the walkthrough" onClick={() => setOpen(false)} className="absolute inset-0 bg-ink/25" />
+      <aside className="dl-slide-in relative flex h-full w-[460px] max-w-full flex-col bg-white shadow-drawer" aria-label="Walkthrough">
         <header className="flex justify-between gap-4 border-b border-line px-6 py-5">
           <div>
-            <h2 className="text-[17px] text-teal-title">Demo guide</h2>
+            <h2 className="text-[17px] text-teal-title">Walkthrough</h2>
             <p className="mt-1 text-sm text-muted">Will CloudDesk’s signing copy contain the deal Ananya actually negotiated?</p>
           </div>
           <button aria-label="Close" onClick={() => setOpen(false)} className="self-start p-1.5 text-muted"><X size={16} /></button>

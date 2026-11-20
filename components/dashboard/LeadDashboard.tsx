@@ -181,12 +181,6 @@ export function LeadDashboard() {
         )}
       </SirionCard>
 
-      <p className="mt-6 text-[11px] leading-[16px] text-muted">
-        Student prototype for the Sirion ISB assignment. Not a Sirion or Microsoft product. All
-        names and data are fictional. Cards marked “Sample data” are illustrative; every ₹ figure on
-        CloudDesk is computed from the seed data by{' '}
-        <code className="rounded bg-page px-1 py-[1px] text-[10.5px]">lib/engines</code>.
-      </p>
     </>
   );
 }

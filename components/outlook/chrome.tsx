@@ -57,14 +57,6 @@ export const useChromeStyles = makeStyles({
   },
   headerLeft: { display: 'flex', alignItems: 'center', columnGap: '10px', minWidth: '248px' },
   appName: { fontSize: '16px', fontWeight: tokens.fontWeightSemibold, letterSpacing: '-0.01em' },
-  mockPill: {
-    ...shorthands.border('1px', 'solid', 'rgba(255,255,255,0.6)'),
-    ...shorthands.borderRadius('10px'),
-    ...shorthands.padding('1px', '7px'),
-    fontSize: '11px',
-    lineHeight: '15px',
-    letterSpacing: '0.02em',
-  },
   search: {
     display: 'flex',
     alignItems: 'center',
@@ -215,7 +207,6 @@ export function OutlookHeader({ owner }: { owner: { name: string; email: string 
         </span>
         {/* Product name as plain text — no Microsoft logo or app icon. */}
         <span className={s.appName}>Outlook</span>
-        <span className={s.mockPill}>Mock</span>
       </div>
       <div className={s.search}>
         <SearchRegular fontSize={16} />

@@ -86,6 +86,7 @@ check('step 2 · confirmation attributed to Ananya', /Confirmed by Ananya Rao on
 // Step 3
 await click('Next · Check reply'); await w(2200);
 await click('Reply'); await w(900);
+await p.evaluate(() => [...document.querySelectorAll('summary')].find((node) => node.textContent === 'Try a reply').click());
 await click('Yearly price revision is fine with us.'); await w(500);
 await click('Send'); await w(3200);
 t = await text();
@@ -102,6 +103,7 @@ await click('Use a holding reply'); await w(1200);
 await click('Send'); await w(2800);
 t = await text();
 check('step 3 · holding reply sent with no warning', /Sent/.test(t));
+check('step 3 · sent message opens with Ananya in Cc', /Cc: ananya\.rao@meridian\.example/.test(t));
 
 // Step 4
 await click('Next · Verify signing copy'); await w(2000);
@@ -149,6 +151,12 @@ await p.goto(`${BASE}/story`, { waitUntil: 'networkidle0' }); await w(1500);
 t = await text();
 check('story · all 13 sections + sources', /13\. Assumptions/.test(t) && /Sources/.test(t));
 check('story · Markdown tables rendered', (await p.$$('article table')).length > 0);
+
+await p.goto(`${BASE}/outlook/vikram`, { waitUntil: 'networkidle0' });
+await p.click('[aria-label="Team offsite plan"]');
+check('Outlook · unrelated mail has no CloudDesk ledger', /No linked deal for this message/.test(await text()));
+await click('Reply');
+check('Outlook · unrelated reply goes to the sender', /priyanka\.das@meridian\.example/.test(await p.$eval('section:has(textarea)', (node) => node.innerText)));
 
 console.log(`\nwalltime ${(Date.now()-t0)/1000}s (includes scripted waits)`);
 console.log(errs.length ? '\nPAGE ERRORS:\n' + errs.join('\n') : '\nno page errors');

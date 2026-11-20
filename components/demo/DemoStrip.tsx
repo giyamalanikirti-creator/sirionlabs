@@ -33,8 +33,6 @@ export function DemoStrip() {
     <div className="ds-scope flex h-8 shrink-0 items-center justify-between gap-4 bg-ink px-3 text-[12px] text-white/90">
       <div className="hidden shrink-0 items-center gap-2 lg:flex">
         <span className="font-semibold tracking-tight text-white">Deal Ledger</span>
-        <span className="text-white/35">·</span>
-        <span className="text-white/60">student prototype · fictional data</span>
       </div>
 
       <div className="flex min-w-0 flex-1 items-center justify-center gap-3">
@@ -70,7 +68,7 @@ export function DemoStrip() {
           suppressHydrationWarning
           className="hidden whitespace-nowrap rounded-full border border-white/20 px-2.5 py-[2px] text-[11px] text-white/70 xl:inline-block"
         >
-          Demo date: {formatDemoDate(shownClock)}
+          {formatDemoDate(shownClock)}
         </span>
       </div>
 
@@ -80,13 +78,13 @@ export function DemoStrip() {
           className="flex items-center gap-1.5 rounded px-2 py-[3px] text-[11.5px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
         >
           <BookOpenText size={13} strokeWidth={1.8} />
-          Demo guide
+          Walkthrough
         </button>
         <button
           onClick={() => {
             reset();
             router.push('/');
-            toast('Demo reset to 14 Nov, 10:00.');
+            toast('Walkthrough reset.');
           }}
           className="flex items-center gap-1.5 rounded px-2 py-[3px] text-[11.5px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
         >

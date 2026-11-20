@@ -52,9 +52,10 @@ export function VikramPane({
   const row = rows.find((r) => r.id === loopIn.rowId);
   if (!row) return null;
 
-  const fallbackTag = priceChange(cloudDeskDeal, row.position, FALLBACK);
+  const fallbackTag = row.termKey === 'price' ? priceChange(cloudDeskDeal, row.position, FALLBACK) : null;
   const approver = approverFor(rows, row.termKey);
-  const cfoRow = rows.find((r) => r.approvedBy?.condition);
+  const cfoApproval = row.termKey === 'price' ? rows.find((r) => r.approvedBy?.condition)?.approvedBy : undefined;
+  const approval = cfoApproval ?? row.approvedBy;
 
   return (
     <div style={{ position: 'relative' }}>
@@ -79,23 +80,22 @@ export function VikramPane({
           >
             {sourcePlain(row.source)}
           </Badge>
-          {cfoRow?.approvedBy && (
+          {approval && (
             <Badge
               appearance="outline"
               color="informative"
               size="small"
               style={{ cursor: 'pointer' }}
-              onClick={() => open(cfoRow.approvedBy!.source, true)}
+              onClick={() => open(approval.source, true)}
             >
-              Approval of 12 Nov
+              View approval
             </Badge>
           )}
         </div>
 
         {approver && (
           <p className={s.note}>
-            {approver}'s approval depends on this: she approved the three-year commitment “
-            {cfoRow?.approvedBy?.condition}”.
+            {approver} approved {cfoApproval ? 'the three-year commitment' : 'this term'}{approval?.condition ? ` ${approval.condition}` : ''}.
           </p>
         )}
 
@@ -110,7 +110,7 @@ export function VikramPane({
         </div>
       </div>
 
-      <div className={s.card}>
+      {fallbackTag && <div className={s.card}>
         <div className={s.cardTitle}>{personName('ananya')}'s approved fallback</div>
         <div className={s.cardMeta}>If you have to give something on price</div>
         <div className={s.termValue}>{plainValue(FALLBACK, cloudDeskDeal.termYears)}</div>
@@ -124,7 +124,7 @@ export function VikramPane({
           Still a cost, but about a quarter of an open yearly revision. Procurement set this ceiling
           before the round started.
         </p>
-      </div>
+      </div>}
 
       <div className={s.actions}>
         <Button size="small" appearance="primary" onClick={onAddCc} disabled={ccAdded}>

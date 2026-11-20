@@ -103,7 +103,7 @@ export default function ContractsPage() {
             {rows.map((c) => (
               <tr
                 key={c.id}
-                onClick={() => toast('Demo: only the CloudDesk record is interactive')}
+                onClick={() => toast('Contract details are unavailable')}
                 className="cursor-pointer transition-colors hover:bg-page/60"
               >
                 <Td className="font-medium">{c.name}</Td>

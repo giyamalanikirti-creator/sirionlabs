@@ -52,12 +52,6 @@ export const useWordStyles = makeStyles({
     columnGap: '10px',
   },
   appName: { fontSize: '15px', fontWeight: tokens.fontWeightSemibold },
-  mockPill: {
-    ...shorthands.border('1px', 'solid', 'rgba(255,255,255,0.6)'),
-    ...shorthands.borderRadius('10px'),
-    ...shorthands.padding('1px', '7px'),
-    fontSize: '11px',
-  },
   fileName: { fontSize: '13px', marginLeft: '6px' },
   saved: { fontSize: '12px', color: 'rgba(255,255,255,0.75)' },
   search: {
@@ -169,7 +163,6 @@ export function WordTitleBar({ fileName }: { fileName: string }) {
       <GridDotsRegular fontSize={20} />
       {/* Plain text, no Microsoft app icon. */}
       <span className={s.appName}>Word</span>
-      <span className={s.mockPill}>Mock</span>
       <span className={s.fileName}>{fileName}</span>
       <span className={s.saved}>· Saved</span>
       <div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}>

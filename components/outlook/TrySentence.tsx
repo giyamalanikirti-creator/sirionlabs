@@ -1,9 +1,5 @@
 'use client';
 
-/**
- * The demo helper sits outside the mock chrome, clearly tagged, so the Outlook
- * screen itself stays faithful (§10.6).
- */
 const SENTENCES = [
   'Yearly price revision is fine with us.',
   'Sure, we can pay in 45 days.',
@@ -14,17 +10,9 @@ const SENTENCES = [
 
 export function TrySentence({ onPick }: { onPick: (sentence: string) => void }) {
   return (
-    <div className="ds-scope fixed bottom-4 left-4 z-[90] w-[300px] rounded-xl border border-line bg-white p-4 shadow-pop">
-      <div className="mb-2 flex items-center gap-2">
-        <span className="rounded bg-ink px-1.5 py-[1px] text-[9.5px] font-semibold uppercase tracking-wide text-white">
-          Demo
-        </span>
-        <span className="text-[12.5px] font-medium text-ink">Try a sentence</span>
-      </div>
-      <p className="mb-3 text-[11.5px] leading-[16px] text-muted">
-        Click one, or type your own in the reply and press Send.
-      </p>
-      <div className="space-y-1.5">
+    <details className="ds-scope mt-3 rounded-lg border border-line bg-white p-3">
+      <summary className="cursor-pointer text-[12.5px] font-medium text-ink">Try a reply</summary>
+      <div className="mt-2 space-y-1.5">
         {SENTENCES.map((sentence) => (
           <button
             key={sentence}
@@ -35,6 +23,6 @@ export function TrySentence({ onPick }: { onPick: (sentence: string) => void }) 
           </button>
         ))}
       </div>
-    </div>
+    </details>
   );
 }

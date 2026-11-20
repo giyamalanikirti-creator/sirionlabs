@@ -93,7 +93,7 @@ export function WordApp({ versionId }: { versionId: string }) {
   };
 
   if (!version) {
-    return <div style={{ padding: 32, fontSize: 13 }}>That version is not in the demo data.</div>;
+    return <div style={{ padding: 32, fontSize: 13 }}>This document version is unavailable.</div>;
   }
 
   const pages = paginate(version.clauses).length;

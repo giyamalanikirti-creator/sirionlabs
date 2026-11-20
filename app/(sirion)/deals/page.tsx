@@ -90,10 +90,6 @@ export default function DealsPage() {
               </button>
             ))}
           </nav>
-          <p className="mt-4 px-3 text-[11px] leading-[16px] text-muted">
-            Only CloudDesk is interactive in this demo. The rest are there so the list reads like a
-            real one.
-          </p>
         </aside>
 
         <div className="min-w-0 flex-1">
@@ -136,7 +132,7 @@ export default function DealsPage() {
                       key={d.id}
                       onClick={() => {
                         if (d.interactive) router.push(`/deals/${d.id}`);
-                        else toast('Demo: only CloudDesk is interactive');
+                        else toast('Deal details are unavailable');
                       }}
                       className="cursor-pointer transition-colors hover:bg-page/60"
                     >

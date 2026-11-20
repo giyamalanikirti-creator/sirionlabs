@@ -91,6 +91,11 @@ export const sendCheckRequestSchema = z.object({
   cc: z.array(z.string()).default([]),
   body: z.string().max(2000),
   threadId: z.string().optional(),
+  ledger: z.array(z.object({
+    termKey: termKeySchema,
+    position: termValueSchema,
+    state: z.enum(['agreed', 'open', 'changed', 'needs_confirmation', 'reopened', 'missing_at_signing']),
+  })).max(7).optional(),
 });
 
 export const priceRequestSchema = z.object({

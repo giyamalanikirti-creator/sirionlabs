@@ -151,7 +151,16 @@ export function MessageList({
               {showGroup && <div className={s.group}>{group}</div>}
               <div
                 className={`${s.item} ${selected ? s.itemSelected : ''}`}
+                role="button"
+                tabIndex={0}
+                aria-label={m.subject}
+                aria-pressed={selected}
                 onClick={() => onSelect(m.id)}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return;
+                  event.preventDefault();
+                  onSelect(m.id);
+                }}
               >
                 {unread && <span className={s.unreadBar} />}
                 <Avatar name={name} size={32} color="colorful" />

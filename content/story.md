@@ -1,6 +1,6 @@
 # About this case
 
-*Student prototype for the Sirion ISB assignment. Not a Sirion or Microsoft product. All names and data are fictional.*
+*Student project for the Sirion ISB assignment.*
 
 Deal Ledger keeps one source-linked record of what has actually been agreed with a supplier, across email threads, side threads and Word versions. It estimates the financial impact of pricing, payment, credits and renewal discrepancies, warns people in Outlook before they concede an agreed term by email, checks the signing copy against what was agreed, and hands the agreed terms to Sirion's tracking agents after signing.
 
@@ -8,7 +8,7 @@ Deal Ledger keeps one source-linked record of what has actually been agreed with
 
 We chose negotiation because it is where the money terms are set. All three results in the brief, unreviewed auto-renewals, missed service levels and invoices that don't match, trace back to what was agreed and whether it made it into the contract. Intake comes before any terms exist, and a repository can only track what was written down. If an agreed term never reaches the signing copy, no tracking agent can enforce it later.
 
-The assignment brief reports a product-lead observation about agreements getting lost between negotiation and signing. The industry sources below provide context. CloudDesk, its email trail and the portfolio metrics are fictional demo data.
+The assignment brief reports a product-lead observation about agreements getting lost between negotiation and signing. The industry sources below provide context. CloudDesk and its records are illustrative.
 
 ## 2. The problem
 
@@ -151,7 +151,7 @@ The engines, the state machine, the matcher, the pricing and the signing check a
 ## 10. Data and privacy
 
 - **Our own data only.** Every ₹ figure comes from Meridian Foods' invoices, renewals and uptime records. No supplier claim and no market benchmark enters a calculation.
-- **Header-first reading.** The matcher's only input is an email header. It has no parameter through which a body could reach it. Bodies go to the reader for strong matches, or after the lead links a weak one. The personal threads in the demo — the offsite plan, the laptop quotes — score zero and are never opened; the API refuses them outright.
+- **Header-first reading.** The matcher's only input is an email header. It has no parameter through which a body could reach it. Bodies go to the reader for strong matches, or after the lead links a weak one. The personal threads (the offsite plan and laptop quotes) score zero and are never opened; the API refuses them outright.
 - **Internal mail is read only if copied to `deals@`.** That is a deliberate, visible opt-in rather than blanket access to the mailbox.
 - **Supplier-safe output.** Anything the supplier could see — inserted clause text, Word comments, drafts — is checked for ₹ figures, the words lakh and crore, internal names, approvals and limits. Tests enforce it.
 - **Nothing is sent automatically.** Every email and every tracked change is sent by a person.

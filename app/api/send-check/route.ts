@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
-import { forcedToolCall, MODEL_FAST, fixturesOnly } from '@/lib/server/anthropic';
+import { forcedToolCall, MODEL_FAST } from '@/lib/server/anthropic';
 import { CHECK_CONCESSION_SCHEMA, sendCheckOutputSchema, sendCheckRequestSchema } from '@/lib/server/schemas';
 import { SEND_CHECK_SYSTEM, sendCheckUserContent } from '@/lib/server/prompts';
 import { ledgerSnapshot } from '@/lib/server/context';
-import { cloudDeskDeal, deals, personById } from '@/lib/data';
+import { cloudDeskDeal, personById } from '@/lib/data';
 import { checkByRules } from '@/lib/engines/sendRules';
 import { priceChange } from '@/lib/engines/pricing';
 import { rowForTerm } from '@/lib/engines/ledger';
@@ -30,29 +30,25 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Bad request' }, { status: 400 });
   }
 
-  const { fromPersonId, to, cc, body } = parsed.data;
+  const { fromPersonId, to, cc, body, ledger } = parsed.data;
   if (body.length > SEND_MAX_DRAFT_CHARS) {
     return NextResponse.json({ error: 'Draft too long' }, { status: 400 });
   }
 
   /* Step 1, no AI: is any recipient on an active deal's supplier domain? */
   const recipients = [...to, ...cc];
-  const activeDomains = deals
-    .filter((d) => d.stage !== 'signed')
-    .map((d) => d.supplierDomain.toLowerCase());
-  const supplierRecipient = recipients.some((r) => activeDomains.includes(domainOf(r)));
+  const supplierRecipient = recipients.some((r) => domainOf(r) === cloudDeskDeal.supplierDomain.toLowerCase());
 
   if (!supplierRecipient) {
     const allow: SendCheckResult = { decision: 'allow', checkedBy: 'none', source: 'rules' };
     return NextResponse.json(allow);
   }
 
-  /*
-   * The ledger the warning is measured against. The client sends nothing but
-   * the draft, so the server rebuilds the state at the point in the demo where
-   * the business owner can reply: price agreed, credit confirmed.
-   */
-  const rows: LedgerRow[] = ledgerAtStep(3);
+  // Keep the server's evidence and approvals. Use current positions from this session.
+  const rows: LedgerRow[] = ledgerAtStep(3).map((row) => {
+    const current = ledger?.find((item) => item.termKey === row.termKey && item.position.kind === row.termKey);
+    return current ? { ...row, position: current.position, state: current.state } : row;
+  });
 
   /* Step 2: the model, or the rules when it is unavailable. */
   let concedes = false;
@@ -101,7 +97,7 @@ export async function POST(request: Request) {
     quote = rules.quote;
     confidence = rules.confidence;
     checkedBy = 'rules';
-    source = fixturesOnly() ? 'cached' : 'rules';
+    source = 'rules';
   }
 
   /* Step 3, the engine: is this really a move away from our position? */
@@ -111,7 +107,7 @@ export async function POST(request: Request) {
   }
 
   const row = rowForTerm(rows, aiKey as never);
-  if (!row || sameValue(row.position, value)) {
+  if (!row || value.kind !== row.termKey || !['agreed', 'reopened', 'missing_at_signing'].includes(row.state) || sameValue(row.position, value)) {
     const allow: SendCheckResult = { decision: 'allow', checkedBy, source };
     return NextResponse.json(allow);
   }

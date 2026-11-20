@@ -101,7 +101,7 @@ export function AnanyaPane({
       </details>
 
       <p className={s.note}>
-        Each row links to its source. The reader extracts terms and exact quotes. The pricing engine calculates estimates from the demo invoices and renewals.
+        Estimates use invoice and renewal history.
       </p>
 
       <InlinePaneDrawer />
