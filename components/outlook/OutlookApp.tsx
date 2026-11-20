@@ -32,6 +32,7 @@ import {
   sentItemsFor,
   threadById,
   deals,
+  personName,
 } from '@/lib/data';
 import type { EmailMessage, ReaderResult, SendCheckResult } from '@/lib/types';
 
@@ -79,6 +80,9 @@ export function OutlookApp({ person }: { person: Person }) {
   const setClock = useDemo((st) => st.setClock);
   const advanceTo = useDemo((st) => st.advanceTo);
   const completedSteps = useDemo((st) => st.completedSteps);
+  const settings = useDemo((st) => st.settings);
+  const mailboxOn = !hydrated || settings.mailboxes[person] !== false;
+  const isOwner = person !== 'ananya';
 
   const rows = hydrated ? storedLedger : initialLedger();
 
@@ -158,6 +162,11 @@ export function OutlookApp({ person }: { person: Person }) {
     setLoopIn(undefined);
     setCcAdded(false);
     const message = messageById(id);
+    if (useDemo.getState().settings.mailboxes[person] === false) {
+      setSelectedId(id);
+      markRead(id);
+      return;
+    }
     if (person === 'ananya' && message && threadById(message.threadId)?.dealId === cloudDeskDeal.id) {
       // Sirion's plugin files the supplier's draft as the next version on its own; Undo is in the pane.
       const state = useDemo.getState();
@@ -248,6 +257,10 @@ export function OutlookApp({ person }: { person: Person }) {
     const body = bodyOverride ?? draft;
     setChecking(true);
     let result: GuardResult;
+    if (!mailboxOn) {
+      finishSend(body, 'allow');
+      return;
+    }
     try {
       result = sendGuard({
         to: replyTo,
@@ -371,11 +384,26 @@ export function OutlookApp({ person }: { person: Person }) {
 
   const onSendAnyway = (reason: string) => {
     if (!guard || !topFinding) return;
+    let approver: string | undefined;
     for (const f of guard.findings) {
-      if (f.termKey && f.value && f.quote) sendConcession(f.termKey, f.value, f.quote, person, reason);
+      if (f.termKey && f.value && f.quote) {
+        sendConcession(f.termKey, f.value, f.quote, person, reason);
+        // A concession sent anyway is routed for approval by value, not just logged.
+        const route = useDemo.getState().requestApproval({
+          kind: 'send_anyway',
+          rowId: f.rowId!,
+          termKey: f.termKey,
+          label: rows.find((r) => r.id === f.rowId)?.label ?? f.termKey,
+          change: `told the supplier “${f.quote}”`,
+          costLakhPerYr: f.costLakhPerYr,
+          requestedById: person,
+          reason,
+        });
+        if (route.status === 'pending') approver = personName(route.approverId);
+      }
     }
     finishSend(draft, 'warn', 'send_anyway', topFinding.case, reason);
-    toast(`Sent. The term is marked reopened (${reason})${person === 'ananya' ? '' : ' and Ananya has been told'}.`);
+    toast(`Sent. Marked reopened (${reason})${approver ? `; approval requested from ${approver}` : ''}${person === 'ananya' ? '' : '. Ananya has been told'}.`);
   };
 
   /* The guide's "see the result" link: open the reply and press Send for the presenter. */
@@ -478,7 +506,12 @@ export function OutlookApp({ person }: { person: Person }) {
 
             {paneOpen && (
               <PaneFrame width={340} source={cloudDeskContext ? readerSource : undefined} footerHref={cloudDeskContext ? undefined : '/deals'} onClose={() => setPaneOpen(false)}>
-                {selected && SWIFTSHIP_MESSAGES.some((m) => m.id === selected.id) ? (
+                {!mailboxOn ? (
+                  <p style={{ fontSize: 13 }}>
+                    This mailbox is not connected to Deal Ledger, so nothing in it is read and replies are not checked. An admin can
+                    connect it under Privacy and admin.
+                  </p>
+                ) : selected && SWIFTSHIP_MESSAGES.some((m) => m.id === selected.id) ? (
                   <SwiftShipPane messageId={selected.id} />
                 ) : selected && dealIdForMessage(selected.id) ? (
                   <SupplierDealPane dealId={dealIdForMessage(selected.id)!} messageId={selected.id} />
@@ -536,6 +569,8 @@ export function OutlookApp({ person }: { person: Person }) {
           onPrimary={topFinding.case === 'outdated_attachment' ? onFixAttachment : person !== 'ananya' ? onLoopIn : undefined}
           onEdit={onEdit}
           onSendAnyway={onSendAnyway}
+          showWorkings={!isOwner || settings.ownersSeeWorkings}
+          showFallback={!isOwner || settings.ownersSeeFallbacks}
         />
       )}
     </div>

@@ -2,7 +2,12 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
-import { PageHeader, SirionCard } from '@/components/sirion/ui';
+import { KpiTile, PageHeader, SirionCard } from '@/components/sirion/ui';
+import { HBars } from '@/components/sirion/charts';
+import { signingCheck } from '@/lib/engines/signing';
+import { ledgerAtStep } from '@/lib/demo/steps';
+import { cloudDeskDeal, termsFound, versionById } from '@/lib/data';
+import { formatLakh, HEADLINE_SUFFIX } from '@/lib/format';
 import { GuardrailLine, StackedBars, TrendBarsLine } from '@/components/sirion/charts';
 import { guardrails, kpiHistory, sendWarnings, signingGapsData } from '@/lib/data';
 import { useDemo } from '@/lib/store';
@@ -79,6 +84,13 @@ export default function InsightsPage() {
     : 0;
   const ratedWarnings = hydrated ? outcomes.filter((outcome) => outcome.decision === 'warn' && outcome.actionable !== undefined) : [];
   const actionableWarnings = ratedWarnings.filter((outcome) => outcome.actionable).length;
+  const v6 = versionById('v6')!;
+  const cloudDeskGaps = signingCheck(ledgerAtStep(3), v6, cloudDeskDeal).gaps.map((g) => ({
+    label: g.label,
+    share: g.costLakhPerYr === null ? 0 : g.termKey === 'renewal_notice' ? g.costLakhPerYr / cloudDeskDeal.termYears : g.costLakhPerYr,
+  }));
+  const gapsTotal = cloudDeskGaps.reduce((sum, g) => sum + g.share, 0);
+  const outsideDocument = termsFound.split.filter((x) => x.source !== 'Word versions').reduce((a, b) => a + b.pct, 0);
   // A warning is "shown" once; each choice after it is its own record.
   const liveWarnings = hydrated ? outcomes.filter((o) => o.decision === 'warn' && !o.choice).length : 0;
   const byChoice = (c: string) => (hydrated ? outcomes.filter((o) => o.choice === c).length : 0);
@@ -100,6 +112,30 @@ export default function InsightsPage() {
         title="Insights"
         caption="How well the tool is working, and the lines at which we would rethink it."
       />
+
+      <div className="mb-4 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <KpiTile
+          label="Terms agreed outside the formal document"
+          value={`${outsideDocument}%`}
+          caption={`${termsFound.totalTerms} terms, last ${termsFound.windowMonths} months: email text, side threads and calls. Why the product exists.`}
+        />
+        <KpiTile
+          label="Gaps caught at signing, CloudDesk"
+          value={formatLakh(gapsTotal)}
+          tone="danger"
+          caption={`${cloudDeskGaps.length} gaps in v6, ${HEADLINE_SUFFIX}. Fixed before signing in the walkthrough.`}
+        />
+        <KpiTile
+          label="Warnings at Send"
+          value={String(hydrated ? liveWarnings : 0)}
+          caption={`This session · ${hydrated ? cleanSends : 0} replies sent clean after the check`}
+        />
+        <KpiTile
+          label="Send anyway rate"
+          value={liveWarnings ? `${Math.round((liveSendAnyway / liveWarnings) * 100)}%` : '—'}
+          caption={`This session · rethink above ${Math.round(SEND_ANYWAY_RETHINK * 100)}%`}
+        />
+      </div>
 
       <SirionCard
         title="Check at Send, this session"
@@ -132,7 +168,11 @@ export default function InsightsPage() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <ReaderAccuracy data={data} />
-        <SirionCard title="Gaps caught at signing" caption={signingGapsData.window} sample>
+        <SirionCard title="Gaps caught at signing, by term" caption="CloudDesk v6, ₹ a year if signed as is, from the signing check">
+          <HBars data={cloudDeskGaps.map((g) => ({ name: g.label, value: Math.round(g.share * 100) / 100 }))} unit=" lakh/yr" height={170} />
+        </SirionCard>
+
+        <SirionCard title="Gaps caught at signing, history" caption={signingGapsData.window} sample>
           <StackedBars
             data={gapsData}
             keys={[

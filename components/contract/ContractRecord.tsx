@@ -21,7 +21,9 @@ import { useLedger } from '@/lib/useDeal';
 import { cloudDeskDeal, personName, versionById, versions } from '@/lib/data';
 import { handover } from '@/lib/engines/handover';
 import { supplierReturn } from '@/lib/engines/signing';
-import type { InvoiceRule } from '@/lib/types';
+import type { InvoiceRule, LedgerRow } from '@/lib/types';
+import { disputeEmail } from '@/lib/engines/wording';
+import { renewalBrief } from '@/lib/engines/renewalBrief';
 import { approverFor } from '@/lib/engines/sendDialog';
 import { checkInvoice } from '@/lib/engines/invoices';
 import { formatDateLong, formatInr, formatLakh } from '@/lib/format';
@@ -36,6 +38,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
     requestAnimationFrame(() => top.current?.scrollIntoView({ block: 'start' }));
   };
   const [showInvoiceHistory, setShowInvoiceHistory] = useState(false);
+  const [composing, setComposing] = useState(false);
   const hydrated = useHydrated();
   const { rows } = useLedger();
   const contract = useDemo((s) => s.contract);
@@ -250,7 +253,41 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
   }
 
   function Obligations() {
+    const brief = renewalBrief(contract!, rows, cloudDeskDeal.seats ?? 500);
     return (
+      <>
+      {brief && (
+        <SirionCard
+          title={`Renewal brief · fires ${formatDateLong(brief.firesOn)}`}
+          caption={`With the renewal-notice reminder. Notice must be given by ${formatDateLong(brief.deadline)}.`}
+          className="mb-4"
+          right={<span className="rounded-full bg-page px-2 py-[2px] text-[10px] font-semibold uppercase tracking-wide text-muted">Future</span>}
+        >
+          <div className="grid gap-4 text-[12.5px] leading-[19px] md:grid-cols-3">
+            <div>
+              <p className="text-[10.5px] font-semibold uppercase tracking-wide text-muted">Outages</p>
+              <p className="mt-1 text-ink">
+                {brief.outages.length} of {brief.monthsTracked} months below {brief.uptimeTarget}%:{' '}
+                {brief.outages.map((o) => `${o.month} (${o.uptimePct}%)`).join(', ')}
+              </p>
+            </div>
+            <div>
+              <p className="text-[10.5px] font-semibold uppercase tracking-wide text-muted">Credits owed</p>
+              <p className="mt-1 text-[18px] font-semibold text-teal-900">{formatInr(brief.creditsOwedInr)}</p>
+              <p className="text-muted">{brief.creditPct}% of the monthly fee for each missed month</p>
+            </div>
+            <div>
+              <p className="text-[10.5px] font-semibold uppercase tracking-wide text-muted">Usage</p>
+              <p className="mt-1 text-ink">{brief.seats} seats licensed; about {brief.unusedSeats} likely unused</p>
+            </div>
+          </div>
+          <p className="mt-4 text-[10.5px] font-semibold uppercase tracking-wide text-muted">Go in with</p>
+          <ul className="mt-1 list-disc space-y-1 pl-5 text-[12.5px] text-ink">
+            {brief.asks.map((a) => <li key={a}>{a}</li>)}
+          </ul>
+          <p className="mt-3 text-[11px] text-muted">Example built from the latest 12 months of uptime on record. In production it uses the contract&apos;s own last 12 months.</p>
+        </SirionCard>
+      )}
       <SirionCard
         title="Obligations"
         caption="Created by the Obligations agent from the agreed terms."
@@ -300,6 +337,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
           <Button variant="primary" onClick={() => { useDemo.getState().fastForwardInvoice(); changeTab('invoices'); }}>Next · See December invoice</Button>
         </div>
       </SirionCard>
+      </>
     );
   }
 
@@ -428,11 +466,13 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
     resolveInvoice: () => void;
   }) {
     const invoices = useDemo((s) => s.invoices);
+    const sentDispute = useDemo((s) => s.disputeEmail);
     const inv = invoices.find((i) => i.id === 'INV-CD-2712');
     if (!inv) return null;
     const over = checkInvoice(inv, contract!.rules).find((f) => f.kind === 'over_agreed_price');
     if (!over) return null;
     const priceRow = rows.find((r) => r.id === 'R-price');
+    void raiseDispute;
 
     return (
       <div className="m-5 rounded-xl border border-danger/30 bg-danger/[0.04] p-5">
@@ -445,28 +485,53 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
           Clause {over.clauseNo} of the signed contract fixes the price at{' '}
           {formatInr(over.expectedInr!)} a month until {formatDateLong(contract!.endDate)}.
         </p>
-        <p className="mt-2 max-w-3xl text-[12.5px] leading-[19px] text-muted">
-          History: CloudDesk agreed to hold the price in its email of 14 Nov 2026.
-        </p>
+        {priceRow?.source.kind === 'email' && (
+          <p className="mt-2 max-w-3xl text-[12.5px] leading-[19px] text-muted">
+            Source: {personName(priceRow.source.byPersonId)}, {formatDateLong(priceRow.source.at)}: “{priceRow.source.quote}”
+          </p>
+        )}
         {priceRow && (
           <div className="mt-2.5 flex flex-wrap items-center gap-2">
             <SourceChip source={priceRow.source} />
             <Link
-              href="/deals/D-CLOUDDESK"
+              href="/deals/D-CLOUDDESK/ledger#R-price"
               className="text-[11.5px] text-teal-900 underline-offset-2 hover:underline"
             >
               Open the ledger row
             </Link>
+            {priceRow.source.messageId && (
+              <Link
+                href={`/outlook/ananya?msg=${priceRow.source.messageId}`}
+                className="text-[11.5px] text-teal-900 underline-offset-2 hover:underline"
+              >
+                Open the source email in Outlook
+              </Link>
+            )}
+          </div>
+        )}
+        {sentDispute && (
+          <div className="mt-3 max-w-3xl rounded-lg border border-line bg-white p-3 text-[12px] leading-[18px]">
+            <p className="text-[11px] text-muted">Sent to {sentDispute.to.join(', ')} · cc {sentDispute.cc.join(', ')} · {sentDispute.subject}</p>
+            <p className="mt-1 whitespace-pre-wrap text-ink">{sentDispute.body}</p>
           </div>
         )}
         <div className="mt-4 flex gap-2">
-          <Button variant="danger" size="sm" onClick={raiseDispute} disabled={disputeRaised}>
-            {disputeRaised ? 'Dispute raised' : 'Raise dispute'}
+          <Button variant="danger" size="sm" onClick={() => setComposing(true)} disabled={disputeRaised}>
+            {disputeRaised ? 'Dispute sent to CloudDesk' : 'Raise dispute'}
           </Button>
           <Button size="sm" onClick={resolveInvoice} disabled={resolved}>
             {resolved ? 'Resolved' : 'Mark resolved'}
           </Button>
         </div>
+        {composing && priceRow && (
+          <DisputeComposer
+            invoiceId={inv.id}
+            month={inv.month}
+            clauseNo={over.clauseNo}
+            priceRow={priceRow}
+            onClose={() => setComposing(false)}
+          />
+        )}
       </div>
     );
   }
@@ -554,4 +619,85 @@ function ruleText(rule: InvoiceRule): string {
     return `Bill at most ${formatInr(rule.amountInr ?? 0)} a month until ${formatDateLong(rule.validTo)} · clause ${rule.clauseNo}`;
   }
   return `Credit ${rule.pct}% of the month's fee when uptime is below ${rule.uptimeTarget}% · clause ${rule.clauseNo}`;
+}
+
+/** The dispute email, prefilled from the signed clause and the supplier's own line. Editable before sending. */
+function DisputeComposer({
+  invoiceId,
+  month,
+  clauseNo,
+  priceRow,
+  onClose,
+}: {
+  invoiceId: string;
+  month: string;
+  clauseNo: string;
+  priceRow: LedgerRow;
+  onClose: () => void;
+}) {
+  const returned = useDemo((s) => s.signing.returnedCopy);
+  const sendDispute = useDemo((s) => s.sendDispute);
+  const toast = useDemo((s) => s.toast);
+  const clause = (returned ?? versionById('v6'))!.clauses.find((c) => c.no === clauseNo);
+  const monthLabel = new Date(`${month}-01T00:00:00+05:30`).toLocaleString('en-IN', { month: 'long', year: 'numeric', timeZone: 'Asia/Kolkata' });
+  const draft = disputeEmail({
+    invoiceId,
+    month: monthLabel,
+    contractId: CONTRACT_ID,
+    clauseNo,
+    clauseText: clause?.text ?? '',
+    supplierQuote: priceRow.source.quote,
+    supplierQuoteBy: personName(priceRow.source.byPersonId).split(' ')[0],
+    supplierQuoteDate: formatDateLong(priceRow.source.at),
+    greetingName: 'Priya',
+    signOff: 'Ananya',
+  });
+  const [body, setBody] = useState(draft.body);
+  const to = ['priya.nair@clouddesk.example'];
+  const cc = ['rohan.iyer@clouddesk.example'];
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center bg-ink/30 p-4" onClick={onClose}>
+      <div className="w-full max-w-2xl rounded-xl bg-white p-5 shadow-pop" onClick={(e) => e.stopPropagation()}>
+        <h2 className="text-[15px] font-semibold text-ink">Dispute {invoiceId} with CloudDesk</h2>
+        <dl className="mt-3 space-y-1 text-[12px]">
+          <div className="flex gap-2"><dt className="w-14 text-muted">To</dt><dd>{to.join(', ')}</dd></div>
+          <div className="flex gap-2"><dt className="w-14 text-muted">Cc</dt><dd>{cc.join(', ')}</dd></div>
+          <div className="flex gap-2"><dt className="w-14 text-muted">Subject</dt><dd className="font-medium">{draft.subject}</dd></div>
+        </dl>
+        <textarea
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          rows={13}
+          className="mt-3 w-full rounded-md border border-line p-3 text-[12.5px] leading-[19px]"
+        />
+        <p className="mt-2 text-[11px] leading-[16px] text-muted">
+          Quotes the signed clause {clauseNo} and Rohan&apos;s own line from the ledger, word for word. No internal figures, approvals or names.
+        </p>
+        <div className="mt-4 flex justify-end gap-2">
+          <Button onClick={onClose}>Cancel</Button>
+          <Button
+            variant="danger"
+            onClick={() => {
+              sendDispute({
+                id: 'M-DISPUTE',
+                threadId: 'T1',
+                from: 'ananya.rao@meridian.example',
+                to,
+                cc,
+                subject: draft.subject,
+                sentAt: useDemo.getState().clock,
+                attachments: [],
+                body,
+                mailboxes: ['ananya'],
+              });
+              toast('Dispute sent to CloudDesk, quoting clause 9.1 and Rohan’s 14 Nov email.');
+              onClose();
+            }}
+          >
+            Send dispute
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
 }

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { callModelTool, MODEL_SMART } from '@/lib/server/anthropic';
 import { PREVIEW_EMAIL, REPLAY_EXTRACTION } from '@/lib/demo/reader-preview';
 import { READER_TIMEOUT_MS } from '@/lib/settings';
+import { readByRules } from '@/lib/engines/previewRules';
 
 export const maxDuration = 60;
 
@@ -34,14 +35,16 @@ export async function POST(request: Request) {
     maxTokens: 1500,
     timeoutMs: READER_TIMEOUT_MS,
   });
+  // The rules reader always runs, so any pasted email gets a result with confidence, key or no key.
+  const terms = readByRules(email);
   const result = extraction.safeParse(response?.input);
   if (result.success) {
     const item = result.data;
     if (item.term ? item.quote.trim() && email.includes(item.quote) : !item.quote) {
-      return NextResponse.json({ source: 'live', extraction: item });
+      return NextResponse.json({ source: 'live', extraction: item, terms });
     }
   }
 
-  if (email === PREVIEW_EMAIL) return NextResponse.json({ source: 'replayed', extraction: REPLAY_EXTRACTION });
-  return NextResponse.json({ source: 'unavailable', extraction: null });
+  if (email === PREVIEW_EMAIL) return NextResponse.json({ source: 'replayed', extraction: REPLAY_EXTRACTION, terms });
+  return NextResponse.json({ source: 'rules', extraction: null, terms });
 }

@@ -25,6 +25,14 @@ export function DemoGuide() {
           <button aria-label="Close" onClick={() => setOpen(false)} className="self-start p-1.5 text-muted"><X size={16} /></button>
         </header>
         <ol className="thin-scroll flex-1 space-y-2.5 overflow-y-auto px-6 py-4">
+          <li className="rounded-xl border border-dashed border-line p-4">
+            <h3 className="text-sm font-semibold text-ink">Before you start: Sirion today</h3>
+            <p className="mt-1 text-xs leading-5 text-muted">Sirion&apos;s Outlook plugin as it is today, next to the same plugin with Deal Ledger. New parts are marked.</p>
+            <button className="mt-3 rounded-md border border-line px-3 py-1.5 text-xs text-teal-900" onClick={() => { setOpen(false); router.push('/today'); }}>See the comparison</button>
+          </li>
+          <li className="rounded-xl border border-dashed border-line p-4 text-xs leading-5 text-muted">
+            After step 5: the full ledger (Deals → CloudDesk → Open full ledger), the December invoice dispute, and the 2029 renewal brief on the Obligations tab.
+          </li>
           {GUIDE_STAGES.map((stage) => (
             <li key={stage.step} className="rounded-xl border border-line p-4">
               <h3 className="text-sm font-semibold text-ink">{completed.includes(stage.step) && <Check size={14} className="mr-1 inline text-teal-900" aria-label="Completed" />} {stage.title}</h3>

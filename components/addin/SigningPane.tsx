@@ -54,6 +54,7 @@ export function SigningPane({
   const applyPlaybook = useDemo((st) => st.applyPlaybookPosition);
   const sendBack = useDemo((st) => st.sendBack);
   const sentBackAt = useDemo((st) => st.signing.sentBackAt);
+  const sentVia = useDemo((st) => st.sentVia);
   const signed = version.id === 'v7';
   const toast = useDemo((st) => st.toast);
 
@@ -217,22 +218,37 @@ export function SigningPane({
       )}
 
       {readyToReturn && !sentBackAt && (
-        <Button
-          appearance="primary"
-          style={{ width: '100%', marginBottom: 10 }}
-          onClick={() => {
-            sendBack();
-            toast('Sent to Priya Nair as v7');
-          }}
-        >
-          Send back to CloudDesk
-        </Button>
+        <div style={{ marginBottom: 10 }}>
+          <Button
+            appearance="primary"
+            style={{ width: '100%', marginBottom: 6 }}
+            onClick={() => {
+              sendBack('email');
+              toast('Sent to Priya Nair as v7');
+            }}
+          >
+            Send back to CloudDesk
+          </Button>
+          <Button
+            appearance="secondary"
+            style={{ width: '100%' }}
+            onClick={() => {
+              sendBack('portal');
+              toast('Shared with CloudDesk in the Sirion counterparty portal as v7');
+            }}
+          >
+            Share in Sirion counterparty portal
+          </Button>
+          <p className={s.grey} style={{ marginTop: 4 }}>
+            <OriginTag kind="today" /> The portal is Sirion&apos;s own; the ledger checks what comes back either way.
+          </p>
+        </div>
       )}
 
       {sentBackAt && !signed && (
         <MessageBar intent="success" style={{ marginBottom: 10 }}>
           <MessageBarBody>
-            v7 sent to Priya Nair with the tracked changes and notes.
+            {sentVia === 'portal' ? 'v7 shared with CloudDesk in the Sirion portal' : 'v7 sent to Priya Nair'} with the tracked changes and notes.
           </MessageBarBody>
         </MessageBar>
       )}

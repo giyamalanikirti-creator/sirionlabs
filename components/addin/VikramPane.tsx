@@ -9,6 +9,7 @@ import { formatLakh, HEADLINE_SUFFIX } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 import { useSourceDrawer } from '@/lib/drawer';
 import { usePaneStyles } from './paneStyles';
+import { useDemo } from '@/lib/store';
 import { LedgerList, StateBadge } from './LedgerList';
 import { InlinePaneDrawer } from './AnanyaPane';
 import type { LedgerRow, SendCheckResult, TermValue } from '@/lib/types';
@@ -31,6 +32,7 @@ export function VikramPane({
 }) {
   const s = usePaneStyles();
   const open = useSourceDrawer((st) => st.open);
+  const showFallback = useDemo((st) => st.settings.ownersSeeFallbacks);
 
   if (!loopIn) {
     return (
@@ -110,7 +112,7 @@ export function VikramPane({
         </div>
       </div>
 
-      {fallbackTag && <div className={s.card}>
+      {fallbackTag && showFallback && <div className={s.card}>
         <div className={s.cardTitle}>{personName('ananya')}'s approved fallback</div>
         <div className={s.cardMeta}>If you have to give something on price</div>
         <div className={s.termValue}>{plainValue(FALLBACK, cloudDeskDeal.termYears)}</div>

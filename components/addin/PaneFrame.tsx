@@ -85,7 +85,7 @@ export function PaneFrame({
   source,
   onClose,
   children,
-  footerHref = '/deals/D-CLOUDDESK',
+  footerHref = '/deals/D-CLOUDDESK/ledger',
 }: {
   width?: number;
   source?: AiSource;

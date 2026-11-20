@@ -143,6 +143,8 @@ export interface LedgerRow {
   waiveReason?: string;
   /** Set when the lead offered a playbook fallback or walk-away at signing. */
   playbookPosition?: 'fallback' | 'walk-away';
+  /** The reader's confidence for the latest value it wrote (0–1). Absent when a person or a clause set it. */
+  confidence?: number;
 }
 
 export interface PriceTag {

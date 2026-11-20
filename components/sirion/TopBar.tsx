@@ -20,6 +20,8 @@ const CRUMBS: Record<string, string> = {
   '/deals': 'Deals',
   '/contracts': 'Contracts',
   '/insights': 'Insights',
+  '/settings': 'Privacy and admin',
+  '/today': 'Sirion today vs Deal Ledger',
   '/story': 'Story',
 };
 
@@ -27,7 +29,8 @@ function breadcrumb(pathname: string): string[] {
   if (CRUMBS[pathname]) return ['Deal Ledger', CRUMBS[pathname]];
   if (pathname.startsWith('/deals/')) {
     const id = decodeURIComponent(pathname.split('/')[2] ?? '');
-    return ['Deal Ledger', 'Deals', id === 'D-CLOUDDESK' ? 'CloudDesk renewal 2026–29' : dealById(id)?.supplier ?? id];
+    const name = id === 'D-CLOUDDESK' ? 'CloudDesk renewal 2026–29' : dealById(id)?.supplier ?? id;
+    return pathname.endsWith('/ledger') ? ['Deal Ledger', 'Deals', name, 'Ledger'] : ['Deal Ledger', 'Deals', name];
   }
   if (pathname.startsWith('/contracts/')) return ['Deal Ledger', 'Contracts', decodeURIComponent(pathname.split('/')[2] ?? '')];
   return ['Deal Ledger'];

@@ -9,7 +9,7 @@ import { MoneyPlain } from '@/components/sirion/MoneyFigure';
 import { SourceChip } from '@/components/sirion/SourceChip';
 import { useDemo } from '@/lib/store';
 import { useLedger } from '@/lib/useDeal';
-import { cloudDeskDeal, deals, kpiHistory, termsFound } from '@/lib/data';
+import { cloudDeskDeal, deals, kpiHistory, personName, termsFound } from '@/lib/data';
 import { rowAtRisk } from '@/lib/engines/atRisk';
 import { rowHeadlineShare } from '@/lib/engines/playbook';
 import { outlookHrefForRow } from '@/lib/demo/rowEmail';
@@ -22,6 +22,7 @@ export function LeadDashboard() {
 
   const roundReviewed = useDemo((state) => state.completedSteps.includes(1));
   const notices = useDemo((state) => state.notices);
+  const approvals = useDemo((state) => state.approvals);
   const ns = kpiHistory.northStar[kpiHistory.northStar.length - 1];
   const northStarPct = Math.round((ns.clean / ns.audited) * 100);
   const signedSince = kpiHistory.signedSinceLastAudit + (signed ? 1 : 0);
@@ -52,6 +53,7 @@ export function LeadDashboard() {
       <SirionCard title="Start here" className="mb-4">
         <div className="flex flex-wrap gap-3 text-sm">
           <Link className="rounded-md border border-line px-4 py-2 text-teal-900" href="/story">Read the case · 2 min</Link>
+          <Link className="rounded-md border border-line px-4 py-2 text-teal-900" href="/today">First: what Sirion has today · 1 min</Link>
           <Link className="rounded-md bg-teal-900 px-4 py-2 font-medium text-white" href="/outlook/ananya?msg=M8" onClick={() => useDemo.getState().startStage(1, true)}>Start the walkthrough · 3 min</Link>
           <Link className="rounded-md border border-line px-4 py-2 text-teal-900" href="/deals">Explore freely</Link>
         </div>
@@ -132,6 +134,15 @@ export function LeadDashboard() {
         className="mt-4"
         bodyClassName="px-0 pb-0 pt-0"
       >
+        {hydrated && approvals.filter((x) => x.status === 'pending').map((x) => (
+          <div key={x.id} className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-lime/30 px-6 py-4 text-sm">
+            <span>
+              <strong className="font-semibold">Approval with {personName(x.approverId)}</strong> · {x.label}: {x.change}
+              <span className="block text-[11.5px] text-muted">{x.rule}</span>
+            </span>
+            <Link href={`/deals/D-CLOUDDESK/ledger#${x.rowId}`} className="font-medium text-teal-900 underline">Review</Link>
+          </div>
+        ))}
         {hydrated && notices.filter((n) => n.forPersonId === 'ananya' && n.draft).map((n, i) => (
           <div key={i} className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-amber-bg/40 px-6 py-4 text-sm">
             <span>

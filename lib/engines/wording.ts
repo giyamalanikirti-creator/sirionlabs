@@ -127,3 +127,39 @@ export const RESPOND_ROUND_DRAFT =
 /** The clarifying question, asked in the supplier thread (supplier-safe). */
 export const CLARIFY_DRAFT =
   'Hi Rohan, thanks. To make sure we record this correctly: on service credits, are you accepting 10% of the monthly fee for any month below 99.5% uptime, as proposed on 13 Nov? Thanks, Ananya';
+
+/**
+ * The dispute email to the supplier for an invoice above the signed price.
+ * It quotes the signed clause and the supplier's own email, and states no
+ * internal ₹ figure, approval or name: the only amounts are inside the two
+ * quotes, which are the supplier's own words and the signed contract.
+ */
+export function disputeEmail(opts: {
+  invoiceId: string;
+  month: string;
+  contractId: string;
+  clauseNo: string;
+  clauseText: string;
+  supplierQuote: string;
+  supplierQuoteBy: string;
+  supplierQuoteDate: string;
+  greetingName: string;
+  signOff: string;
+}): { subject: string; body: string; quotes: string[] } {
+  const clauseSentence = opts.clauseText.split(/(?<=\.)\s/)[0];
+  const body = [
+    `Hi ${opts.greetingName},`,
+    '',
+    `Invoice ${opts.invoiceId} for ${opts.month} bills above the fee fixed in clause ${opts.clauseNo} of our signed agreement (${opts.contractId}):`,
+    '',
+    `"${clauseSentence}"`,
+    '',
+    `${opts.supplierQuoteBy} also confirmed this in his email of ${opts.supplierQuoteDate}: "${opts.supplierQuote}"`,
+    '',
+    'Please reissue the invoice at the contract fee. We will pay the undisputed amount within the agreed terms.',
+    '',
+    'Thanks,',
+    opts.signOff,
+  ].join('\n');
+  return { subject: `${opts.invoiceId}: billed above the fixed fee in clause ${opts.clauseNo}`, body, quotes: [clauseSentence, opts.supplierQuote] };
+}

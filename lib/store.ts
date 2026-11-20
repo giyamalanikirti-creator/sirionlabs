@@ -27,6 +27,9 @@ import {
   confirmRow as confirmRowEngine,
   applyPlaybookPositionForRow,
   noteOnRow,
+  editRow as editRowEngine,
+  addCallTerm as addCallTermEngine,
+  acceptTheirs as acceptTheirsEngine,
   insertWordingForRow,
   markSigningGaps,
   waiveGapForRow,
@@ -34,7 +37,10 @@ import {
 import { signingCheck, supplierReturn } from '@/lib/engines/signing';
 import { handover, type ContractRecord, demoInvoices, FAST_FORWARD_INVOICE } from '@/lib/engines/handover';
 import { extractValue } from '@/lib/engines/diff';
-import { CLARIFY_REPLY, CLARIFY_REPLY_QUOTE, cloudDeskDeal, messageById, personById, versionById } from '@/lib/data';
+import { CLARIFY_REPLY, CLARIFY_REPLY_QUOTE, cloudDeskDeal, messageById, personById, personName, versionById } from '@/lib/data';
+import { APPROVAL_KIND_LABEL, approvalRoute, type ApprovalRequest } from '@/lib/engines/approvals';
+import { worstThreat } from '@/lib/engines/atRisk';
+import { priceChange } from '@/lib/engines/pricing';
 import { plainValue } from '@/lib/plain';
 import { formatDateTime } from '@/lib/format';
 
@@ -51,6 +57,23 @@ export interface SendOutcome {
   reason?: string;
   actionable?: boolean;
 }
+
+/** Privacy and admin settings (the /settings page). */
+export interface AdminSettings {
+  mailboxes: Record<string, boolean>;
+  retentionYears: number;
+  /** Business owners (e.g. Vikram) see the cost workings behind a ₹ figure. */
+  ownersSeeWorkings: boolean;
+  /** Business owners see playbook fallbacks and walk-away positions. */
+  ownersSeeFallbacks: boolean;
+}
+
+export const DEFAULT_SETTINGS: AdminSettings = {
+  mailboxes: { ananya: true, vikram: true, deals: true, karan: false, meera: false },
+  retentionYears: 7,
+  ownersSeeWorkings: false,
+  ownersSeeFallbacks: true,
+};
 
 export interface ReviewRequest {
   kind: 'review' | 'approval';
@@ -91,6 +114,10 @@ interface DemoState {
   clarifySentAt?: string;
   /** New deals started from an email (SwiftShip). */
   startedDealIds: string[];
+  approvals: ApprovalRequest[];
+  settings: AdminSettings;
+  disputeEmail?: EmailMessage;
+  sentVia?: 'email' | 'portal';
   sentMessages: EmailMessage[];
   drafts: Record<string, string>;
   sendOutcomes: SendOutcome[];
@@ -134,6 +161,13 @@ interface DemoState {
   applyPlaybookPosition: (rowId: string, value: TermValue, label: 'fallback' | 'walk-away') => void;
   signAndSave: () => void;
   startDeal: (dealId: string) => void;
+  requestApproval: (req: Omit<ApprovalRequest, 'id' | 'at' | 'status' | 'approverId' | 'rule'>) => ApprovalRequest;
+  decideApproval: (id: string, approve: boolean) => void;
+  editRow: (rowId: string, value: TermValue, reason: string) => void;
+  addCallTerm: (termKey: TermKey, value: TermValue, withPersonId: string, note: string) => void;
+  requestAcceptTheirs: (rowId: string) => void;
+  updateSettings: (patch: Partial<AdminSettings>) => void;
+  sendDispute: (message: EmailMessage) => void;
   dismissThread: (threadId: string) => void;
   confirmRow: (rowId: string, value: TermValue, note?: string) => void;
   setDraft: (key: string, body: string) => void;
@@ -146,7 +180,7 @@ interface DemoState {
   insertWording: (rowId: string) => void;
   insertAll: () => void;
   waiveGap: (rowId: string, reason: string) => void;
-  sendBack: () => void;
+  sendBack: (via?: 'email' | 'portal') => void;
   sign: () => void;
   saveToSirion: () => void;
   fastForwardInvoice: () => void;
@@ -175,6 +209,10 @@ const BASE = {
   respondedMessageIds: [] as string[],
   clarifySentAt: undefined,
   startedDealIds: [] as string[],
+  approvals: [] as ApprovalRequest[],
+  settings: DEFAULT_SETTINGS,
+  disputeEmail: undefined,
+  sentVia: undefined,
   sentMessages: [] as EmailMessage[],
   drafts: {} as Record<string, string>,
   sendOutcomes: [] as SendOutcome[],
@@ -252,6 +290,7 @@ export const useDemo = create<DemoState>()(
         set({
           ...BASE,
           sirionRole: get().sirionRole,
+          settings: get().settings,
           clock: STEP_CLOCK[step],
           ledger: rows,
           completedSteps: completed,
@@ -392,7 +431,124 @@ export const useDemo = create<DemoState>()(
           signing: { ...s.signing, inserted: [...new Set([...s.signing.inserted, row.termKey])] },
           events: [...s.events, { at: s.clock, text: `${row.label}: playbook ${label} inserted as a tracked change.` }],
         }));
+        if (label === 'walk-away') {
+          const agreedRow = ledgerAtStep(4).find((r) => r.id === rowId);
+          const tag = agreedRow ? priceChange(cloudDeskDeal, agreedRow.position, value) : null;
+          get().requestApproval({
+            kind: 'walk_away',
+            rowId,
+            termKey: row.termKey,
+            label: row.label,
+            change: `walk-away offered: ${plainValue(value)}`,
+            costLakhPerYr: tag?.costLakhPerYr == null ? null : row.termKey === 'renewal_notice' ? tag.costLakhPerYr / cloudDeskDeal.termYears : tag.costLakhPerYr,
+            requestedById: 'ananya',
+          });
+        }
       },
+
+      requestApproval: (req) => {
+        const row = get().ledger.find((r) => r.id === req.rowId);
+        const route = approvalRoute(row ?? { owner: 'commercial', termKey: req.termKey }, req.costLakhPerYr);
+        const self = route.approverId === req.requestedById;
+        const request: ApprovalRequest = {
+          ...req,
+          id: `AP-${get().approvals.length + 1}`,
+          at: get().clock,
+          approverId: route.approverId,
+          rule: route.rule,
+          status: self ? 'approved' : 'pending',
+          decidedAt: self ? get().clock : undefined,
+        };
+        set((s) => ({
+          approvals: [...s.approvals, request],
+          ledger: noteOnRow(
+            s.ledger,
+            req.termKey,
+            s.clock,
+            self
+              ? `${APPROVAL_KIND_LABEL[req.kind]}: within ${personName(req.requestedById)}'s limit, approved and logged.`
+              : `${APPROVAL_KIND_LABEL[req.kind]}: approval requested from ${personName(route.approverId)} (${route.rule}).`,
+            req.requestedById,
+          ),
+          events: [...s.events, { at: s.clock, text: `Approval ${self ? 'logged' : 'requested'}: ${req.label}, ${req.change} → ${personName(route.approverId)}.` }],
+        }));
+        if (self && req.kind === 'accept_theirs' && req.value) {
+          set((s) => ({ ledger: acceptTheirsEngine(s.ledger, req.rowId, req.value as TermValue, { at: s.clock, byPersonId: req.requestedById }) }));
+        }
+        return request;
+      },
+
+      decideApproval: (id, approve) => {
+        const req = get().approvals.find((a) => a.id === id);
+        if (!req || req.status !== 'pending') return;
+        set((s) => {
+          let ledger = noteOnRow(
+            s.ledger,
+            req.termKey,
+            s.clock,
+            `${personName(req.approverId)} ${approve ? 'approved' : 'rejected'}: ${APPROVAL_KIND_LABEL[req.kind].toLowerCase()} (${req.change}).`,
+            req.approverId,
+          );
+          if (approve && req.kind === 'accept_theirs' && req.value) {
+            ledger = acceptTheirsEngine(ledger, req.rowId, req.value as TermValue, { at: s.clock, byPersonId: req.requestedById, approvedById: req.approverId });
+          }
+          return {
+            ledger,
+            approvals: s.approvals.map((a) => (a.id === id ? { ...a, status: approve ? 'approved' : 'rejected', decidedAt: s.clock } : a)),
+            notices: [
+              ...s.notices,
+              {
+                at: s.clock,
+                forPersonId: 'ananya',
+                rowId: req.rowId,
+                title: `${personName(req.approverId)} ${approve ? 'approved' : 'rejected'}: ${req.label}`,
+                text: req.change,
+              },
+            ],
+            events: [...s.events, { at: s.clock, text: `${personName(req.approverId)} ${approve ? 'approved' : 'rejected'} ${req.label}: ${req.change}.` }],
+          };
+        });
+      },
+
+      editRow: (rowId, value, reason) => {
+        const rows = editRowEngine(get().ledger, rowId, value, { reason, at: get().clock, byPersonId: 'ananya' });
+        const row = rows.find((r) => r.id === rowId);
+        set((s) => ({ ledger: rows, events: [...s.events, { at: s.clock, text: `${row?.label ?? rowId} edited: ${reason}` }] }));
+      },
+
+      addCallTerm: (termKey, value, withPersonId, note) => {
+        const rows = addCallTermEngine(get().ledger, termKey, value, { withPersonId, note, at: get().clock, byPersonId: 'ananya' });
+        set((s) => ({ ledger: rows, events: [...s.events, { at: s.clock, text: `Term agreed on a call logged: ${plainValue(value)} with ${personName(withPersonId)}.` }] }));
+      },
+
+      requestAcceptTheirs: (rowId) => {
+        const row = get().ledger.find((r) => r.id === rowId);
+        if (!row) return;
+        const threat = worstThreat(row, cloudDeskDeal);
+        if (!threat) return;
+        const tag = priceChange(cloudDeskDeal, row.position, threat.value);
+        const cost = tag.costLakhPerYr === null ? null : row.termKey === 'renewal_notice' ? tag.costLakhPerYr / cloudDeskDeal.termYears : tag.costLakhPerYr;
+        get().requestApproval({
+          kind: 'accept_theirs',
+          rowId,
+          termKey: row.termKey,
+          label: row.label,
+          change: `${plainValue(row.position)} → ${plainValue(threat.value)}`,
+          costLakhPerYr: cost,
+          requestedById: 'ananya',
+          value: threat.value,
+        });
+      },
+
+      updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
+
+      sendDispute: (message) =>
+        set((s) => ({
+          disputeRaised: true,
+          disputeEmail: message,
+          sentMessages: [...s.sentMessages, message],
+          events: [...s.events, { at: s.clock, text: `Dispute sent to CloudDesk on INV-CD-2712, quoting clause 9.1 and Rohan's email of 14 Nov.` }],
+        })),
 
       startDeal: (dealId) =>
         set((s) => ({
@@ -557,9 +713,20 @@ export const useDemo = create<DemoState>()(
           },
           events: [...s.events, { at: s.clock, text: `${row.label}: gap waived — ${reason}` }],
         }));
+        const gap = signingCheck(get().ledger, versionById('v6')!, cloudDeskDeal).gaps.find((g) => g.rowId === rowId);
+        get().requestApproval({
+          kind: 'waive',
+          rowId,
+          termKey: row.termKey,
+          label: row.label,
+          change: `signing copy wording kept · ${reason}`,
+          costLakhPerYr: gap?.costLakhPerYr == null ? null : row.termKey === 'renewal_notice' ? gap.costLakhPerYr / cloudDeskDeal.termYears : gap.costLakhPerYr,
+          requestedById: 'ananya',
+          reason,
+        });
       },
 
-      sendBack: () => {
+      sendBack: (via = 'email') => {
         const state = get();
         if (state.signing.sentBackAt || !state.signing.checkedAt) return;
         const original = signingCheck(state.ledger, versionById('v6')!, cloudDeskDeal);
@@ -585,14 +752,17 @@ export const useDemo = create<DemoState>()(
               dealIdTag: 'DL-CLOUDDESK-2026',
             },
           ],
-          body: 'Thanks Priya. Please review the attached copy and return it for signature. Ananya',
+          body: via === 'portal'
+            ? 'Shared with CloudDesk in the Sirion counterparty portal: v7 with tracked changes and comments, for review and signature.'
+            : 'Thanks Priya. Please review the attached copy and return it for signature. Ananya',
           mailboxes: ['ananya'],
         };
         set((s) => ({
           signing: { ...s.signing, sentBackAt: at, submittedCopy: supplierReturn(versionById('v6')!, state.ledger, at) },
+          sentVia: via,
           sentMessages: [...s.sentMessages, sent],
           completedSteps: s.completedSteps.includes(4) ? s.completedSteps : [...s.completedSteps, 4],
-          events: [...s.events, { at, text: `v7 sent back to CloudDesk with ${count} tracked changes.` }],
+          events: [...s.events, { at, text: `v7 sent back to CloudDesk ${via === 'portal' ? 'through the Sirion counterparty portal' : 'by email'} with ${count} tracked changes.` }],
         }));
       },
 

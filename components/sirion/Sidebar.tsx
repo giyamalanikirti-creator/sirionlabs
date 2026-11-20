@@ -2,14 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BookOpen, FileText, Handshake, Home, LineChart } from 'lucide-react';
+import { BookOpen, Columns2, FileText, Handshake, Home, LineChart, ShieldCheck } from 'lucide-react';
 import { Mark } from './Mark';
 
 const NAV = [
   { href: '/', icon: Home, label: 'Home' },
+  { href: '/today', icon: Columns2, label: 'Sirion today vs Deal Ledger' },
   { href: '/deals', icon: Handshake, label: 'Deals' },
   { href: '/contracts', icon: FileText, label: 'Contracts' },
   { href: '/insights', icon: LineChart, label: 'Insights' },
+  { href: '/settings', icon: ShieldCheck, label: 'Privacy and admin' },
   { href: '/story', icon: BookOpen, label: 'About this case' },
 ];
 

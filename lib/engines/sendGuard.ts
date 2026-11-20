@@ -67,8 +67,8 @@ function sentences(body: string): string[] {
     .filter(Boolean);
 }
 
-function claimsInSentence(sentence: string): DraftClaim[] {
-  if (DEFERRAL.test(sentence) || NEGATION.test(sentence)) return [];
+function claimsInSentence(sentence: string, filter = true): DraftClaim[] {
+  if (filter && (DEFERRAL.test(sentence) || NEGATION.test(sentence))) return [];
   const out: DraftClaim[] = [];
   const add = (termKey: TermKey, value: TermValue) => {
     if (!out.some((c) => c.termKey === termKey)) out.push({ termKey, value, quote: sentence });
@@ -131,7 +131,17 @@ function claimsInSentence(sentence: string): DraftClaim[] {
 
 /** Every term the draft states, sentence by sentence. Deferrals and refusals state nothing. */
 export function extractClaims(body: string): DraftClaim[] {
-  return sentences(body).flatMap(claimsInSentence);
+  return sentences(body).flatMap((s) => claimsInSentence(s));
+}
+
+/** Sentence-level reading with no filtering, for the reader preview, which classifies refusals itself. */
+export function readSentences(body: string): { sentence: string; claims: DraftClaim[]; deferral: boolean; negation: boolean }[] {
+  return sentences(body).map((sentence) => ({
+    sentence,
+    claims: claimsInSentence(sentence, false),
+    deferral: DEFERRAL.test(sentence),
+    negation: NEGATION.test(sentence),
+  }));
 }
 
 /* ------------------------------------------------------------------ */

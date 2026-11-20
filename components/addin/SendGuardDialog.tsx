@@ -34,6 +34,8 @@ export function SendGuardDialog({
   onPrimary,
   onEdit,
   onSendAnyway,
+  showWorkings = true,
+  showFallback = true,
 }: {
   finding: GuardFinding;
   others: GuardFinding[];
@@ -42,6 +44,9 @@ export function SendGuardDialog({
   onPrimary?: () => void;
   onEdit: () => void;
   onSendAnyway: (reason: SendAnywayReason) => void;
+  /** Business owners see the ₹ figure but, by default, not the cost workings (Privacy and admin). */
+  showWorkings?: boolean;
+  showFallback?: boolean;
 }) {
   const [asking, setAsking] = useState(false);
   const [reason, setReason] = useState<SendAnywayReason | null>(null);
@@ -78,7 +83,7 @@ export function SendGuardDialog({
                         CloudDesk would go from {formatLakh(finding.dealBeforeLakh)} to {formatLakh(finding.dealAfterLakh)} {HEADLINE_SUFFIX}.
                       </div>
                     )}
-                    {finding.proof.length > 0 && (
+                    {showWorkings && finding.proof.length > 0 && (
                       <details style={{ fontSize: 12, marginTop: 4 }}>
                         <summary style={{ cursor: 'pointer', color: tokens.colorBrandForeground1 }}>How calculated</summary>
                         {finding.proof.map((p) => (
@@ -105,7 +110,7 @@ export function SendGuardDialog({
                     Attached: <mark style={{ background: '#FFF1B8', padding: '1px 3px', borderRadius: 3 }}>{finding.attachment.fileName}</mark>
                   </p>
                 )}
-                {finding.fallback && (
+                {showFallback && finding.fallback && (
                   <p style={{ margin: '0 0 8px', fontSize: 12.5, color: tokens.colorNeutralForeground2 }}>
                     Fallback, if something has to give: {finding.fallback}
                   </p>

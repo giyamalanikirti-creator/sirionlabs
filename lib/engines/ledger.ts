@@ -118,6 +118,7 @@ export function applyReaderUpdates(
         row.position = value;
         row.state = 'agreed';
         row.source = source;
+        row.confidence = u.confidence;
         deactivate(row, ['supplier_ask', 'side_offer']);
         delete row.pendingConfirmation;
         if (u.action === 'accepts_if' && u.condition) {
@@ -228,6 +229,7 @@ function toNeedsConfirmation(row: LedgerRow, u: ReaderUpdate, source: SourceRef)
         ...row.threats.filter((t) => t.active).map((t) => ({ value: t.value, source: t.source })),
       ];
   row.state = 'needs_confirmation';
+  row.confidence = u.confidence;
   row.pendingConfirmation = {
     quote: u.quote,
     messageId: u.messageId,
@@ -269,6 +271,7 @@ export function confirmRow(
   row.position = value;
   row.state = 'agreed';
   row.source = opts.source ?? callNote ?? emailSource ?? row.source;
+  delete row.confidence;
   if (value.kind === 'service_credit') {
     row.supplierNote = `Reflects the ${value.pct}% service credit for months below ${value.uptimeTarget}% uptime.`;
   }
@@ -529,5 +532,65 @@ export function noteOnRow(rows: LedgerRow[], termKey: TermKey, at: string, text:
   const row = rowForTerm(next, termKey);
   if (!row) return next;
   addHistory(row, at, text, { kind: 'manual', quote: text, at, byPersonId });
+  return next;
+}
+
+/** A person corrects a row. The old value and the reason stay in the history. */
+export function editRow(
+  rows: LedgerRow[],
+  rowId: string,
+  value: TermValue,
+  opts: { reason: string; at: string; byPersonId: string },
+): LedgerRow[] {
+  const next = clone(rows);
+  const row = next.find((r) => r.id === rowId);
+  if (!row) return next;
+  const before = plainValue(row.position);
+  row.position = value;
+  delete row.confidence;
+  const source: SourceRef = { kind: 'manual', quote: opts.reason, at: opts.at, byPersonId: opts.byPersonId };
+  addHistory(row, opts.at, `Edited by ${personName(opts.byPersonId)}: ${before} → ${plainValue(value)} · ${opts.reason}`, source);
+  return next;
+}
+
+/** A term agreed on a call: written as agreed, with the call note as its source. */
+export function addCallTerm(
+  rows: LedgerRow[],
+  termKey: TermKey,
+  value: TermValue,
+  opts: { withPersonId: string; note: string; at: string; byPersonId: string },
+): LedgerRow[] {
+  const next = clone(rows);
+  const row = rowForTerm(next, termKey);
+  if (!row) return next;
+  const quote = opts.note || `Agreed on a call with ${personName(opts.withPersonId)}`;
+  const source: SourceRef = { kind: 'call_note', quote, at: opts.at, byPersonId: opts.byPersonId };
+  row.position = value;
+  row.state = 'agreed';
+  row.source = source;
+  delete row.confidence;
+  delete row.pendingConfirmation;
+  deactivate(row, ['supplier_ask', 'side_offer', 'version_change', 'new_ask']);
+  addHistory(row, opts.at, `Agreed on a call with ${personName(opts.withPersonId)}: ${plainValue(value)}. Logged by ${personName(opts.byPersonId)}.`, source);
+  return next;
+}
+
+/** Accept the supplier's value on a row (after approval): it becomes what is agreed. */
+export function acceptTheirs(
+  rows: LedgerRow[],
+  rowId: string,
+  value: TermValue,
+  opts: { at: string; byPersonId: string; approvedById?: string },
+): LedgerRow[] {
+  const next = clone(rows);
+  const row = next.find((r) => r.id === rowId);
+  if (!row) return next;
+  const before = plainValue(row.position);
+  row.position = value;
+  row.state = 'agreed';
+  delete row.confidence;
+  deactivate(row, ['supplier_ask', 'side_offer', 'version_change', 'new_ask', 'sent_concession']);
+  const text = `Accepted the supplier's ${plainValue(value)} instead of ${before}${opts.approvedById ? `, approved by ${personName(opts.approvedById)}` : ''}.`;
+  addHistory(row, opts.at, text, { kind: 'manual', quote: text, at: opts.at, byPersonId: opts.byPersonId });
   return next;
 }
