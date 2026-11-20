@@ -71,7 +71,7 @@ export function RoundDiffPane({
           {tag?.costLakhPerYr !== null && tag !== null && (
             <div style={{ marginTop: 6 }}>
               <span className={s.money}>{formatLakh(tag.costLakhPerYr)}</span>{' '}
-              <span className={s.moneySuffix}>a year</span>
+              <span className={s.moneySuffix}>{tag.basis === 'own_renewals' ? 'expected at the next renewal' : 'per year on average'}</span>
             </div>
           )}
           {change.hidden && (

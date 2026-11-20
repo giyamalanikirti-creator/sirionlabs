@@ -163,7 +163,7 @@ export function priceChange(deal: Deal, from: TermValue, to: TermValue): PriceTa
           UNUSED_SHARE,
         )} unused seats on average. (${gTo.unreviewed}/${gTo.total} − ${gFrom.unreviewed}/${
           gFrom.total
-        }) × ${formatPct(UNUSED_SHARE)} × ${formatLakh(feeLakh)} = ${formatLakh(cost)} a year.`,
+        }) × ${formatPct(UNUSED_SHARE)} × ${formatLakh(feeLakh)} = ${formatLakh(cost)} expected at the next renewal.`,
       ],
       formula: `(pSlip(${to.days}) − pSlip(${from.days})) × ${UNUSED_SHARE} × fee`,
     };

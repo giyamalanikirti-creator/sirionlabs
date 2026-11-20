@@ -8,6 +8,7 @@ import type {
   TermKey,
 } from '@/lib/types';
 import { extractValue } from './diff';
+import { agreedWording } from './wording';
 import { priceChange } from './pricing';
 import { plainValue, sameValue } from '@/lib/plain';
 import { formatDateShort } from '@/lib/format';
@@ -18,7 +19,7 @@ import { formatDateShort } from '@/lib/format';
  */
 export const GAP_NOTES: Partial<Record<TermKey, string>> = {
   price: "Neha Kapoor's approval (12 Nov) depends on this",
-  renewal_notice: 'Changed in v4, you put it back in v5, still 90 days here',
+  renewal_notice: 'CloudDesk now requires us to give notice 60 days earlier than agreed.',
   payment: 'Traded for the 3-year term (10 Nov)',
 };
 
@@ -91,7 +92,7 @@ export function signingCheck(
     return b.costLakhPerYr - a.costLakhPerYr;
   });
 
-  const totalAtRiskLakh = gaps.reduce((s, g) => s + (g.costLakhPerYr ?? 0), 0);
+  const totalAtRiskLakh = gaps.reduce((s, g) => s + (g.costLakhPerYr ?? 0) / (g.termKey === 'renewal_notice' ? deal.termYears : 1), 0);
 
   return {
     gaps,
@@ -107,4 +108,25 @@ export function versionValues(version: DocVersion) {
   return version.clauses
     .filter((c) => c.termKey)
     .map((c) => ({ clause: c, value: extractValue(c) }));
+}
+
+/** Simulate CloudDesk returning the reviewed copy with tracked changes accepted. */
+export function supplierReturn(draft: DocVersion, rows: LedgerRow[], at: string): DocVersion {
+  return {
+    ...draft,
+    id: 'v7',
+    fileName: 'CloudDesk_MSA_v7.docx',
+    author: 'supplier',
+    sentAt: at,
+    declaredTrackedChanges: [],
+    clauses: draft.clauses.map((clause) => {
+      const row = rows.find((item) => item.termKey === clause.termKey);
+      if (row?.signing !== 'inserted') return clause;
+      const current = extractValue(clause);
+      if (!current) return clause;
+      const previous = agreedWording(row.termKey, current);
+      if (!clause.text.startsWith(previous)) return clause;
+      return { ...clause, text: agreedWording(row.termKey, row.position) + clause.text.slice(previous.length) };
+    }),
+  };
 }

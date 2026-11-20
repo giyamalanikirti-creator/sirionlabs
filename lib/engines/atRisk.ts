@@ -36,7 +36,10 @@ export function rowPriceTag(row: LedgerRow, deal: Deal): PriceTag | null {
 
 /** Sum of row at-risk figures; rows with no ₹ figure count as zero. */
 export function dealAtRisk(rows: LedgerRow[], deal: Deal): number {
-  return rows.reduce((sum, r) => sum + (rowAtRisk(r, deal) ?? 0), 0);
+  return rows.reduce((sum, row) => {
+    const cost = rowAtRisk(row, deal) ?? 0;
+    return sum + (row.termKey === 'renewal_notice' ? cost / deal.termYears : cost);
+  }, 0);
 }
 
 /** Rows that should appear in "Needs your attention". */

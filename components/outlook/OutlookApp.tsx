@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { makeStyles, shorthands, tokens, Button } from '@fluentui/react-components';
 import { useChromeStyles, FolderPane, OutlookHeader, OutlookRail, OutlookRibbon } from './chrome';
 import { MessageList } from './MessageList';
@@ -11,23 +11,25 @@ import { PaneFrame } from '@/components/addin/PaneFrame';
 import { AnanyaPane } from '@/components/addin/AnanyaPane';
 import { VikramPane } from '@/components/addin/VikramPane';
 import { ProgressDialog, SmartAlertDialog } from '@/components/addin/SmartAlertDialog';
+import { NextStage } from '@/components/demo/NextStage';
 import { TrySentence } from './TrySentence';
 import { useDemo, cachedReaderFor } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
-import { initialLedger } from '@/lib/demo/steps';
+import { initialLedger, STEP_CLOCK } from '@/lib/demo/steps';
 import {
+  cloudDeskDeal,
   inboxFor,
   messageById,
   personById,
   sentItemsFor,
   threadById,
 } from '@/lib/data';
-import { TAKE_ACTION_LABEL } from '@/lib/engines/sendDialog';
+import { buildDialog, TAKE_ACTION_LABEL } from '@/lib/engines/sendDialog';
 import type { AiSource, EmailMessage, ReaderResult, SendCheckResult } from '@/lib/types';
 import type { Step } from '@/lib/demo/steps';
 
 /** Which demo step each scripted message belongs to (§11). */
-const MESSAGE_STEP: Record<string, number> = { M8: 1, M12: 2, M13: 3, M14: 4 };
+const MESSAGE_STEP: Partial<Record<string, Step>> = { M8: 1, M12: 2, M13: 3, M14: 4 };
 
 const useStyles = makeStyles({
   split: { display: 'flex', flexGrow: 1, minHeight: 0 },
@@ -59,6 +61,7 @@ export function OutlookApp({ person }: { person: Person }) {
   const chrome = useChromeStyles();
   const s = useStyles();
   const params = useSearchParams();
+  const router = useRouter();
   const hydrated = useHydrated();
 
   const owner = personById(person)!;
@@ -86,7 +89,7 @@ export function OutlookApp({ person }: { person: Person }) {
   const [selectedId, setSelectedId] = useState<string | undefined>();
   const [paneOpen, setPaneOpen] = useState(person === 'ananya');
   const [busy, setBusy] = useState(false);
-  const [readerSource, setReaderSource] = useState<AiSource>('cached');
+  const [readerSource, setReaderSource] = useState<AiSource>();
 
   // Compose state
   const [composing, setComposing] = useState(false);
@@ -94,6 +97,12 @@ export function OutlookApp({ person }: { person: Person }) {
   const [ccAdded, setCcAdded] = useState(false);
   const [checking, setChecking] = useState(false);
   const [alert, setAlert] = useState<SendCheckResult | null>(null);
+  const [actionable, setActionable] = useState<boolean>();
+  const showPreview = params.get('result') === 'warning';
+  const dismissPreview = () => router.replace('/outlook/vikram?msg=M13');
+  const previewDialog = showPreview && hydrated
+    ? buildDialog(rows, cloudDeskDeal, 'price', { kind: 'price', wording: 'open_yearly', fromYear: 2 })
+    : null;
   const [loopIn, setLoopIn] = useState<SendCheckResult['match'] | undefined>();
 
   const inbox = useMemo(() => {
@@ -119,7 +128,7 @@ export function OutlookApp({ person }: { person: Person }) {
       const response = await fetch('/api/reader', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ dealId: 'D-CLOUDDESK', messageIds }),
+        body: JSON.stringify({ dealId: 'D-CLOUDDESK', messageIds, linkedThreadIds: useDemo.getState().linkedThreadIds }),
       });
       if (!response.ok) throw new Error(`reader ${response.status}`);
       const result = (await response.json()) as ReaderResult & { versionId?: string };
@@ -171,9 +180,9 @@ export function OutlookApp({ person }: { person: Person }) {
     const step = MESSAGE_STEP[wanted];
 
     if (target && step !== undefined) {
-      const reached = Math.max(...completedSteps);
-      if (reached < step - 1) {
-        advanceTo((step - 1) as Step);
+      const prior = (step - 1) as Step;
+      if (clock < STEP_CLOCK[prior]) {
+        advanceTo(prior);
         return;
       }
     }
@@ -189,7 +198,7 @@ export function OutlookApp({ person }: { person: Person }) {
       openMessage(inbox[0].id);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, inbox.length, clock, hydrated, completedSteps.length]);
+  }, [params, inbox.length, clock, hydrated]);
 
   /* Linking the side thread reads it, and re-reads the ambiguous message. */
   const linkedT2 = linkedThreads.includes('T2');
@@ -203,7 +212,7 @@ export function OutlookApp({ person }: { person: Person }) {
 
   /* ---- Compose ---- */
 
-  const replyTo = person === 'vikram' ? 'rohan.iyer@clouddesk.example' : 'rohan.iyer@clouddesk.example';
+  const replyTo = 'rohan.iyer@clouddesk.example';
 
   const openReply = (body = '') => {
     setComposing(true);
@@ -253,6 +262,7 @@ export function OutlookApp({ person }: { person: Person }) {
       finishSend(result);
       return;
     }
+    setActionable(undefined);
     setAlert(result);
   };
 
@@ -276,10 +286,20 @@ export function OutlookApp({ person }: { person: Person }) {
       termKey: result.match?.termKey,
       decision: result.decision,
       choice,
+      actionable: choice ? actionable : undefined,
     });
     setComposing(false);
     setAlert(null);
     setDraft('');
+    if (person === 'vikram' && ccAdded) {
+      const termKey = loopIn?.termKey;
+      useDemo.getState().addNotice({
+        at: clock,
+        forPersonId: 'ananya',
+        text: 'Vikram escalated the supplier request. Ananya now has one term to review.',
+        rowId: rows.find((row) => row.termKey === termKey)?.id,
+      });
+    }
     toast('Sent');
     setFolder('sent');
   };
@@ -293,6 +313,7 @@ export function OutlookApp({ person }: { person: Person }) {
       termKey: alert?.match?.termKey,
       decision: alert?.decision ?? 'warn',
       choice: 'loop_in',
+      actionable,
     });
     setAlert(null);
   };
@@ -311,6 +332,7 @@ export function OutlookApp({ person }: { person: Person }) {
       termKey: alert?.match?.termKey,
       decision: alert?.decision ?? 'warn',
       choice: 'dont_send',
+      actionable,
     });
     setAlert(null);
   };
@@ -378,7 +400,7 @@ export function OutlookApp({ person }: { person: Person }) {
             </div>
 
             {paneOpen && (
-              <PaneFrame width={320} source={readerSource} onClose={() => setPaneOpen(false)}>
+              <PaneFrame width={320} source={readerSource ?? (selected ? readerRuns[selected.id] : undefined)} onClose={() => setPaneOpen(false)}>
                 {person === 'ananya' ? (
                   <AnanyaPane
                     rows={rows}
@@ -387,6 +409,7 @@ export function OutlookApp({ person }: { person: Person }) {
                     onDraftReply={(body) => openReply(body)}
                   />
                 ) : (
+                  <>
                   <VikramPane
                     rows={rows}
                     loopIn={loopIn}
@@ -401,6 +424,8 @@ export function OutlookApp({ person }: { person: Person }) {
                       toast('Holding reply ready. It contains no figures or names.');
                     }}
                   />
+                  {completedSteps.includes(3) && <NextStage step={4} />}
+                  </>
                 )}
               </PaneFrame>
             )}
@@ -413,12 +438,29 @@ export function OutlookApp({ person }: { person: Person }) {
       )}
 
       <ProgressDialog open={checking} />
+      {previewDialog && !alert && (
+        <SmartAlertDialog
+          open
+          title={previewDialog.title}
+          markdown={previewDialog.markdown}
+          takeActionLabel="Try this step"
+          source="cached"
+          onTakeAction={() => {
+            dismissPreview();
+            openReply('Yearly price revision is fine with us.');
+          }}
+          onDontSend={() => dismissPreview()}
+        />
+      )}
       {alert?.dialog && (
         <SmartAlertDialog
           open
           markdown={alert.dialog.markdown}
+          title={alert.dialog.title}
           takeActionLabel={alert.dialog.takeActionLabel}
           source={alert.source}
+          actionable={actionable}
+          onAssess={alert.decision === 'warn' ? setActionable : undefined}
           onTakeAction={onTakeAction}
           onDontSend={onDontSend}
           onSendAnyway={onSendAnyway}

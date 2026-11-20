@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { NextStage } from '@/components/demo/NextStage';
 import {
   Accordion,
   AccordionHeader,
@@ -47,6 +49,7 @@ export function SigningPane({
   const waiveGap = useDemo((st) => st.waiveGap);
   const sendBack = useDemo((st) => st.sendBack);
   const sentBackAt = useDemo((st) => st.signing.sentBackAt);
+  const signed = version.id === 'v7';
   const toast = useDemo((st) => st.toast);
 
   const [waiving, setWaiving] = useState<string | null>(null);
@@ -57,24 +60,19 @@ export function SigningPane({
     const row = rows.find((r) => r.id === g.rowId);
     return row?.signing !== 'inserted' && row?.signing !== 'waived';
   });
-  const resolved = rows.filter((r) => r.signing === 'inserted' || r.signing === 'waived');
-  const allClear = openGaps.length === 0 && result.gaps.length > 0;
-  const openTotal = openGaps.reduce((sum, g) => sum + (g.costLakhPerYr ?? 0), 0);
+  const resolved = rows.filter((r) => result.gaps.some((gap) => gap.rowId === r.id) && (r.signing === 'inserted' || r.signing === 'waived'));
+  const pending = resolved.filter((row) => row.signing === 'inserted').length;
+  const waived = resolved.length - pending;
+  const unresolved = openGaps.length + result.needsConfirmation.length;
+  const readyToReturn = !signed && unresolved === 0 && result.gaps.length > 0;
 
   return (
     <div style={{ position: 'relative' }}>
       <div className={s.headline}>
         <span className={s.headlineLabel}>Signing check · {version.fileName}</span>
-        {allClear ? (
-          <span style={{ fontSize: 15, fontWeight: 600, color: tokens.colorPaletteGreenForeground1 }}>
-            Ready to sign
-          </span>
-        ) : (
-          <>
-            <span className={s.money}>{formatLakh(openTotal)}</span>{' '}
-            <span className={s.moneySuffix}>a year across {openGaps.length} gaps</span>
-          </>
-        )}
+        {
+          <span>{result.matches.length} matched · {pending} awaiting supplier acceptance · {unresolved} unresolved{waived ? ` · ${waived} waived` : ''}</span>
+        }
       </div>
 
       {result.needsConfirmation.length > 0 && (
@@ -83,25 +81,23 @@ export function SigningPane({
             <MessageBarTitle>
               {result.needsConfirmation.length} row still needs confirming
             </MessageBarTitle>
-            {result.needsConfirmation.map((n) => n.label).join(', ')} — settle it before you sign.
+            {result.needsConfirmation.map((n) => n.label).join(', ')} · <Link href="/outlook/ananya?msg=M12">Resolve in Ananya’s Outlook</Link>
           </MessageBarBody>
         </MessageBar>
       )}
 
       <div className={s.card}>
         <div className={s.cardTitle}>
-          {allClear
-            ? `Ready to sign: ${rows.length} of ${rows.length} rows match`
-            : `${openGaps.length} gaps · ${formatLakh(openTotal)} a year`}
+          {signed ? 'Returned supplier copy verified' : readyToReturn ? 'Ready to return to CloudDesk' : 'Verify the supplier copy'}
         </div>
         <div className={s.cardMeta}>
-          {result.matches.length + resolved.length} of {rows.length} rows match the signing copy
+          {result.matches.length} of {rows.length} rows match the signing copy
         </div>
         <div className={s.signal}>
           <DocumentRegular fontSize={14} />
           Deal ID found in this file: <strong>{result.dealIdTag ?? 'none'}</strong>
         </div>
-        {allClear && (
+        {readyToReturn && (
           <p className={s.note}>
             {resolved.filter((r) => r.signing === 'inserted').length} tracked changes for CloudDesk,
             each with a supplier-safe note.
@@ -118,15 +114,19 @@ export function SigningPane({
             </Badge>
           </div>
           <div style={{ fontSize: 12.5, marginBottom: 6 }}>
-            Agreed: <strong>{gap.agreedPlain}</strong>
+            Agreed wording · <strong>{gap.agreedPlain}</strong>
           </div>
           <div className={s.quote}>
-            This copy, clause {gap.clauseNo}: {gap.clauseText}
+            Signing copy · clause {gap.clauseNo} {gap.clauseText}
           </div>
-          <div style={{ marginTop: 8 }}>
-            <span className={s.money}>{formatLakh(gap.costLakhPerYr)}</span>{' '}
-            <span className={s.moneySuffix}>a year</span>
-          </div>
+          {gap.costLakhPerYr !== null && (
+            <div style={{ marginTop: 8 }}>
+              <span className={s.money}>{formatLakh(gap.costLakhPerYr)}</span>{' '}
+              <span className={s.moneySuffix}>{gap.termKey === 'renewal_notice' ? 'expected at the next renewal' : 'per year on average'}</span>
+              {gap.priceTag.exposureLakh && <p>Gross renewal exposure · {formatLakh(gap.priceTag.exposureLakh)}</p>}
+              <details><summary>How calculated</summary>{gap.priceTag.proof.map((line) => <p key={line}>{line}</p>)}</details>
+            </div>
+          )}
           <div className={s.tags}>
             <Badge
               appearance="outline"
@@ -135,7 +135,7 @@ export function SigningPane({
               style={{ cursor: 'pointer' }}
               onClick={() => open(gap.source, true)}
             >
-              {gap.sourceChip}
+              Source · {gap.sourceChip}
             </Badge>
           </div>
           {gap.note && <p className={s.note}>{gap.note}</p>}
@@ -167,11 +167,10 @@ export function SigningPane({
             <span className={s.termName}>{row.label}</span>
             <Badge
               appearance="filled"
-              color={row.signing === 'inserted' ? 'success' : 'informative'}
+              color="informative"
               size="small"
-              icon={row.signing === 'inserted' ? <CheckmarkCircleFilled /> : undefined}
             >
-              {row.signing === 'inserted' ? 'Inserted' : 'Waived'}
+              {row.signing === 'inserted' ? 'Awaiting supplier acceptance' : 'Waived'}
             </Badge>
           </div>
           <p className={s.note} style={{ marginTop: 2 }}>
@@ -179,12 +178,13 @@ export function SigningPane({
               ? 'Fixed in your copy, waiting for CloudDesk to accept.'
               : `Waived: ${row.waiveReason}`}
           </p>
+          {row.signing === 'inserted' && <p className={s.quote}>Supplier comment · {row.supplierNote}</p>}
         </div>
       ))}
 
       {openGaps.length > 1 && (
         <Button
-          appearance="primary"
+          appearance="secondary"
           style={{ width: '100%', marginBottom: 10 }}
           onClick={() => {
             insertAll();
@@ -195,7 +195,7 @@ export function SigningPane({
         </Button>
       )}
 
-      {allClear && !sentBackAt && (
+      {readyToReturn && !sentBackAt && (
         <Button
           appearance="primary"
           style={{ width: '100%', marginBottom: 10 }}
@@ -208,13 +208,15 @@ export function SigningPane({
         </Button>
       )}
 
-      {sentBackAt && (
+      {sentBackAt && !signed && (
         <MessageBar intent="success" style={{ marginBottom: 10 }}>
           <MessageBarBody>
             v7 sent to Priya Nair with the tracked changes and notes.
           </MessageBarBody>
         </MessageBar>
       )}
+
+      {sentBackAt && !signed && <NextStage step={5} />}
 
       <p className={s.sectionLabel}>Rows that already match</p>
       <Accordion collapsible>

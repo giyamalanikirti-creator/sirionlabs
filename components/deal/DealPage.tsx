@@ -17,7 +17,7 @@ import { ActivityTab } from './ActivityTab';
 
 const STAGES = ['Rounds', 'Signing', 'Signed', 'In Sirion'] as const;
 
-export function DealPage() {
+export function DealPage({ initialRow }: { initialRow?: string }) {
   const [tab, setTab] = useState('ledger');
   const { rows, atRisk, counts, signed } = useLedger();
   const contract = useDemo((s) => s.contract);
@@ -72,7 +72,7 @@ export function DealPage() {
             <div className="text-right">
               <MoneyPlain lakh={signed ? 0 : atRisk} size="xl" suffix={null} tone={atRisk > 0 ? 'danger' : 'teal'} />
               <p className="mt-0.5 text-[12px] text-muted">
-                {signed ? 'at risk — signed and enforced' : 'a year at risk right now'}
+                {signed ? 'at risk — signed and enforced' : 'per year on average, including next-renewal costs spread over the term'}
               </p>
             </div>
             <div className="flex gap-2">
@@ -106,7 +106,7 @@ export function DealPage() {
       />
 
       <div className="mt-4">
-        {tab === 'ledger' && <LedgerTab rows={rows} />}
+        {tab === 'ledger' && <LedgerTab rows={rows} initialRow={initialRow} />}
         {tab === 'rounds' && <RoundsTab rows={rows} />}
         {tab === 'threads' && <ThreadsTab />}
         {tab === 'signing' && <SigningTab rows={rows} />}

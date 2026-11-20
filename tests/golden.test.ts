@@ -83,7 +83,7 @@ describe('other terms', () => {
     );
     expect(t.costLakhPerYr!).toBeCloseTo(3.42, 4);
     expect(t.exposureLakh!).toBeCloseTo(60, 4);
-    expect(formatLakhPerYear(t.costLakhPerYr)).toBe('₹3.4 lakh a year');
+    expect(t.proof.join(' ')).toContain('₹3.4 lakh expected at the next renewal');
     expect(formatLakh(t.exposureLakh!)).toBe('₹60 lakh');
   });
 
@@ -120,7 +120,7 @@ describe('at risk through the demo', () => {
 
   it('after moment 1 (round 4 read)', () => {
     const rows = stepOne(initialLedger()).rows;
-    expect(dealAtRisk(rows, deal)).toBeCloseTo(3.92, 4);
+    expect(dealAtRisk(rows, deal)).toBeCloseTo(1.64, 4);
   });
 
   it('after moment 2 (service credit confirmed at 10%)', () => {
@@ -128,12 +128,12 @@ describe('at risk through the demo', () => {
     rows = stepTwoBeforeLink(rows).rows;
     rows = stepTwoAfterLink(rows).rows;
     rows = stepTwoConfirm(rows);
-    expect(dealAtRisk(rows, deal)).toBeCloseTo(3.42, 4);
+    expect(dealAtRisk(rows, deal)).toBeCloseTo(1.14, 4);
   });
 
   it('after M13 arrives (new ask on price)', () => {
     const rows = stepThree(ledgerAtStep(2));
-    expect(dealAtRisk(rows.rows, deal)).toBeCloseTo(7.34192, 4);
+    expect(dealAtRisk(rows.rows, deal)).toBeCloseTo(5.06192, 4);
   });
 
   it('after signing, nothing is at risk', () => {
@@ -155,11 +155,11 @@ describe('signing check on v6', () => {
   const v6 = versionById('v6')!;
   const result = signingCheck(rows, v6, deal);
 
-  it('finds 3 gaps worth ₹7.6 lakh a year and 4 matches', () => {
+  it('finds 3 gaps worth ₹5.3 lakh per year on average and 4 matches', () => {
     expect(result.gaps).toHaveLength(3);
     expect(result.matches).toHaveLength(4);
-    expect(result.totalAtRiskLakh).toBeCloseTo(7.5884953, 4);
-    expect(formatLakhPerYear(result.totalAtRiskLakh)).toBe('₹7.6 lakh a year');
+    expect(result.totalAtRiskLakh).toBeCloseTo(5.3084953, 4);
+    expect(formatLakh(result.totalAtRiskLakh)).toBe('₹5.3 lakh');
   });
 
   it('sorts the gaps by rupees: price, renewal notice, payment', () => {

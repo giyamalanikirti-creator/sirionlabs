@@ -103,7 +103,7 @@ export function VikramPane({
 
         <div>
           <span className={s.money}>{formatLakh(loopIn.costLakhPerYr)}</span>{' '}
-          <span className={s.moneySuffix}>a year if conceded</span>
+          <span className={s.moneySuffix}>{row.termKey === 'renewal_notice' ? 'expected at the next renewal' : 'per year on average'}</span>
           {loopIn.overTermLakh !== undefined && (
             <div className={s.grey}>{formatLakh(loopIn.overTermLakh)} over the three-year term</div>
           )}
@@ -128,7 +128,7 @@ export function VikramPane({
 
       <div className={s.actions}>
         <Button size="small" appearance="primary" onClick={onAddCc} disabled={ccAdded}>
-          {ccAdded ? `${personName('ananya')} is on Cc` : `Add ${personName('ananya').split(' ')[0]} to Cc`}
+          {ccAdded ? 'Ananya added to Cc' : `Add ${personName('ananya').split(' ')[0]} to Cc`}
         </Button>
         <Button size="small" onClick={() => onHoldingReply(HOLDING_REPLY)}>
           Use a holding reply

@@ -72,6 +72,7 @@ export const readerOutputSchema = z.object({
 });
 
 export const readerRequestSchema = z.object({
+  linkedThreadIds: z.array(z.string()).max(10).default([]),
   dealId: z.string(),
   messageIds: z.array(z.string()).min(1).max(6),
 });

@@ -1,6 +1,6 @@
 /** BUILD_SPEC §8.7 — the signing check on the v6 copy. */
 import { describe, expect, it } from 'vitest';
-import { signingCheck } from '@/lib/engines/signing';
+import { signingCheck, supplierReturn } from '@/lib/engines/signing';
 import { cloudDeskDeal, versionById } from '@/lib/data';
 import { ledgerAtStep } from '@/lib/demo/steps';
 import { insertWordingForRow, markSigningGaps, waiveGapForRow } from '@/lib/engines/ledger';
@@ -27,7 +27,7 @@ describe('what the signing copy is missing', () => {
   it('prices each gap from the agreed position', () => {
     const [price, notice, payment] = result.gaps;
     expect(formatLakhPerYear(price.costLakhPerYr)).toBe('₹3.9 lakh a year');
-    expect(formatLakhPerYear(notice.costLakhPerYr)).toBe('₹3.4 lakh a year');
+    expect(notice.priceTag.proof.join(' ')).toContain('₹3.4 lakh expected at the next renewal');
     expect(formatLakhPerYear(payment.costLakhPerYr)).toBe('₹25,000 a year');
   });
 
@@ -41,7 +41,7 @@ describe('what the signing copy is missing', () => {
 
   it('carries the history note for each gap', () => {
     expect(result.gaps[1].note).toBe(
-      'Changed in v4, you put it back in v5, still 90 days here',
+      'CloudDesk now requires us to give notice 60 days earlier than agreed.',
     );
     expect(result.gaps[2].note).toBe('Traded for the 3-year term (10 Nov)');
   });
@@ -76,13 +76,15 @@ describe('fixing the gaps', () => {
     expect(missing.map((r) => r.id).sort()).toEqual(['R-notice', 'R-payment', 'R-price']);
   });
 
-  it('inserting the agreed wording closes the gap', () => {
+  it('counts proposed edits only after verifying the returned file', () => {
     let next = marked;
     for (const gap of result.gaps) {
       next = insertWordingForRow(next, gap.rowId, '2026-11-19T10:00:00+05:30');
     }
     expect(next.filter((r) => r.signing === 'inserted')).toHaveLength(3);
-    expect(next.every((r) => r.state === 'agreed')).toBe(true);
+    expect(signingCheck(next, v6, deal).matches).toHaveLength(4);
+    const returned = supplierReturn(v6, next, '2026-11-21T12:00:00+05:30');
+    expect(signingCheck(next, returned, deal).matches).toHaveLength(7);
   });
 
   it('waiving a gap needs a reason and records it', () => {

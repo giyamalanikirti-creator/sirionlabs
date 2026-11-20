@@ -269,6 +269,9 @@ export function confirmRow(
   row.position = value;
   row.state = 'agreed';
   row.source = callNote ?? emailSource ?? row.source;
+  if (value.kind === 'service_credit') {
+    row.supplierNote = `Reflects the ${value.pct}% service credit for months below ${value.uptimeTarget}% uptime.`;
+  }
   deactivate(row, ['side_offer', 'supplier_ask']);
   delete row.pendingConfirmation;
 

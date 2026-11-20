@@ -143,8 +143,12 @@ export function countWords(version: DocVersion): number {
 }
 
 /** A clause with its tracked change shown in All Markup view. */
-function ClauseBody({ clause, edit }: { clause: Clause; edit?: TrackedEdit }) {
-  if (!edit) return <>{clause.text}</>;
+function ClauseBody({ clause, edit, highlighted }: { clause: Clause; edit?: TrackedEdit; highlighted: boolean }) {
+  if (!edit) {
+    if (!highlighted) return <>{clause.text}</>;
+    const end = clause.text.indexOf('. ') + 1;
+    return <><mark>{end ? clause.text.slice(0, end) : clause.text}</mark>{end ? clause.text.slice(end) : ''}</>;
+  }
 
   // Only the operative sentence is struck through. The rest of the clause is
   // untouched, which is what an amendment to one term actually looks like.
@@ -162,10 +166,12 @@ export function WordDocument({
   edits,
   comments,
   anchorRefs,
+  highlightedClause,
 }: {
   version: DocVersion;
   edits: TrackedEdit[];
   comments: CommentCard[];
+  highlightedClause?: string;
   anchorRefs?: React.MutableRefObject<Record<string, HTMLDivElement | null>>;
 }) {
   const s = useStyles();
@@ -223,7 +229,7 @@ export function WordDocument({
                     {c.no} {c.title}
                   </div>
                   <div className={hasComment ? s.anchor : undefined}>
-                    <ClauseBody clause={c} edit={edit} />
+                    <ClauseBody clause={c} edit={edit} highlighted={highlightedClause === c.no} />
                   </div>
                 </div>
               );

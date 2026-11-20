@@ -1,12 +1,14 @@
-# Deal Ledger
+# About this case
 
 *Student prototype for the Sirion ISB assignment. Not a Sirion or Microsoft product. All names and data are fictional.*
 
-Deal Ledger keeps one source-linked record of what has actually been agreed with a supplier, across email threads, side threads and Word versions. It puts an expected ₹-a-year figure on every term at risk, warns people in Outlook before they concede an agreed term by email, checks the signing copy against what was agreed, and hands the agreed terms to Sirion's tracking agents after signing.
+Deal Ledger keeps one source-linked record of what has actually been agreed with a supplier, across email threads, side threads and Word versions. It estimates the financial impact of pricing, payment, credits and renewal discrepancies, warns people in Outlook before they concede an agreed term by email, checks the signing copy against what was agreed, and hands the agreed terms to Sirion's tracking agents after signing.
 
 ## 1. Why this stage
 
 We chose negotiation because it is where the money terms are set. All three results in the brief, unreviewed auto-renewals, missed service levels and invoices that don't match, trace back to what was agreed and whether it made it into the contract. Intake comes before any terms exist, and a repository can only track what was written down. If an agreed term never reaches the signing copy, no tracking agent can enforce it later.
+
+The assignment brief reports a product-lead observation about agreements getting lost between negotiation and signing. The industry sources below provide context. CloudDesk, its email trail and the portfolio metrics are fictional demo data.
 
 ## 2. The problem
 
@@ -113,7 +115,7 @@ Every figure is an **expected ₹ a year, averaged over the term**, computed fro
 
 **Renewal notice.** `pSlip(group)` is the share of our past renewals in that notice window that went through without a review. The cost is `(pSlip(to) − pSlip(from)) × unused share × fee`.
 
-> With 60–90 days' notice, 5 of your 12 past renewals went through without a review. With 30 days, 1 of 10 did. Unreviewed renewals carried 18% unused seats on average. (5/12 − 1/10) × 18% × ₹60 lakh = ₹3.4 lakh a year.
+> With 60–90 days' notice, 5 of your 12 past renewals went through without a review. With 30 days, 1 of 10 did. Unreviewed renewals carried 18% unused seats on average. (5/12 − 1/10) × 18% × ₹60 lakh = ₹3.4 lakh expected at the next renewal.
 
 **Payment terms.** `(fromDays − toDays) / 365 × fee × cost of money`, using Finance's own 10%.
 
@@ -157,20 +159,21 @@ The engines, the state machine, the matcher, the pricing and the signing check a
 
 ## 11. Success metrics
 
-**North star.** The share of signed supplier contracts where a **sampled audit of the email trail** finds no agreed term missing from the signed copy. The audit is done by people. The tool's own signing check is reported separately as a self-check, so the metric cannot grade itself.
+**North star.** The share of audited signed contracts with every agreed term reflected. Reviewers sample signed contracts and independently compare them with the underlying correspondence, so a missed extraction can count as a failure. Report authorised waivers separately.
 
 **Signals**
 
 - ₹ of concessions avoided at Send
 - Time from the final supplier email to a complete Sirion record
 - Reader accuracy on the 32-item test set
+- Share of rated warnings reviewers judge actionable
 - Invoice disputes settled from the source rather than from memory
 
 **Guardrail.** Days from the final supplier email to signature. If checking the copy slows deals down, it is not worth having.
 
 **Rethink if**
 
-- People choose Send Anyway on most warnings — the warnings are wrong, or they are noise
+- Reviewers judge few warnings actionable. Compare their feedback with override rates to distinguish noisy warnings from deliberate commercial decisions.
 - More than 3 rows per deal need confirming — we are pushing our uncertainty onto people
 - Reader accuracy stays low — the capture is not trustworthy enough to build on
 - Negotiations get slower

@@ -9,7 +9,6 @@ import { StatePill } from '@/components/sirion/StatePill';
 import { useDemo } from '@/lib/store';
 import { cloudDeskDeal, versionById } from '@/lib/data';
 import { signingCheck } from '@/lib/engines/signing';
-import { formatLakh } from '@/lib/format';
 import type { LedgerRow } from '@/lib/types';
 
 export function SigningTab({ rows }: { rows: LedgerRow[] }) {
@@ -35,7 +34,6 @@ export function SigningTab({ rows }: { rows: LedgerRow[] }) {
   });
   const fixed = rows.filter((r) => r.signing === 'inserted');
   const waived = rows.filter((r) => r.signing === 'waived');
-  const openTotal = open.reduce((s, g) => s + (g.costLakhPerYr ?? 0), 0);
 
   /** Gaps first, then the rows that already match, in one typed list. */
   const items: {
@@ -47,6 +45,7 @@ export function SigningTab({ rows }: { rows: LedgerRow[] }) {
     note?: string;
     cost: number | null;
     isMatch: boolean;
+    renewal?: boolean;
   }[] = [
     ...result.gaps.map((g) => ({
       rowId: g.rowId,
@@ -57,6 +56,7 @@ export function SigningTab({ rows }: { rows: LedgerRow[] }) {
       note: g.note,
       cost: g.costLakhPerYr,
       isMatch: false,
+      renewal: g.termKey === 'renewal_notice',
     })),
     ...result.matches.map((m) => ({
       rowId: m.rowId,
@@ -77,12 +77,12 @@ export function SigningTab({ rows }: { rows: LedgerRow[] }) {
       >
         <div className="flex flex-wrap items-center gap-x-10 gap-y-4">
           <Figure
-            label={open.length ? 'Still missing' : 'Nothing missing'}
-            value={open.length ? formatLakh(openTotal) : '—'}
+            label="Unresolved gaps"
+            value={String(open.length + result.needsConfirmation.length)}
             caption={`${open.length} of ${rows.length} rows`}
             tone={open.length ? 'danger' : 'teal'}
           />
-          <Figure label="Fixed in our copy" value={String(fixed.length)} caption="tracked changes" />
+          <Figure label="Awaiting supplier acceptance" value={String(fixed.length)} caption="tracked changes" />
           <Figure label="Waived with a reason" value={String(waived.length)} caption="on the record" />
           <Figure
             label="Matched as sent"
@@ -134,7 +134,7 @@ export function SigningTab({ rows }: { rows: LedgerRow[] }) {
                       <Check size={13} strokeWidth={3} /> Matches
                     </span>
                   ) : (
-                    <MoneyPlain lakh={item.cost} size="sm" suffix={null} tone="danger" />
+                    <MoneyPlain lakh={item.cost} size="sm" suffix={item.renewal ? "at next renewal" : "per year on average"} tone="danger" />
                   )}
                 </div>
                 <div className="w-48 shrink-0">

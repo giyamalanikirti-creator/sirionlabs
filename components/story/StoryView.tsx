@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { SirionCard } from '@/components/sirion/ui';
 import { StakeholderMap } from './StakeholderMap';
 
@@ -72,9 +73,9 @@ export function StoryView({ markdown }: { markdown: string }) {
       <div className="min-w-0 flex-1">
         <SirionCard bodyClassName="px-8 py-8 lg:px-12">
           <article className="story-prose max-w-3xl">
-            <ReactMarkdown components={{ h2: Heading }}>{before}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ h2: Heading }}>{before}</ReactMarkdown>
             <StakeholderMap />
-            {after && <ReactMarkdown components={{ h2: Heading }}>{after}</ReactMarkdown>}
+            {after && <ReactMarkdown remarkPlugins={[remarkGfm]} components={{ h2: Heading }}>{after}</ReactMarkdown>}
           </article>
         </SirionCard>
       </div>

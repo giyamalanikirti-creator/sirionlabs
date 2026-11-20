@@ -50,7 +50,7 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Bad request', detail: parsed.error.format() }, { status: 400 });
   }
 
-  const { messageIds } = parsed.data;
+  const { messageIds, linkedThreadIds } = parsed.data;
   if (messageIds.length > READER_MAX_MESSAGES) {
     return NextResponse.json({ error: 'Too many messages' }, { status: 400 });
   }
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
     const thread = threadById(m.threadId);
     const threadHeaders = messages.filter((x) => x.threadId === m.threadId).map(toHeader);
     const match = matchThread(threadHeaders, deals, versions);
-    const linked = Boolean(thread?.dealId) || match.strength !== 'none';
+    const linked = Boolean(thread?.dealId) || (match.strength !== 'none' && linkedThreadIds.includes(m.threadId));
     if (!linked) {
       return NextResponse.json(
         {

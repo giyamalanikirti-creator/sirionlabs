@@ -42,7 +42,7 @@ export function LedgerList({ rows }: { rows: LedgerRow[] }) {
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
               {risk ? (
                 <span style={{ fontSize: 11.5, color: tokens.colorPaletteDarkOrangeForeground1 }}>
-                  {formatLakh(risk)}
+                  {formatLakh(risk)} {r.termKey === 'renewal_notice' ? 'at next renewal' : '/year avg.'}
                 </span>
               ) : null}
               <StateBadge state={r.state} />
