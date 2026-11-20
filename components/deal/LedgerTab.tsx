@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Fragment, useState } from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { SirionCard, Table, Td, Th } from '@/components/sirion/ui';
@@ -9,6 +10,7 @@ import { MoneyFigure } from '@/components/sirion/MoneyFigure';
 import { cloudDeskDeal, personName, versionById } from '@/lib/data';
 import { rowPriceTag } from '@/lib/engines/atRisk';
 import { recommendedMove } from '@/lib/engines/playbook';
+import { outlookHrefForRow } from '@/lib/demo/rowEmail';
 import { extractValue } from '@/lib/engines/diff';
 import { priceChange } from '@/lib/engines/pricing';
 import { useDemo } from '@/lib/store';
@@ -87,6 +89,15 @@ export function LedgerTab({ rows, initialRow }: { rows: LedgerRow[]; initialRow?
                   </Td>
                   <Td>
                     <SourceChip source={row.source} />
+                    {(row.threats.some((t) => t.active) || row.pendingConfirmation) && (
+                      <Link
+                        href={outlookHrefForRow(row, cloudDeskDeal)}
+                        onClick={(e) => e.stopPropagation()}
+                        className="mt-1 block whitespace-nowrap text-[11px] font-medium text-teal-900 hover:underline"
+                      >
+                        Open the email at risk ↗
+                      </Link>
+                    )}
                   </Td>
                   <Td className="max-w-[220px] text-[12px] text-muted">{row.reason ?? '—'}</Td>
                   <Td className="text-[12px]">

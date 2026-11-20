@@ -91,6 +91,8 @@ export const sendCheckRequestSchema = z.object({
   cc: z.array(z.string()).default([]),
   body: z.string().max(2000),
   threadId: z.string().optional(),
+  attachments: z.array(z.object({ fileName: z.string().max(200), versionId: z.string().max(10).optional() })).max(10).default([]),
+  currentVersionId: z.string().max(10).optional(),
   ledger: z.array(z.object({
     termKey: termKeySchema,
     position: termValueSchema,

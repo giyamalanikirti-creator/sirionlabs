@@ -63,6 +63,8 @@ export function Compose({
   sending,
   suggestions,
   attachments = [],
+  chips,
+  onRemoveAttachment,
 }: {
   to: string[];
   cc: string[];
@@ -74,6 +76,8 @@ export function Compose({
   sending: boolean;
   suggestions?: ReactNode;
   attachments?: string[];
+  chips?: ReactNode;
+  onRemoveAttachment?: (name: string) => void;
 }) {
   const s = useStyles();
 
@@ -142,6 +146,11 @@ export function Compose({
                 }}
               >
                 <AttachRegular fontSize={14} /> {name}
+                {onRemoveAttachment && (
+                  <button aria-label={`Remove ${name}`} onClick={() => onRemoveAttachment(name)} style={{ border: 0, background: 'none', cursor: 'pointer', color: tokens.colorNeutralForeground3 }}>
+                    ×
+                  </button>
+                )}
               </span>
             ))}
           </div>
@@ -158,6 +167,7 @@ export function Compose({
       </div>
 
       <div className={s.bodyWrap}>
+        {chips}
         <Textarea
           value={value}
           onChange={(_, d) => onChange(d.value)}

@@ -22,6 +22,7 @@ import type {
   Thread,
 } from '@/lib/types';
 import { DEMO_DEAL_ID } from '@/lib/settings';
+import { SUPPLIER_INBOX } from '@/lib/demo/supplierInbox';
 
 export const people = peopleJson as Person[];
 export const threads = threadsJson as Thread[];
@@ -63,10 +64,7 @@ export const CLARIFY_REPLY: EmailMessage = {
 };
 export const CLARIFY_REPLY_QUOTE = 'We accept the 10% service credit for any month below 99.5% uptime';
 
-const EXTRA_MESSAGES: EmailMessage[] = [CLARIFY_REPLY];
-export function registerExtraMessages(list: EmailMessage[]) {
-  for (const m of list) if (!EXTRA_MESSAGES.some((x) => x.id === m.id)) EXTRA_MESSAGES.push(m);
-}
+const EXTRA_MESSAGES: EmailMessage[] = [CLARIFY_REPLY, ...SUPPLIER_INBOX];
 
 export const messageById = (id: string): EmailMessage | undefined =>
   messages.find((m) => m.id === id) ?? EXTRA_MESSAGES.find((m) => m.id === id);
@@ -79,10 +77,17 @@ export const SUPPLIER_PERSON_IDS = people
   .map((p) => p.id);
 export const OUR_PERSON_IDS = people.filter((p) => p.org === 'meridian').map((p) => p.id);
 
+/**
+ * Threads kept in the seed data (the matcher tests use some as decoys) but
+ * left out of the Outlook inbox: internal filler with no supplier behind it.
+ */
+const HIDDEN_FROM_INBOX = (threadId: string) => threadId.startsWith('TH-F-') || ['D1', 'D2', 'D4'].includes(threadId);
+
 /** Messages visible in a mailbox at a point on the demo clock. */
 export function inboxFor(mailbox: string, clockIso: string): EmailMessage[] {
-  return messages
+  return [...messages, ...SUPPLIER_INBOX]
     .filter((m) => m.mailboxes.includes(mailbox))
+    .filter((m) => !HIDDEN_FROM_INBOX(m.threadId))
     .filter((m) => m.sentAt <= clockIso)
     .filter((m) => personByEmail(m.from)?.id !== mailbox)
     .sort((a, b) => b.sentAt.localeCompare(a.sentAt));

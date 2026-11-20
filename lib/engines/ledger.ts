@@ -522,3 +522,12 @@ export function applyPlaybookPositionForRow(
   );
   return next;
 }
+
+/** Add a line to a row's history (e.g. why someone sent anyway). */
+export function noteOnRow(rows: LedgerRow[], termKey: TermKey, at: string, text: string, byPersonId: string): LedgerRow[] {
+  const next = clone(rows);
+  const row = rowForTerm(next, termKey);
+  if (!row) return next;
+  addHistory(row, at, text, { kind: 'manual', quote: text, at, byPersonId });
+  return next;
+}

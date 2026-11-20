@@ -106,7 +106,7 @@ export function SmartAlertDialog({
                 {takeActionLabel}
               </Button>
               <Button appearance="secondary" onClick={onDontSend}>
-                Don&apos;t Send
+                Edit reply
               </Button>
               {onSendAnyway && <Button appearance="subtle" onClick={onSendAnyway}>
                 Send Anyway

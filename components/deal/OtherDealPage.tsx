@@ -14,6 +14,7 @@ import { MoneyPlain } from '@/components/sirion/MoneyFigure';
 import { personName } from '@/lib/data';
 import { formatDateLong, formatDateShort, formatInr, formatLakh, formatLakhPerYear, HEADLINE_SUFFIX } from '@/lib/format';
 import { SCRIPTED_DEALS, scriptedAtRisk, type ScriptedDeal, type ScriptedRow } from '@/lib/demo/moreDeals';
+import { outlookHref, riskEmailForDeal, rowsForDeal } from '@/lib/demo/supplierInbox';
 import { useDemo } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import type { Deal } from '@/lib/types';
@@ -48,9 +49,18 @@ export function OtherDealPage({ deal }: { deal: Deal }) {
               </p>
             )}
           </div>
-          <div className="text-right">
-            <MoneyPlain lakh={risk || null} size="xl" suffix={null} tone={risk > 0 ? 'danger' : 'teal'} />
-            <p className="mt-0.5 text-[12px] text-muted">{HEADLINE_SUFFIX}</p>
+          <div className="flex flex-col items-end gap-3 text-right">
+            <div>
+              <MoneyPlain lakh={risk || null} size="xl" suffix={null} tone={risk > 0 ? 'danger' : 'teal'} />
+              <p className="mt-0.5 text-[12px] text-muted">{HEADLINE_SUFFIX}</p>
+            </div>
+            {riskEmailForDeal(deal.id) && (
+              <Link href={outlookHref(riskEmailForDeal(deal.id)!)}>
+                <Button>
+                  Open in Outlook <ArrowUpRight size={13} />
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </SirionCard>
@@ -143,6 +153,7 @@ function Scripted({ deal }: { deal: ScriptedDeal }) {
                     )}
                     {row.sourceQuote && <span className="mt-1 block italic">“{row.sourceQuote}”</span>}
                     {row.sourceNote && <span className="mt-1 block">{row.sourceNote}</span>}
+                    <OutlookLink id={rowsForDeal(deal.dealId).find((r) => r.id === row.id)?.outlookId} />
                   </Td>
                   <Td align="right">
                     {row.costLakhPerYr !== undefined && row.state !== 'agreed' ? (
@@ -223,48 +234,56 @@ function Scripted({ deal }: { deal: ScriptedDeal }) {
   );
 }
 
-const STANDARD_TERMS: Record<Deal['supplierType'], string[]> = {
-  software: ['Term', 'Annual price', 'Payment terms', 'Service credit', 'Liability cap', 'Renewal notice', 'Exit support'],
-  staffing: ['Term', 'Markup cap', 'Payment terms', 'Replacement', 'Liability cap', 'Notice period'],
-  logistics: ['Term', 'Freight rates', 'Fuel surcharge', 'Payment terms', 'Liability cap', 'Service levels'],
-  facilities: ['Term', 'Monthly fee', 'Payment terms', 'Service levels', 'Liability cap', 'Renewal notice'],
-  consultants: ['Term', 'Day rates', 'Expenses', 'Payment terms', 'Liability cap', 'IP ownership'],
-  marketing: ['Term', 'Retainer', 'Payment terms', 'Deliverables', 'IP ownership', 'Liability cap'],
+const ROW_STATE: Record<string, { label: string; className: string }> = {
+  ...STATE,
+  reopened: { label: 'Reopened', className: 'bg-amber-bg text-amber-fg' },
 };
 
-/** A simple read-only ledger built from the deal's counts. */
+function OutlookLink({ id }: { id?: string }) {
+  if (!id) return null;
+  return (
+    <Link href={outlookHref(id)} className="mt-1 inline-flex items-center gap-1 text-[11.5px] font-medium text-teal-900 hover:underline">
+      Open in Outlook <ArrowUpRight size={11} />
+    </Link>
+  );
+}
+
+/** The ledger for a listed deal: each row with its source email and a link to it. */
 function ReadOnly({ deal }: { deal: Deal }) {
-  const counts = deal.display!.rows;
-  const states: ScriptedRow['state'][] = [
-    ...Array(counts.reopened).fill('missing_at_signing'),
-    ...Array(counts.needs).fill('needs_confirmation'),
-    ...Array(counts.open).fill('open'),
-    ...Array(counts.agreed).fill('agreed'),
-  ];
-  const labels = STANDARD_TERMS[deal.supplierType];
-  const rows = states.map((state, i) => ({ state, label: labels[i % labels.length] + (i >= labels.length ? ` (${Math.floor(i / labels.length) + 1})` : '') }));
+  const rows = rowsForDeal(deal.id);
+  const order = ['reopened', 'needs_confirmation', 'open', 'agreed'];
+  const sorted = [...rows].sort((a, b) => order.indexOf(a.state) - order.indexOf(b.state));
   return (
     <SirionCard
       title="Ledger"
-      caption={`Read-only in this demo: round ${deal.display!.round}, ${deal.display!.threads} threads. Only CloudDesk, BrightStaff and SwiftShip are scripted end to end.`}
-      sample
+      caption={`Round ${deal.display!.round} · ${rows.length} terms, each linked to the email it came from. The ₹ figure is demo data; CloudDesk, BrightStaff and SwiftShip are priced by the engine.`}
       bodyClassName="px-0 pb-0 pt-0"
     >
       <Table>
         <thead>
           <tr>
             <Th>Term</Th>
+            <Th>Agreed</Th>
             <Th>State</Th>
+            <Th>Source</Th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((r, i) => (
-            <tr key={i}>
+          {sorted.map((r) => (
+            <tr key={r.id} className="align-top">
               <Td className="font-medium">{r.label}</Td>
               <Td>
-                <span className={`inline-flex rounded-full px-2.5 py-[3px] text-[11px] font-medium ${STATE[r.state].className}`}>
-                  {r.state === 'missing_at_signing' ? 'Reopened' : STATE[r.state].label}
+                {r.agreed}
+                {r.note && <span className="mt-1 block text-[11.5px] text-amber-fg">{r.note}</span>}
+              </Td>
+              <Td>
+                <span className={`inline-flex whitespace-nowrap rounded-full px-2.5 py-[3px] text-[11px] font-medium ${ROW_STATE[r.state].className}`}>
+                  {ROW_STATE[r.state].label}
                 </span>
+              </Td>
+              <Td className="text-[11.5px] text-muted">
+                {r.quote && <span className="block italic">“{r.quote}”</span>}
+                <OutlookLink id={r.outlookId} />
               </Td>
             </tr>
           ))}

@@ -5,7 +5,7 @@ import { cloudDeskDeal, personName } from '@/lib/data';
 import { priceChange } from '@/lib/engines/pricing';
 import { approverFor, sourcePlain } from '@/lib/engines/sendDialog';
 import { HOLDING_REPLY } from '@/lib/engines/wording';
-import { formatLakh } from '@/lib/format';
+import { formatLakh, HEADLINE_SUFFIX } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 import { useSourceDrawer } from '@/lib/drawer';
 import { usePaneStyles } from './paneStyles';
@@ -103,7 +103,7 @@ export function VikramPane({
 
         <div>
           <span className={s.money}>{formatLakh(loopIn.costLakhPerYr)}</span>{' '}
-          <span className={s.moneySuffix}>{row.termKey === 'renewal_notice' ? 'expected at the next renewal' : 'per year on average'}</span>
+          <span className={s.moneySuffix}>{HEADLINE_SUFFIX}</span>
           {loopIn.overTermLakh !== undefined && (
             <div className={s.grey}>{formatLakh(loopIn.overTermLakh)} over the three-year term</div>
           )}

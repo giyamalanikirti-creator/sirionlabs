@@ -17,7 +17,8 @@ import {
 import { useDemo } from '@/lib/store';
 import { cloudDeskDeal, personName, versionById, versions } from '@/lib/data';
 import { playbookReview } from '@/lib/engines/playbook';
-import { formatDateShort } from '@/lib/format';
+import { formatDateShort, formatLakh } from '@/lib/format';
+import { explainHeadline } from '@/lib/engines/explain';
 import { CONTRACT_ID } from '@/lib/settings';
 import type { EmailMessage, LedgerRow } from '@/lib/types';
 import { recommendedMove } from '@/lib/engines/playbook';
@@ -291,5 +292,38 @@ export function MoveBox({ row }: { row: LedgerRow }) {
         </div>
       )}
     </div>
+  );
+}
+
+/** The pane version of "How ₹X is calculated", with the risks outside the figure. */
+export function PaneHeadlineExplainer({ rows }: { rows: LedgerRow[] }) {
+  const s = usePaneStyles();
+  const x = explainHeadline(rows, cloudDeskDeal);
+  return (
+    <details style={{ marginTop: 6 }}>
+      <summary style={{ fontSize: 11.5, cursor: 'pointer', color: tokens.colorBrandForeground1 }}>How calculated, and other risks</summary>
+      <div style={{ marginTop: 6 }}>
+        {x.lines.map((l) => (
+          <div key={l.rowId} className={s.listRow} style={{ alignItems: 'flex-start' }}>
+            <span className={s.listName}>
+              <span style={{ display: 'block', fontWeight: 600 }}>{l.label}</span>
+              <span className={s.listValue}>{l.threat} ({l.source})</span>
+            </span>
+            <span style={{ fontSize: 11.5, whiteSpace: 'nowrap' }}>{formatLakh(l.shareLakh)}</span>
+          </div>
+        ))}
+        <div style={{ fontSize: 11.5, fontWeight: 600, textAlign: 'right', marginTop: 4 }}>{x.sumText}</div>
+        {x.otherRisks.length > 0 && (
+          <>
+            <p className={s.sectionLabel}>Other risks, not in the figure</p>
+            {x.otherRisks.map((r, i) => (
+              <p key={i} style={{ fontSize: 11.5, lineHeight: '16px', margin: '0 0 4px' }}>
+                <strong>{r.label}.</strong> {r.text}
+              </p>
+            ))}
+          </>
+        )}
+      </div>
+    </details>
   );
 }

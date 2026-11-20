@@ -79,7 +79,20 @@ export default function InsightsPage() {
     : 0;
   const ratedWarnings = hydrated ? outcomes.filter((outcome) => outcome.decision === 'warn' && outcome.actionable !== undefined) : [];
   const actionableWarnings = ratedWarnings.filter((outcome) => outcome.actionable).length;
-  const liveWarnings = hydrated ? outcomes.filter((o) => o.decision === 'warn').length : 0;
+  // A warning is "shown" once; each choice after it is its own record.
+  const liveWarnings = hydrated ? outcomes.filter((o) => o.decision === 'warn' && !o.choice).length : 0;
+  const byChoice = (c: string) => (hydrated ? outcomes.filter((o) => o.choice === c).length : 0);
+  const cleanSends = hydrated ? outcomes.filter((o) => o.decision === 'allow').length : 0;
+  const CASE_LABEL: Record<string, string> = {
+    reopen: 'Reopens an agreed term',
+    give_away: 'Gives away an open term',
+    contradicts_pending: 'Contradicts a term being confirmed',
+    outdated_attachment: 'Outdated attachment',
+  };
+  const byCase = Object.entries(CASE_LABEL).map(([k, label]) => ({
+    label,
+    n: hydrated ? outcomes.filter((o) => o.decision === 'warn' && !o.choice && o.guardCase === k).length : 0,
+  }));
 
   return (
     <>
@@ -87,6 +100,35 @@ export default function InsightsPage() {
         title="Insights"
         caption="How well the tool is working, and the lines at which we would rethink it."
       />
+
+      <SirionCard
+        title="Check at Send, this session"
+        caption="Live counts from the demo: every warning shown and what people chose"
+        className="mb-4"
+      >
+        <div className="flex flex-wrap gap-8">
+          <Figure value={liveWarnings} total={liveWarnings + cleanSends} label="sends warned" tone="danger" />
+          <Figure value={byChoice('loop_in')} total={liveWarnings} label="looped in procurement" tone="teal" />
+          <Figure value={byChoice('edit') + byChoice('fix_attachment')} total={liveWarnings} label="edited or fixed the file" tone="teal" />
+          <Figure value={liveSendAnyway} total={liveWarnings} label="sent anyway" tone="lime" />
+          <Figure value={actionableWarnings} total={ratedWarnings.length} label="rated useful" tone="teal" />
+        </div>
+        <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[11.5px] text-muted">
+          {byCase.map((c) => (
+            <span key={c.label}>
+              {c.label}: <span className="font-medium text-ink">{c.n}</span>
+            </span>
+          ))}
+          <span>
+            Sent clean (“Checked against ledger ✓”): <span className="font-medium text-ink">{cleanSends}</span>
+          </span>
+        </div>
+        {hydrated && outcomes.some((o) => o.reason) && (
+          <p className="mt-2 text-[11.5px] text-muted">
+            Send anyway reasons: {outcomes.filter((o) => o.reason).map((o) => o.reason).join(', ')}
+          </p>
+        )}
+      </SirionCard>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <ReaderAccuracy data={data} />

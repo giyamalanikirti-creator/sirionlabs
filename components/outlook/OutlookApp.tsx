@@ -10,14 +10,16 @@ import { Compose } from './Compose';
 import { PaneFrame } from '@/components/addin/PaneFrame';
 import { AnanyaPane, type DraftOptions } from '@/components/addin/AnanyaPane';
 import { VikramPane } from '@/components/addin/VikramPane';
-import { ProgressDialog, SmartAlertDialog } from '@/components/addin/SmartAlertDialog';
+import { ProgressDialog } from '@/components/addin/SmartAlertDialog';
+import { SendGuardDialog } from '@/components/addin/SendGuardDialog';
+import { sendGuard, type GuardFinding, type GuardResult } from '@/lib/engines/sendGuard';
+import { currentVersionId } from '@/lib/demo/rowEmail';
 import { NextStage } from '@/components/demo/NextStage';
-import { TrySentence } from './TrySentence';
+import { TrySentence, type TryChip } from './TrySentence';
 import { SwiftShipPane } from '@/components/addin/SwiftShipPane';
 import { SWIFTSHIP_MESSAGES } from '@/lib/demo/moreDeals';
-import { registerExtraMessages } from '@/lib/data';
-
-registerExtraMessages(SWIFTSHIP_MESSAGES);
+import { dealIdForMessage } from '@/lib/demo/supplierInbox';
+import { SupplierDealPane } from '@/components/addin/SupplierDealPane';
 import { useDemo, cachedReaderFor } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { initialLedger, STEP_CLOCK } from '@/lib/demo/steps';
@@ -29,9 +31,12 @@ import {
   personByEmail,
   sentItemsFor,
   threadById,
+  deals,
 } from '@/lib/data';
-import { buildDialog, TAKE_ACTION_LABEL } from '@/lib/engines/sendDialog';
 import type { EmailMessage, ReaderResult, SendCheckResult } from '@/lib/types';
+
+/** A CloudDesk contract file, as attached in Outlook. */
+const fileFor = (versionId: string) => ({ fileName: `CloudDesk_MSA_${versionId}.docx`, versionId });
 import type { Step } from '@/lib/demo/steps';
 
 /** Which demo step each scripted message belongs to (§11). */
@@ -89,17 +94,15 @@ export function OutlookApp({ person }: { person: Person }) {
   const [ccAdded, setCcAdded] = useState(false);
   const [checking, setChecking] = useState(false);
   const [draftOpts, setDraftOpts] = useState<DraftOptions>({});
-  const [alert, setAlert] = useState<SendCheckResult | null>(null);
+  const [attachments, setAttachments] = useState<{ fileName: string; versionId: string }[]>([]);
+  const [guard, setGuard] = useState<GuardResult | null>(null);
   const showPreview = person === 'vikram' && params.get('result') === 'warning';
-  const dismissPreview = () => router.replace('/outlook/vikram?msg=M13');
-  const previewDialog = showPreview && hydrated
-    ? buildDialog(rows, cloudDeskDeal, 'price', { kind: 'price', wording: 'open_yearly', fromYear: 2 })
-    : null;
   const [loopIn, setLoopIn] = useState<SendCheckResult['match'] | undefined>();
+  const sentBackAt = useDemo((st) => st.signing.sentBackAt);
+  const currentVersion = currentVersionId(clock, sentBackAt);
 
   const inbox = useMemo(() => [
     ...inboxFor(person, clock),
-    ...SWIFTSHIP_MESSAGES.filter((m) => m.mailboxes.includes(person) && m.sentAt <= clock),
     ...sentMessages.filter((message) => message.mailboxes.includes(person) && message.from !== owner.email),
   ].sort((a, b) => b.sentAt.localeCompare(a.sentAt)), [person, clock, owner.email, sentMessages]);
 
@@ -232,6 +235,7 @@ export function OutlookApp({ person }: { person: Person }) {
     // Vikram replying to Rohan's price request: start from the reply he would write, so the check at Send has something to catch.
     if (!body && person === 'vikram' && selected?.id === 'M13') body = 'Yearly price revision is fine with us.';
     setDraftOpts(opts);
+    setAttachments(opts.attachVersionId ? [fileFor(opts.attachVersionId)] : []);
     setReplyAllCc(replyAll && selected ? [...selected.to, ...selected.cc].filter((address) => address !== owner.email && !replyTo.includes(address)) : []);
     setComposing(true);
     setDraft(body);
@@ -239,51 +243,41 @@ export function OutlookApp({ person }: { person: Person }) {
     setCcAdded(false);
   };
 
-  const doSend = async () => {
+  /** The check at Send: deterministic, against the live ledger. Warns, never blocks. */
+  const doSend = async (bodyOverride?: string) => {
+    const body = bodyOverride ?? draft;
     setChecking(true);
-    let result: SendCheckResult = { decision: 'allow', checkedBy: 'none', source: 'rules' };
+    let result: GuardResult;
     try {
-      const response = await fetch('/api/send-check', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          fromPersonId: person,
-          to: replyTo,
-          cc,
-          body: draft,
-          threadId: selected?.threadId,
-          ledger: rows.map(({ termKey, position, state }) => ({ termKey, position, state })),
-        }),
+      result = sendGuard({
+        to: replyTo,
+        cc,
+        body,
+        attachments,
+        rows,
+        deal: cloudDeskDeal,
+        currentVersionId: currentVersion,
+        dealDomains: deals.map((d) => d.supplierDomain.toLowerCase()),
+        at: clock,
       });
-      if (!response.ok) throw new Error('send-check failed');
-      result = (await response.json()) as SendCheckResult;
     } catch {
-      result = {
-        decision: 'could_not_check',
-        checkedBy: 'rules',
-        source: 'rules',
-        dialog: {
-          title: 'Deal Ledger',
-          markdown:
-            "Deal Ledger couldn't check this email against the CloudDesk ledger. Loop in procurement before you send?",
-          plain: '',
-          takeActionLabel: TAKE_ACTION_LABEL,
-        },
-      };
-    } finally {
-      // A short, visible pause: the user waits on the message, as in Outlook.
-      await new Promise((r) => setTimeout(r, 900));
-      setChecking(false);
+      // The check could not run: send as usual, as Outlook does when an add-in times out.
+      result = { checked: false, findings: [], consistent: [] };
     }
+    // A short, visible pause: the user waits on the message, as in Outlook.
+    await new Promise((r) => setTimeout(r, 700));
+    setChecking(false);
 
-    if (result.decision === 'allow') {
-      finishSend(result);
+    if (!result.findings.length) {
+      finishSend(body, result.checked ? 'allow' : 'allow');
+      if (result.checked) toast('Checked against ledger ✓ Sent.');
       return;
     }
-    setAlert(result);
+    setGuard(result);
+    recordSend({ at: clock, personId: person, termKey: result.findings[0].termKey, decision: 'warn', guardCase: result.findings[0].case });
   };
 
-  const finishSend = (result: SendCheckResult, choice?: 'send_anyway') => {
+  const finishSend = (body: string, decision: 'allow' | 'warn', choice?: 'send_anyway', guardCase?: GuardFinding['case'], reason?: string) => {
     const message: EmailMessage = {
       id: `SENT-${sentMessages.length + 1}`,
       threadId: selected?.threadId ?? 'T2',
@@ -292,42 +286,28 @@ export function OutlookApp({ person }: { person: Person }) {
       cc,
       subject: replySubject,
       sentAt: clock,
-      attachments: draftOpts.attachVersionId
-        ? [{
-            fileName: `CloudDesk_MSA_${draftOpts.attachVersionId}.docx`,
-            sizeKb: 94,
-            versionId: draftOpts.attachVersionId,
-            fingerprint: `fp-${draftOpts.attachVersionId}`,
-            dealIdTag: cloudDeskDeal.dealIdTag,
-          }]
-        : [],
-      body: draft,
+      attachments: attachments.map((a) => ({
+        fileName: a.fileName,
+        sizeKb: 94,
+        versionId: a.versionId,
+        fingerprint: `fp-${a.versionId}`,
+        dealIdTag: cloudDeskDeal.dealIdTag,
+      })),
+      body,
       mailboxes: [person, ...[...replyTo, ...cc].flatMap((address) => {
         const recipient = personByEmail(address)?.id;
         return recipient === 'ananya' || recipient === 'vikram' ? [recipient] : [];
       })],
     };
     sendMessage(message);
-    recordSend({
-      at: clock,
-      personId: person,
-      termKey: result.match?.termKey,
-      decision: result.decision,
-      choice,
-    });
-    setComposing(false);
-    setAlert(null);
-    setDraft('');
-    if (person === 'vikram' && ccAdded) {
-      const termKey = loopIn?.termKey;
-      useDemo.getState().addNotice({
-        at: clock,
-        forPersonId: 'ananya',
-        text: 'Vikram escalated the supplier request. Ananya now has one term to review.',
-        rowId: rows.find((row) => row.termKey === termKey)?.id,
-      });
+    if (decision === 'allow' || choice) {
+      recordSend({ at: clock, personId: person, decision, choice, guardCase, reason });
     }
-    toast('Sent');
+    setComposing(false);
+    setGuard(null);
+    setDraft('');
+    setAttachments([]);
+    if (!choice) toast('Sent');
     if (draftOpts.kind === 'clarify') {
       // Rohan answers in the same supplier thread; his reply becomes the source for the row.
       setTimeout(() => {
@@ -345,36 +325,84 @@ export function OutlookApp({ person }: { person: Person }) {
     setCcAdded(false);
   };
 
-  const onTakeAction = () => {
-    if (alert?.match && person === 'vikram') setLoopIn(alert.match);
-    else if (person === 'vikram') setCcAdded(true);
-    setPaneOpen(true);
-    recordSend({
-      at: clock,
-      personId: person,
-      termKey: alert?.match?.termKey,
-      decision: alert?.decision ?? 'warn',
-      choice: 'loop_in',
-    });
-    setAlert(null);
-  };
+  const topFinding = guard?.findings[0];
 
-  const onSendAnyway = () => {
-    if (alert?.match) {
-      sendConcession(alert.match.termKey, alert.match.value, alert.match.quote, person);
+  /** Loop in Ananya: Cc her, hold the reply as a draft, and put it on her Home and pane. */
+  const onLoopIn = () => {
+    if (!topFinding) return;
+    setCcAdded(true);
+    if (topFinding.rowId && topFinding.termKey && topFinding.value) {
+      setLoopIn({
+        rowId: topFinding.rowId,
+        termKey: topFinding.termKey,
+        value: topFinding.value,
+        quote: topFinding.quote ?? '',
+        costLakhPerYr: topFinding.costLakhPerYr,
+        overTermLakh: undefined,
+        agreedPlain: topFinding.agreedText ?? '',
+        sourcePlain: '',
+        approverName: undefined,
+      });
     }
-    finishSend(alert!, 'send_anyway');
+    useDemo.getState().loopInLead({ fromPersonId: person, body: draft, subject: replySubject, to: replyTo }, topFinding.rowId);
+    recordSend({ at: clock, personId: person, termKey: topFinding.termKey, decision: 'warn', choice: 'loop_in', guardCase: topFinding.case });
+    setPaneOpen(true);
+    setGuard(null);
+    toast(`Draft saved. ${lead.name.split(' ')[0]} is on Cc and has been told.`);
   };
 
-  const onDontSend = () => {
-    recordSend({
-      at: clock,
-      personId: person,
-      termKey: alert?.match?.termKey,
-      decision: alert?.decision ?? 'warn',
-      choice: 'dont_send',
-    });
-    setAlert(null);
+  /** Edit reply: put the supplier-safe wording in place of the offending sentence. */
+  const onEdit = () => {
+    if (!topFinding) return;
+    if (topFinding.quote && topFinding.rewrite) setDraft((d) => d.replace(topFinding.quote!, topFinding.rewrite!));
+    recordSend({ at: clock, personId: person, termKey: topFinding.termKey, decision: 'warn', choice: 'edit', guardCase: topFinding.case });
+    setGuard(null);
+    toast(topFinding.rewrite ? 'Suggested wording is in place. Press Send when ready.' : 'Back to your draft.');
+  };
+
+  const onFixAttachment = () => {
+    const att = topFinding?.attachment;
+    if (!att) return;
+    setAttachments((list) => list.map((a) => (a.versionId === att.versionId ? fileFor(att.currentVersionId) : a)));
+    recordSend({ at: clock, personId: person, decision: 'warn', choice: 'fix_attachment', guardCase: 'outdated_attachment' });
+    setGuard(null);
+    toast(`${att.currentFileName} attached instead. Press Send when ready.`);
+  };
+
+  const onSendAnyway = (reason: string) => {
+    if (!guard || !topFinding) return;
+    for (const f of guard.findings) {
+      if (f.termKey && f.value && f.quote) sendConcession(f.termKey, f.value, f.quote, person, reason);
+    }
+    finishSend(draft, 'warn', 'send_anyway', topFinding.case, reason);
+    toast(`Sent. The term is marked reopened (${reason})${person === 'ananya' ? '' : ' and Ananya has been told'}.`);
+  };
+
+  /* The guide's "see the result" link: open the reply and press Send for the presenter. */
+  useEffect(() => {
+    if (!showPreview || !hydrated || selected?.id !== 'M13' || composing) return;
+    router.replace('/outlook/vikram?msg=M13');
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- runs once from the URL
+    openReply();
+    void doSend('Yearly price revision is fine with us.');
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [showPreview, hydrated, selected?.id]);
+
+  const supplierReply = replyTo.some((address) => address.endsWith(`@${cloudDeskDeal.supplierDomain}`));
+  const olderVersion = (() => {
+    const n = Number(currentVersion.replace(/\D/g, ''));
+    return n > 1 ? `v${n - 1}` : undefined;
+  })();
+  const chips: TryChip[] = [
+    { label: 'Yearly review is fine', text: 'Yearly price review is fine with us.' },
+    { label: '90 days notice works', text: "90 days' notice for renewal works for us." },
+    { label: '5% credits is fine', text: 'A 5% service credit is fine.' },
+    ...(olderVersion ? [{ label: `Attach older draft (${olderVersion})`, attachVersionId: olderVersion }] : []),
+    { label: 'Confirm 30 days and fixed pricing', text: "Confirming 30 days' notice for renewal and fixed pricing for the term." },
+  ];
+  const onChip = (chip: TryChip) => {
+    if (chip.text) setDraft(chip.text);
+    if (chip.attachVersionId) setAttachments([fileFor(chip.attachVersionId)]);
   };
 
   const unread = inbox.filter((m) => !readIds.includes(m.id)).length;
@@ -419,19 +447,21 @@ export function OutlookApp({ person }: { person: Person }) {
                   to={replyTo}
                   cc={cc}
                   subject={replySubject}
-                  suggestions={person === 'vikram' && cloudDeskContext && <TrySentence onPick={setDraft} />}
+                  chips={supplierReply && <TrySentence chips={chips} onPick={onChip} />}
                   value={draft}
                   onChange={setDraft}
-                  onSend={doSend}
+                  onSend={() => void doSend()}
                   onDiscard={() => {
                     setComposing(false);
                     setDraftOpts({});
+                    setAttachments([]);
                     setDraft('');
                     setLoopIn(undefined);
                     setCcAdded(false);
                   }}
                   sending={checking}
-                  attachments={draftOpts.attachVersionId ? [`CloudDesk_MSA_${draftOpts.attachVersionId}.docx`] : []}
+                  attachments={attachments.map((a) => a.fileName)}
+                  onRemoveAttachment={(name) => setAttachments((list) => list.filter((a) => a.fileName !== name))}
                 />
               ) : (
                 <ReadingPane message={selected} onReply={() => openReply()} onReplyAll={() => openReply('', true)} />
@@ -450,6 +480,8 @@ export function OutlookApp({ person }: { person: Person }) {
               <PaneFrame width={340} source={cloudDeskContext ? readerSource : undefined} footerHref={cloudDeskContext ? undefined : '/deals'} onClose={() => setPaneOpen(false)}>
                 {selected && SWIFTSHIP_MESSAGES.some((m) => m.id === selected.id) ? (
                   <SwiftShipPane messageId={selected.id} />
+                ) : selected && dealIdForMessage(selected.id) ? (
+                  <SupplierDealPane dealId={dealIdForMessage(selected.id)!} messageId={selected.id} />
                 ) : !cloudDeskContext ? (
                   <p style={{ fontSize: 13 }}>No linked deal for this message.</p>
                 ) : person === 'ananya' ? (
@@ -490,29 +522,19 @@ export function OutlookApp({ person }: { person: Person }) {
       </div>
 
       <ProgressDialog open={checking} />
-      {previewDialog && !alert && (
-        <SmartAlertDialog
-          open
-          title={previewDialog.title}
-          markdown={previewDialog.markdown}
-          takeActionLabel="Try this step"
-          source="cached"
-          onTakeAction={() => {
-            dismissPreview();
-            openReply('Yearly price revision is fine with us.');
-          }}
-          onDontSend={() => dismissPreview()}
-        />
-      )}
-      {alert?.dialog && (
-        <SmartAlertDialog
-          open
-          markdown={alert.dialog.markdown}
-          title={alert.dialog.title}
-          takeActionLabel={alert.dialog.takeActionLabel}
-          source={alert.source}
-          onTakeAction={onTakeAction}
-          onDontSend={onDontSend}
+      {topFinding && guard && (
+        <SendGuardDialog
+          finding={topFinding}
+          others={guard.findings.slice(1)}
+          primaryLabel={
+            topFinding.case === 'outdated_attachment'
+              ? `Attach ${topFinding.attachment!.currentVersionId} instead`
+              : person !== 'ananya'
+                ? `Loop in ${lead.name.split(' ')[0]}`
+                : undefined
+          }
+          onPrimary={topFinding.case === 'outdated_attachment' ? onFixAttachment : person !== 'ananya' ? onLoopIn : undefined}
+          onEdit={onEdit}
           onSendAnyway={onSendAnyway}
         />
       )}

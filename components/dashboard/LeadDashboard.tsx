@@ -12,6 +12,8 @@ import { useLedger } from '@/lib/useDeal';
 import { cloudDeskDeal, deals, kpiHistory, termsFound } from '@/lib/data';
 import { rowAtRisk } from '@/lib/engines/atRisk';
 import { rowHeadlineShare } from '@/lib/engines/playbook';
+import { outlookHrefForRow } from '@/lib/demo/rowEmail';
+import { HeadlineExplainer } from '@/components/sirion/HeadlineExplainer';
 import { formatLakh, formatPct } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 
@@ -19,6 +21,7 @@ export function LeadDashboard() {
   const { rows, atRisk, allOpenAtRisk, counts, attention, signed, hydrated } = useLedger();
 
   const roundReviewed = useDemo((state) => state.completedSteps.includes(1));
+  const notices = useDemo((state) => state.notices);
   const ns = kpiHistory.northStar[kpiHistory.northStar.length - 1];
   const northStarPct = Math.round((ns.clean / ns.audited) * 100);
   const signedSince = kpiHistory.signedSinceLastAudit + (signed ? 1 : 0);
@@ -115,6 +118,11 @@ export function LeadDashboard() {
         <SirionCard title="If signed as is, by open deal" caption="₹ lakh a year, top 8">
           <HBars data={atRiskByDeal} unit=" lakh/yr" height={262} />
         </SirionCard>
+        {!signed && (
+          <SirionCard title="CloudDesk, live" caption="The figure on this page, the Deals list and the Outlook pane, built row by row">
+            <HeadlineExplainer rows={rows} deal={cloudDeskDeal} defaultOpen />
+          </SirionCard>
+        )}
 
       </div>
 
@@ -124,6 +132,14 @@ export function LeadDashboard() {
         className="mt-4"
         bodyClassName="px-0 pb-0 pt-0"
       >
+        {hydrated && notices.filter((n) => n.forPersonId === 'ananya' && n.draft).map((n, i) => (
+          <div key={i} className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-amber-bg/40 px-6 py-4 text-sm">
+            <span>
+              <strong className="font-semibold">{n.title ?? 'A reply needs you'}</strong> · {n.text}
+            </span>
+            <Link href={n.href ?? '/outlook/ananya'} className="font-medium text-teal-900 underline">Open</Link>
+          </div>
+        ))}
         {!signed && !roundReviewed && (
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-4 text-sm">
             <span>CloudDesk · Supplier round 4 is ready for review.</span>
@@ -182,7 +198,7 @@ export function LeadDashboard() {
                       </Td>
                       <Td align="right">
                         <Link
-                          href={outlookLinkFor(row.id)}
+                          href={outlookHrefForRow(row, cloudDeskDeal)}
                           className="inline-flex items-center gap-1 whitespace-nowrap text-[11.5px] font-medium text-teal-900 hover:underline"
                         >
                           Open in Outlook
@@ -244,11 +260,5 @@ function round1(n: number) {
   return Math.round(n * 10) / 10;
 }
 
-function outlookLinkFor(rowId: string): string {
-  if (rowId === 'R-credit') return '/outlook/ananya?msg=M12';
-  if (rowId === 'R-price') return '/outlook/ananya?msg=M8';
-  if (rowId === 'R-notice') return '/outlook/ananya?msg=M8';
-  return '/outlook/ananya';
-}
 
 export { formatPct };

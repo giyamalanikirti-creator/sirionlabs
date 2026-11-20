@@ -26,6 +26,7 @@ import {
   closeAllThreats,
   confirmRow as confirmRowEngine,
   applyPlaybookPositionForRow,
+  noteOnRow,
   insertWordingForRow,
   markSigningGaps,
   waiveGapForRow,
@@ -33,7 +34,7 @@ import {
 import { signingCheck, supplierReturn } from '@/lib/engines/signing';
 import { handover, type ContractRecord, demoInvoices, FAST_FORWARD_INVOICE } from '@/lib/engines/handover';
 import { extractValue } from '@/lib/engines/diff';
-import { CLARIFY_REPLY, CLARIFY_REPLY_QUOTE, cloudDeskDeal, messageById, versionById } from '@/lib/data';
+import { CLARIFY_REPLY, CLARIFY_REPLY_QUOTE, cloudDeskDeal, messageById, personById, versionById } from '@/lib/data';
 import { plainValue } from '@/lib/plain';
 import { formatDateTime } from '@/lib/format';
 
@@ -44,7 +45,10 @@ export interface SendOutcome {
   personId: string;
   termKey?: TermKey;
   decision: 'allow' | 'warn' | 'could_not_check';
-  choice?: 'loop_in' | 'dont_send' | 'send_anyway';
+  choice?: 'loop_in' | 'dont_send' | 'send_anyway' | 'edit' | 'fix_attachment';
+  /** Which of the send check's cases fired. */
+  guardCase?: 'reopen' | 'give_away' | 'contradicts_pending' | 'outdated_attachment';
+  reason?: string;
   actionable?: boolean;
 }
 
@@ -61,6 +65,11 @@ export interface Notice {
   forPersonId: string;
   read?: boolean;
   rowId?: string;
+  /** Short heading, e.g. "Vikram's reply needs you". */
+  title?: string;
+  /** A held draft the notice is about (Loop in Ananya). */
+  draft?: { fromPersonId: string; body: string; subject: string; to: string[] };
+  href?: string;
 }
 
 interface DemoState {
@@ -130,7 +139,8 @@ interface DemoState {
   setDraft: (key: string, body: string) => void;
   recordSend: (outcome: SendOutcome) => void;
   rateLastWarning: (personId: string, actionable: boolean) => void;
-  sendConcession: (termKey: TermKey, value: TermValue, quote: string, personId: string) => void;
+  sendConcession: (termKey: TermKey, value: TermValue, quote: string, personId: string, reason?: string) => void;
+  loopInLead: (draft: { fromPersonId: string; body: string; subject: string; to: string[] }, rowId?: string, title?: string) => void;
   sendMessage: (message: EmailMessage) => void;
   runSigningCheck: () => void;
   insertWording: (rowId: string) => void;
@@ -425,7 +435,7 @@ export const useDemo = create<DemoState>()(
         set((s) => ({
           sendOutcomes: [...s.sendOutcomes, outcome],
           completedSteps:
-            (outcome.choice || outcome.personId === 'vikram' && outcome.decision === 'allow' && s.clock === STEP_CLOCK[3]) && !s.completedSteps.includes(3)
+            outcome.personId === 'vikram' && (outcome.choice || outcome.decision === 'allow') && s.clock >= STEP_CLOCK[3] && !s.completedSteps.includes(3)
               ? [...s.completedSteps, 3]
               : s.completedSteps,
         })),
@@ -438,31 +448,51 @@ export const useDemo = create<DemoState>()(
         get().toast('Warning feedback saved.');
       },
 
-      sendConcession: (termKey, value, quote, personId) => {
+      loopInLead: (draft, rowId, title) =>
+        set((s) => ({
+          drafts: { ...s.drafts, [`held-${draft.fromPersonId}`]: draft.body },
+          notices: [
+            ...s.notices,
+            {
+              at: s.clock,
+              forPersonId: 'ananya',
+              rowId,
+              title: title ?? `${personById(draft.fromPersonId)?.name.split(' ')[0] ?? 'A colleague'}'s reply needs you`,
+              text: `Held as a draft with you on Cc: “${draft.body.length > 140 ? `${draft.body.slice(0, 140)}…` : draft.body}”`,
+              draft,
+              href: rowId ? `/deals/D-CLOUDDESK?row=${rowId}#${rowId}` : '/outlook/ananya',
+            },
+          ],
+          events: [...s.events, { at: s.clock, text: `${personById(draft.fromPersonId)?.name ?? draft.fromPersonId} looped in procurement before replying to the supplier.` }],
+        })),
+
+      sendConcession: (termKey, value, quote, personId, reason) => {
         const at = get().clock;
-        const rows = applySentConcession(get().ledger, termKey, value, {
+        let rows = applySentConcession(get().ledger, termKey, value, {
           kind: 'email',
           quote,
           at,
           byPersonId: personId,
         });
+        if (reason) rows = noteOnRow(rows, termKey, at, `Reopened by ${personById(personId)?.name.split(' ')[0] ?? personId} · ${reason}`, personId);
         const row = rows.find((r) => r.termKey === termKey);
         set((s) => ({
           ledger: rows,
-          notices: [
+          notices: personId === 'ananya' ? s.notices : [
             ...s.notices,
             {
               at,
               forPersonId: 'ananya',
               rowId: row?.id,
-              text: `Vikram told CloudDesk "${quote}" (${formatDateTime(at)}). Agreed: ${plainValue(
+              title: `Reopened by ${personById(personId)?.name.split(' ')[0] ?? personId}${reason ? ` · ${reason}` : ''}`,
+              text: `${personById(personId)?.name.split(' ')[0] ?? 'A colleague'} told CloudDesk "${quote}" (${formatDateTime(at)}). Agreed: ${plainValue(
                 row?.position ?? value,
               )}.`,
             },
           ],
           events: [
             ...s.events,
-            { at, text: `${row?.label ?? termKey} reopened: our side conceded by email.` },
+            { at, text: `${row?.label ?? termKey} reopened: our side conceded by email${reason ? ` (${reason})` : ''}.` },
           ],
         }));
       },

@@ -37,7 +37,7 @@ import { CLARIFY_DRAFT, RESPOND_ROUND_DRAFT } from '@/lib/engines/wording';
 import { signingCheck } from '@/lib/engines/signing';
 import { rowHeadlineShare } from '@/lib/engines/playbook';
 import { HEADLINE_SUFFIX } from '@/lib/format';
-import { ActionRow, AiReviewBlock, AttachmentBlock, Block, DealHeaderBlock, MoveBox, OriginTag } from './SirionBlocks';
+import { ActionRow, AiReviewBlock, AttachmentBlock, Block, DealHeaderBlock, MoveBox, OriginTag, PaneHeadlineExplainer } from './SirionBlocks';
 import { formatLakh, formatDateLong, formatDateShort } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 import { useSourceDrawer } from '@/lib/drawer';
@@ -94,12 +94,13 @@ export function AnanyaPane({
           <span className={s.money}>{busy || openMessageId === 'M8' && !roundReviewed ? 'Updating…' : formatLakh(atRisk)}</span>{' '}
           <span className={s.moneySuffix}>{HEADLINE_SUFFIX}</span>
         </span>
+        {!busy && <PaneHeadlineExplainer rows={rows} />}
       </div>
 
       {notices.map((n, i) => (
         <MessageBar key={i} intent="warning" style={{ marginBottom: 10 }}>
           <MessageBarBody>
-            <MessageBarTitle>CloudDesk term needs review</MessageBarTitle>
+            <MessageBarTitle>{n.title ?? "CloudDesk term needs review"}</MessageBarTitle>
             {n.text}
             {n.rowId && <p><Link href={`/deals/D-CLOUDDESK?row=${n.rowId}#${n.rowId}`}>Open the term in the ledger</Link></p>}
           </MessageBarBody>

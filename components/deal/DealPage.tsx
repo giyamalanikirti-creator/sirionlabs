@@ -10,6 +10,8 @@ import { useDemo } from '@/lib/store';
 import { cloudDeskDeal, personName } from '@/lib/data';
 import { formatLakh, formatDateLong, HEADLINE_SUFFIX } from '@/lib/format';
 import { LedgerTab } from './LedgerTab';
+import { outlookHrefForDeal } from '@/lib/demo/rowEmail';
+import { HeadlineExplainer } from '@/components/sirion/HeadlineExplainer';
 import { RoundsTab } from './RoundsTab';
 import { ThreadsTab } from './ThreadsTab';
 import { SigningTab } from './SigningTab';
@@ -76,7 +78,7 @@ export function DealPage({ initialRow }: { initialRow?: string }) {
               </p>
             </div>
             <div className="flex gap-2">
-              <Link href="/outlook/ananya">
+              <Link href={outlookHrefForDeal(rows, deal)}>
                 <Button>
                   Open in Outlook
                   <ArrowUpRight size={13} />
@@ -91,6 +93,11 @@ export function DealPage({ initialRow }: { initialRow?: string }) {
             </div>
           </div>
         </div>
+        {!signed && (
+          <div className="mt-4">
+            <HeadlineExplainer rows={rows} deal={deal} />
+          </div>
+        )}
       </SirionCard>
 
       <Tabs

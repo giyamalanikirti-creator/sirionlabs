@@ -1,28 +1,27 @@
 'use client';
 
-const SENTENCES = [
-  'Yearly price revision is fine with us.',
-  'Sure, we can pay in 45 days.',
-  "90 days' notice for renewal works for us.",
-  'A 5% service credit is fine.',
-  "Let's discuss pricing when Ananya is back.",
-];
+/** Suggestion chips above the reply box, so a presenter can show every case of the check at Send. */
+export interface TryChip {
+  label: string;
+  /** Replace the draft with this text. */
+  text?: string;
+  /** Or attach this version instead. */
+  attachVersionId?: string;
+}
 
-export function TrySentence({ onPick }: { onPick: (sentence: string) => void }) {
+export function TrySentence({ chips, onPick }: { chips: TryChip[]; onPick: (chip: TryChip) => void }) {
   return (
-    <details className="ds-scope mt-3 rounded-lg border border-line bg-white p-3">
-      <summary className="cursor-pointer text-[12.5px] font-medium text-ink">Try a reply</summary>
-      <div className="mt-2 space-y-1.5">
-        {SENTENCES.map((sentence) => (
-          <button
-            key={sentence}
-            onClick={() => onPick(sentence)}
-            className="block w-full rounded-md border border-line px-2.5 py-1.5 text-left text-[11.5px] leading-[16px] text-ink transition-colors hover:border-teal-900/40 hover:bg-page"
-          >
-            {sentence}
-          </button>
-        ))}
-      </div>
-    </details>
+    <div className="ds-scope mb-2 flex flex-wrap items-center gap-1.5">
+      <span className="text-[11.5px] font-medium text-muted">Try:</span>
+      {chips.map((chip) => (
+        <button
+          key={chip.label}
+          onClick={() => onPick(chip)}
+          className="rounded-full border border-line bg-white px-2.5 py-[3px] text-[11.5px] text-ink transition-colors hover:border-teal-900/40 hover:bg-page"
+        >
+          {chip.label}
+        </button>
+      ))}
+    </div>
   );
 }

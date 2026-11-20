@@ -44,6 +44,8 @@ export interface ScriptedRow {
   sourceEmailId?: string;
   sourceQuote?: string;
   sourceNote?: string;
+  /** The email Outlook should open for this row, when it is not the source itself (e.g. a side thread Ananya never saw). */
+  outlookEmailId?: string;
   fileSays?: string;
   costLakhPerYr?: number;
   proof?: string[];
@@ -80,12 +82,12 @@ export const BRIGHTSTAFF: ScriptedDeal = {
     { id: 'B2', from: 'karan.malhotra@meridian.example', fromName: 'Karan Malhotra', to: 'Sunita Rao', at: '2026-11-05T15:20:00+05:30', subject: 'RE: BrightStaff contractor agreement 2026–28', body: 'Thanks Sunita. We need the markup capped at 8% over pass-through pay. Revised draft attached. Karan', attachment: 'BrightStaff_MSA_v2.docx' },
     { id: 'B3', from: 'sunita.rao@brightstaff.example', fromName: 'Sunita Rao (BrightStaff)', to: 'Deepa Menon (HR head)', at: '2026-11-07T10:15:00+05:30', subject: 'Contractor onboarding for January', body: 'Deepa, to start the January batch on time, can we close the markup at 9%? Sunita', side: true },
     { id: 'B4', from: 'deepa.menon@meridian.example', fromName: 'Deepa Menon (HR head)', to: 'Sunita Rao', at: '2026-11-07T12:40:00+05:30', subject: 'RE: Contractor onboarding for January', body: 'We can go with the 8% markup cap that Karan sent, and we will confirm the January batch this week. Deepa', side: true },
-    { id: 'B5', from: 'sunita.rao@brightstaff.example', fromName: 'Sunita Rao (BrightStaff)', to: 'Karan Malhotra', at: '2026-11-17T09:10:00+05:30', subject: 'BrightStaff signing copy', body: 'Signing copy attached with the 8% cap in clause 6. Please sign by 30 Nov. Sunita', attachment: 'BrightStaff_MSA_v3.docx' },
+    { id: 'B5', from: 'sunita.rao@brightstaff.example', fromName: 'Sunita Rao (BrightStaff)', to: 'Karan Malhotra', at: '2026-11-13T17:10:00+05:30', subject: 'BrightStaff signing copy', body: 'Signing copy attached with the 8% cap in clause 6. Please sign by 30 Nov. Sunita', attachment: 'BrightStaff_MSA_v3.docx' },
   ],
   turns: [
     { round: 1, side: 'theirs', file: 'BrightStaff_MSA_v1.docx', format: 'Word', at: '2026-11-02T11:00:00+05:30', emailId: 'B1', note: 'Markup 12% in clause 6 and the rate card.' },
     { round: 2, side: 'ours', file: 'BrightStaff_MSA_v2.docx', format: 'Word', at: '2026-11-05T15:20:00+05:30', emailId: 'B2', note: 'Markup capped at 8% in clause 6 and the rate card.' },
-    { round: 3, side: 'theirs', file: 'BrightStaff_MSA_v3.docx', format: 'Word', at: '2026-11-17T09:10:00+05:30', emailId: 'B5', note: 'Clause 6 says 8%. Rate card table, row “Markup on pay”, says 10%.' },
+    { round: 3, side: 'theirs', file: 'BrightStaff_MSA_v3.docx', format: 'Word', at: '2026-11-13T17:10:00+05:30', emailId: 'B5', note: 'Clause 6 says 8%. Rate card table, row “Markup on pay”, says 10%.' },
   ],
   rows: [
     { id: 'B-term', label: 'Term', agreed: '2 years from 15 Dec 2026', state: 'agreed', sourceEmailId: 'B2', sourceNote: 'In v2, unchanged since' },
@@ -96,6 +98,7 @@ export const BRIGHTSTAFF: ScriptedDeal = {
       state: 'missing_at_signing',
       sourceEmailId: 'B4',
       sourceQuote: 'We can go with the 8% markup cap that Karan sent',
+      outlookEmailId: 'B5',
       fileSays: 'Clause 6: 8%. Rate card table: 10%',
       costLakhPerYr: brightStaffGap.costLakhPerYr,
       proof: brightStaffGap.proof,
@@ -163,11 +166,11 @@ export const SWIFTSHIP: ScriptedDeal = {
     { id: 'S1', from: 'imran.khan@swiftship.example', fromName: 'Imran Khan (SwiftShip)', to: 'Ananya Rao', at: '2026-11-11T16:30:00+05:30', subject: SWIFTSHIP_MESSAGES[0].subject, body: SWIFTSHIP_MESSAGES[0].body },
     { id: 'S2', from: 'imran.khan@swiftship.example', fromName: 'Imran Khan (SwiftShip)', to: 'Ananya Rao', at: '2026-11-12T11:05:00+05:30', subject: SWIFTSHIP_MESSAGES[1].subject, body: SWIFTSHIP_MESSAGES[1].body, attachment: 'SwiftShip_Quote_Meridian.pdf' },
     { id: 'S3', from: 'vikram.shah@meridian.example', fromName: 'Vikram Shah', to: 'Imran Khan', at: '2026-11-13T09:20:00+05:30', subject: 'Warehouse slots for January', body: 'Imran, the January volumes look fine. Whatever surcharge you and Ananya settle is OK with us. Vikram', side: true },
-    { id: 'S4', from: 'ananya.rao@meridian.example', fromName: 'Ananya Rao', to: 'Imran Khan', at: '2026-11-18T14:00:00+05:30', subject: 'RE: SwiftShip: outbound freight for Meridian, 2027–28', body: 'Thanks Imran. Your quote has the surcharge starting at ₹88 a litre; on the call and in your email of 11 Nov it was ₹92. Our draft with ₹92 is attached. Ananya', attachment: 'SwiftShip_Agreement_v2.docx' },
+    { id: 'S4', from: 'ananya.rao@meridian.example', fromName: 'Ananya Rao', to: 'Imran Khan', at: '2026-11-13T14:00:00+05:30', subject: 'RE: SwiftShip: outbound freight for Meridian, 2027–28', body: 'Thanks Imran. Your quote has the surcharge starting at ₹88 a litre; on the call and in your email of 11 Nov it was ₹92. Our draft with ₹92 is attached. Ananya', attachment: 'SwiftShip_Agreement_v2.docx' },
   ],
   turns: [
     { round: 1, side: 'theirs', file: 'SwiftShip_Quote_Meridian.pdf', format: 'PDF', at: '2026-11-12T11:05:00+05:30', emailId: 'S2', note: 'Read from the PDF: fuel surcharge above ₹88 a litre.' },
-    { round: 2, side: 'ours', file: 'SwiftShip_Agreement_v2.docx', format: 'Word', at: '2026-11-18T14:00:00+05:30', emailId: 'S4', note: 'Surcharge threshold set to the agreed ₹92 a litre.' },
+    { round: 2, side: 'ours', file: 'SwiftShip_Agreement_v2.docx', format: 'Word', at: '2026-11-13T14:00:00+05:30', emailId: 'S4', note: 'Surcharge threshold set to the agreed ₹92 a litre.' },
   ],
   rows: [
     {
@@ -218,3 +221,19 @@ export function listedAtRisk(deal: { id: string; display?: { atRiskLakh: number 
   const scripted = SCRIPTED_DEALS[deal.id];
   return scripted ? scriptedAtRisk(scripted) : deal.display?.atRiskLakh ?? 0;
 }
+
+/** BrightStaff emails Ananya is copied on (the HR side thread is not in her mailbox). */
+export const BRIGHTSTAFF_MESSAGES: EmailMessage[] = BRIGHTSTAFF.emails
+  .filter((e) => !e.side)
+  .map((e) => ({
+    id: e.id,
+    threadId: 'TB1',
+    from: e.from,
+    to: [e.to.startsWith('Karan') ? 'karan.malhotra@meridian.example' : 'sunita.rao@brightstaff.example'],
+    cc: ['ananya.rao@meridian.example'],
+    subject: e.subject,
+    sentAt: e.at,
+    attachments: e.attachment ? [{ fileName: e.attachment, sizeKb: 88, fingerprint: `fp-${e.id}` }] : [],
+    body: e.body,
+    mailboxes: ['ananya'],
+  }));
