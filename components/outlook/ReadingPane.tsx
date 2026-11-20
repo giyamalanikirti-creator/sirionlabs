@@ -107,7 +107,7 @@ export function ReadingPane({
         <div className={s.subjectRow}>
           <h1 className={s.subject}>{message.subject}</h1>
           <div className={s.actions}>
-            <Button appearance="subtle" size="small" icon={<ArrowReplyRegular />} onClick={onReply}>
+            <Button appearance="subtle" size="small" icon={<ArrowReplyRegular />} data-tour="reply" onClick={onReply}>
               Reply
             </Button>
             <Button appearance="subtle" size="small" icon={<ArrowReplyAllRegular />} onClick={onReplyAll}>

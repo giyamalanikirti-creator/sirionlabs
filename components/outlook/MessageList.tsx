@@ -157,6 +157,7 @@ export function MessageList({
                 aria-label={m.subject}
                 aria-pressed={selected}
                 onClick={() => onSelect(m.id)}
+                data-tour={`msg-${m.id}`}
                 onKeyDown={(event) => {
                   if (event.key !== 'Enter' && event.key !== ' ') return;
                   event.preventDefault();

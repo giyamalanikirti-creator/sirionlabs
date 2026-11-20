@@ -18,7 +18,7 @@ export function Toasts() {
   if (!live) return null;
 
   return (
-    <div className="ds-scope pointer-events-none fixed bottom-5 left-1/2 z-[200] -translate-x-1/2">
+    <div className="ds-scope pointer-events-none fixed bottom-28 left-1/2 z-[200] -translate-x-1/2">
       <div className="dl-fade-in rounded-lg bg-ink px-4 py-2.5 text-[13px] text-white shadow-pop">
         {live.text}
       </div>

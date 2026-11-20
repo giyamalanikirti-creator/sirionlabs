@@ -70,8 +70,11 @@ function sentences(body: string): string[] {
 function claimsInSentence(sentence: string, filter = true): DraftClaim[] {
   if (filter && (DEFERRAL.test(sentence) || NEGATION.test(sentence))) return [];
   const out: DraftClaim[] = [];
-  const add = (termKey: TermKey, value: TermValue) => {
-    if (!out.some((c) => c.termKey === termKey)) out.push({ termKey, value, quote: sentence });
+  const add = (termKey: TermKey, value: TermValue, lastWins = false) => {
+    const i = out.findIndex((c) => c.termKey === termKey);
+    if (i < 0) out.push({ termKey, value, quote: sentence });
+    // "v4 now says 90 days, but we agreed 30 days": the last value is the one being stated.
+    else if (lastWins) out[i] = { termKey, value, quote: sentence };
   };
 
   /* Price */
@@ -100,9 +103,9 @@ function claimsInSentence(sentence: string, filter = true): DraftClaim[] {
     const de = distanceTo(sentence, at, EXIT_WORD);
     const best = Math.min(dn, dp, de);
     if (best === Infinity || best > 45) continue;
-    if (best === dn) add('renewal_notice', { kind: 'renewal_notice', days });
-    else if (best === dp) add('payment', { kind: 'payment', days });
-    else add('exit_support', { kind: 'exit_support', days, free: !/\bcharge|rates?\b/i.test(sentence) });
+    if (best === dn) add('renewal_notice', { kind: 'renewal_notice', days }, true);
+    else if (best === dp) add('payment', { kind: 'payment', days }, true);
+    else add('exit_support', { kind: 'exit_support', days, free: !/\bcharge|rates?\b/i.test(sentence) }, true);
   }
 
   /* Service credit: a percentage near "credit", never the uptime target itself */

@@ -23,6 +23,7 @@ import type {
 } from '@/lib/types';
 import { DEMO_DEAL_ID } from '@/lib/settings';
 import { SUPPLIER_INBOX } from '@/lib/demo/supplierInbox';
+import { IT_MAIL } from '@/lib/demo/itMail';
 
 export const people = peopleJson as Person[];
 export const threads = threadsJson as Thread[];
@@ -64,7 +65,7 @@ export const CLARIFY_REPLY: EmailMessage = {
 };
 export const CLARIFY_REPLY_QUOTE = 'We accept the 10% service credit for any month below 99.5% uptime';
 
-const EXTRA_MESSAGES: EmailMessage[] = [CLARIFY_REPLY, ...SUPPLIER_INBOX];
+const EXTRA_MESSAGES: EmailMessage[] = [CLARIFY_REPLY, ...SUPPLIER_INBOX, ...IT_MAIL];
 
 export const messageById = (id: string): EmailMessage | undefined =>
   messages.find((m) => m.id === id) ?? EXTRA_MESSAGES.find((m) => m.id === id);
@@ -85,7 +86,7 @@ const HIDDEN_FROM_INBOX = (threadId: string) => threadId.startsWith('TH-F-') || 
 
 /** Messages visible in a mailbox at a point on the demo clock. */
 export function inboxFor(mailbox: string, clockIso: string): EmailMessage[] {
-  return [...messages, ...SUPPLIER_INBOX]
+  return [...messages, ...SUPPLIER_INBOX, ...IT_MAIL]
     .filter((m) => m.mailboxes.includes(mailbox))
     .filter((m) => !HIDDEN_FROM_INBOX(m.threadId))
     .filter((m) => m.sentAt <= clockIso)

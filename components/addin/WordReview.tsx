@@ -205,7 +205,7 @@ export function IssueCard({
   const route = row && l ? approvalRoute(row, issue.costLakhPerYr) : null;
 
   const collapsed = (
-    <div onClick={onToggle} style={{ cursor: 'pointer' }}>
+    <div onClick={onToggle} data-tour={`issue-${issue.clauseNo}`} style={{ cursor: 'pointer' }}>
       <div className={s.termHead}>
         <span className={s.termName} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           {expanded ? <ChevronDownRegular fontSize={12} /> : <ChevronRightRegular fontSize={12} />}

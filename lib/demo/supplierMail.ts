@@ -92,7 +92,8 @@ export const SUPPLIER_MAIL: DealMail[] = [
     dealId: 'D-DATAVAULT',
     emails: [
       mail('DV1', 'D-DATAVAULT', 'sales@datavault.example', '2026-11-10T14:00:00+05:30', 'DataVault proposal for Meridian',
-        'Hi Ananya, our proposal: storage at ₹2.5 lakh a month, with a price review every year in line with CPI. Uptime 99.9%, with service credits to be agreed. Payment in 30 days. On exit, data is returned within 60 days at our standard rates. Nikhil'),
+        'Hi Ananya, our proposal: storage at ₹2.5 lakh a month, with a price review every year in line with CPI. Uptime 99.9%, with service credits to be agreed. Payment in 30 days. On exit, data is returned within 60 days at our standard rates. Nikhil',
+        { cc: ['vikram.shah@meridian.example'], mailboxes: ['ananya', 'vikram'] }),
       mail('DV2', 'D-DATAVAULT', 'vikram.shah@meridian.example', '2026-11-12T09:45:00+05:30', 'RE: DataVault proposal for Meridian',
         'Ananya, we agreed on a three-year term on Tuesday’s call. Everything else in their proposal is still open. Vikram'),
     ],

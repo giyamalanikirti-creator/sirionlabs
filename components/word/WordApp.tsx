@@ -388,7 +388,12 @@ export function WordApp({ versionId }: { versionId: string }) {
           </div>
         </div>
         {paneOpen && (
-          <PaneFrame width={350} onClose={() => setPaneOpen(false)} footerHref="/deals/D-CLOUDDESK/ledger">
+          <PaneFrame
+            width={350}
+            onClose={() => setPaneOpen(false)}
+            footerHref="/deals/D-CLOUDDESK/ledger"
+            ask={connected ? { viewer: 'lead', termKey: review.issues.find((i) => i.clauseNo === expanded)?.lens?.termKey } : undefined}
+          >
             {setupGap ? (
               <div style={{ fontSize: 13, lineHeight: '19px' }}>
                 <p style={{ marginTop: 0 }}>Sirion for Word is not set up for you yet, so this file is not checked. Word works as usual.</p>

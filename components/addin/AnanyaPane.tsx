@@ -225,7 +225,7 @@ function RoundFourCard({ rows }: { rows: LedgerRow[] }) {
           </div>
           <RowMoney row={notice} />
           <div className={s.actions}>
-            <Button size="small" aria-expanded={compare} onClick={() => setCompare(!compare)}>
+            <Button size="small" data-tour="compare-14.2" aria-expanded={compare} onClick={() => setCompare(!compare)}>
               Compare clause 14.2
             </Button>
           </div>
@@ -398,6 +398,7 @@ function ConfirmCreditCard({ row, onDraftReply }: { row: LedgerRow; onDraftReply
         <Button
           size="small"
           appearance="primary"
+          data-tour="send-clarification"
           onClick={() => onDraftReply(CLARIFY_DRAFT, { kind: 'clarify' })}
         >
           Send clarification

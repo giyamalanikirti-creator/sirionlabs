@@ -210,6 +210,7 @@ export function SigningPane({
       {openGaps.length > 1 && (
         <Button
           appearance="secondary"
+          data-tour="insert-all"
           style={{ width: '100%', marginBottom: 10 }}
           onClick={() => {
             insertAll();
@@ -224,6 +225,7 @@ export function SigningPane({
         <div style={{ marginBottom: 10 }}>
           <Button
             appearance="primary"
+            data-tour="send-back"
             style={{ width: '100%', marginBottom: 6 }}
             onClick={() => {
               sendBack('email');

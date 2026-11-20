@@ -144,7 +144,12 @@ export function OutlookApp({ person }: { person: Person }) {
   const selected = list.find((message) => message.id === selectedId);
   const selectedThread = selected && threadById(selected.threadId);
   const cloudDeskContext = selectedThread?.dealId === cloudDeskDeal.id ||
-    selectedThread?.id === 'T2' && (person === 'vikram' || linkedThreads.includes('T2') || selected?.cc.includes(owner.email));
+    selectedThread?.id === 'T2' && (person === 'vikram' || linkedThreads.includes('T2') || selected?.cc.includes(owner.email)) ||
+    // A strong match by sender domain (e.g. CloudDesk's own status email to Vikram).
+    Boolean(selected && selected.from.toLowerCase().endsWith(`@${cloudDeskDeal.supplierDomain}`));
+  const internalOnly = Boolean(
+    selected && [selected.from, ...selected.to, ...selected.cc].every((a) => a.toLowerCase().endsWith('@meridian.example')),
+  );
   const readerSource = selected?.id === 'M12' && linkedThreads.includes('T2')
     ? readerRuns.T2
     : selected && readerRuns[selected.id];
@@ -541,7 +546,7 @@ export function OutlookApp({ person }: { person: Person }) {
             </div>
 
             {paneOpen && (
-              <PaneFrame width={340} source={cloudDeskContext ? readerSource : undefined} footerHref={cloudDeskContext ? undefined : '/deals'} onClose={() => setPaneOpen(false)}>
+              <PaneFrame width={340} source={cloudDeskContext ? readerSource : undefined} footerHref={cloudDeskContext ? undefined : '/deals'} onClose={() => setPaneOpen(false)} ask={hydrated && !setupGap && !prequel ? { viewer: person === 'ananya' ? 'lead' : 'owner' } : undefined}>
                 {setupGap ? (
                   <SetupGapNotice gap={setupGap} />
                 ) : !mailboxOn ? (
@@ -554,7 +559,11 @@ export function OutlookApp({ person }: { person: Person }) {
                 ) : selected && dealIdForMessage(selected.id) ? (
                   <SupplierDealPane dealId={dealIdForMessage(selected.id)!} messageId={selected.id} />
                 ) : !cloudDeskContext ? (
-                  <p style={{ fontSize: 13 }}>No linked deal for this message.</p>
+                  <p style={{ fontSize: 13 }}>
+                    {internalOnly
+                      ? 'Internal email: Deal Ledger never reads it.'
+                      : 'No linked deal for this message.'}
+                  </p>
                 ) : person === 'ananya' && prequel ? (
                   <>
                     <Block title="Matched contract" kind="today">

@@ -235,7 +235,7 @@ export function ActionRow({
       </div>
       {onRespond && (
         <div style={{ marginTop: 10 }}>
-          <Button appearance="primary" style={{ width: '100%' }} onClick={onRespond}>
+          <Button appearance="primary" data-tour="respond-round" style={{ width: '100%' }} onClick={onRespond}>
             {responded ? 'Reply drafted · open it again' : 'Respond to round'}
           </Button>
           <div className={s.grey} style={{ marginTop: 4 }}>

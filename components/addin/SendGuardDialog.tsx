@@ -152,7 +152,7 @@ export function SendGuardDialog({
                 </p>
               </div>
             </DialogContent>
-            <DialogActions>
+            <DialogActions data-tour="guard-actions">
               {asking ? (
                 <>
                   <Button appearance="primary" disabled={!reason} onClick={() => reason && onSendAnyway(reason)}>

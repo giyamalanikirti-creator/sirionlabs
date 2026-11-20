@@ -87,6 +87,7 @@ export function Compose({
         <Button
           appearance="primary"
           icon={<SendRegular />}
+          data-tour="compose-send"
           onClick={onSend}
           disabled={sending || !value.trim()}
         >

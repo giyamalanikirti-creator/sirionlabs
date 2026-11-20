@@ -136,6 +136,8 @@ interface DemoState {
   trackedDealIds: string[];
   /** Suppliers the owner said never to offer tracking for. */
   neverTrackDomains: string[];
+  /** Walkthrough buttons pressed (data-tour ids), for the script bar. */
+  tourClicks: string[];
   /** Vikram has seen that his thread was linked. */
   linkNoticeSeen: boolean;
   /** Business owners added to a deal's connected mailboxes, by deal. */
@@ -200,6 +202,7 @@ interface DemoState {
   addPersonToDeal: (dealId: string, personId: string) => void;
   removePersonFromDeal: (dealId: string, personId: string) => void;
   seeLinkNotice: () => void;
+  markTour: (id: string) => void;
   sendDispute: (message: EmailMessage) => void;
   flagRow: (rowId: string, docValue: TermValue | null, where: string) => void;
   dismissThread: (threadId: string) => void;
@@ -250,6 +253,7 @@ const BASE = {
   trackedDealIds: ['D-CLOUDDESK'] as string[],
   neverTrackDomains: [] as string[],
   linkNoticeSeen: false,
+  tourClicks: [] as string[],
   dealPeople: { 'D-CLOUDDESK': ['vikram'] } as Record<string, string[]>,
   disputeEmail: undefined,
   sentVia: undefined,
@@ -630,6 +634,8 @@ export const useDemo = create<DemoState>()(
         })),
 
       seeLinkNotice: () => set({ linkNoticeSeen: true }),
+
+      markTour: (id) => set((s) => (s.tourClicks.includes(id) ? s : { tourClicks: [...s.tourClicks, id] })),
 
       updateSettings: (patch) => set((s) => ({ settings: { ...s.settings, ...patch } })),
 

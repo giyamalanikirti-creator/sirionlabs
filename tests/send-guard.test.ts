@@ -151,3 +151,11 @@ describe('how the headline is calculated', () => {
     }
   });
 });
+
+describe('the Respond to round reply passes its own check', () => {
+  it('a sentence quoting the supplier’s value and restating ours reads as ours', async () => {
+    const { RESPOND_ROUND_DRAFT } = await import('@/lib/engines/wording');
+    const r = sendGuard({ to: TO, cc: [], body: RESPOND_ROUND_DRAFT, attachments: [{ fileName: 'CloudDesk_MSA_v5.docx', versionId: 'v5' }], rows: ledgerAtStep(1), deal, currentVersionId: 'v4' });
+    expect(r.findings).toHaveLength(0);
+  });
+});

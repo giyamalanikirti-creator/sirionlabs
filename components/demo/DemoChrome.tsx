@@ -2,6 +2,7 @@
 
 import { Suspense } from 'react';
 import { DemoStrip } from './DemoStrip';
+import { ScriptBar } from './ScriptBar';
 import { DemoGuide } from './DemoGuide';
 import { Toasts } from './Toasts';
 
@@ -11,6 +12,7 @@ export function DemoChrome({ children }: { children: React.ReactNode }) {
     <div className="flex h-screen flex-col overflow-hidden">
       <Suspense><DemoStrip /></Suspense>
       <div className="relative min-h-0 flex-1">{children}</div>
+      <Suspense><ScriptBar /></Suspense>
       <DemoGuide />
       <Toasts />
     </div>

@@ -108,6 +108,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
             <div className="mt-4 flex gap-2">
               <Button
                 variant="primary"
+                data-tour="review-save"
                 onClick={() => {
                   signAndSave();
                   if (useDemo.getState().contract) toast('Signed copy verified. Agreed terms handed over to Sirion.');
@@ -516,7 +517,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
           </div>
         )}
         <div className="mt-4 flex gap-2">
-          <Button variant="danger" size="sm" onClick={() => setComposing(true)} disabled={disputeRaised}>
+          <Button variant="danger" size="sm" data-tour="raise-dispute" onClick={() => setComposing(true)} disabled={disputeRaised}>
             {disputeRaised ? 'Dispute sent to CloudDesk' : 'Raise dispute'}
           </Button>
           <Button size="sm" onClick={resolveInvoice} disabled={resolved}>
@@ -677,6 +678,7 @@ function DisputeComposer({
           <Button onClick={onClose}>Cancel</Button>
           <Button
             variant="danger"
+            data-tour="send-dispute"
             onClick={() => {
               sendDispute({
                 id: 'M-DISPUTE',
