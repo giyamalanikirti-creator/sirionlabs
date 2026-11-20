@@ -32,6 +32,8 @@ export function DemoStrip() {
         : pathname === '/contracts/C-2026-0417' ? 5 : undefined;
   const next = GUIDE_STAGES.find((item) => stage && item.step === stage + 1);
   const current = stage ? GUIDE_STAGES[stage - 1] : undefined;
+  /* The page belongs to a later day than the demo clock (e.g. Vikram's inbox opened from the strip on 14 Nov). */
+  const notYet = Boolean(hydrated && current && (current.step === 2 || current.step === 3) && clock < STEP_CLOCK[current.step]);
   const setGuideOpen = useDemo((s) => s.setGuideOpen);
   const reset = useDemo((s) => s.reset);
   const toast = useDemo((s) => s.toast);
@@ -125,11 +127,33 @@ export function DemoStrip() {
           </span>)}
         </span>
         <span className="min-w-0 flex-1 truncate text-muted">{current.step === 5 && invoiceReached ? 'One year later · December 2027 invoice' : current.time}</span>
-        {next && !completed.includes(current.step) && <span className="hidden whitespace-nowrap text-[11px] text-muted md:inline">To continue: {current.hint}</span>}
-        {next && <button className="rounded bg-teal-900 px-3 py-1 text-white disabled:opacity-40" disabled={!completed.includes(current.step)} title={completed.includes(current.step) ? undefined : current.hint} onClick={() => {
-          useDemo.getState().startStage(next.step);
-          router.push(next.href);
-        }}>Next · {next.title}</button>}
+        {notYet && (
+          <button
+            className="whitespace-nowrap rounded border border-teal-900/45 bg-white px-3 py-1 font-semibold text-teal-900 hover:bg-mint/40"
+            onClick={() => {
+              // This inbox was opened before the step's day: replay the earlier steps and open the right email.
+              useDemo.getState().startStage(current.step, true);
+              router.push(current.href);
+            }}
+          >
+            Go to {current.time.match(/\d+ Nov/)?.[0] ?? 'this step'} (step {current.step})
+          </button>
+        )}
+        {next && !completed.includes(current.step) && !notYet && <span className="hidden whitespace-nowrap text-[11px] text-muted md:inline">To continue: {current.hint} Or skip ahead.</span>}
+        {next && (
+          <button
+            className={`whitespace-nowrap rounded px-3 py-1 font-medium ${completed.includes(current.step) ? 'bg-teal-900 text-white hover:bg-teal-700' : 'border border-teal-900/45 bg-white text-teal-900 hover:bg-mint/40'}`}
+            title={completed.includes(current.step) ? undefined : 'Skips ahead using the saved results for this step'}
+            onClick={() => {
+              // Never a dead end: an unfinished step is completed from saved results before moving on.
+              if (!completed.includes(current.step)) useDemo.getState().advanceTo(current.step);
+              useDemo.getState().startStage(next.step);
+              router.push(next.href);
+            }}
+          >
+            {completed.includes(current.step) ? `Next · ${next.title}` : `Skip to · ${next.title}`}
+          </button>
+        )}
         {current.step === 5 && contract && !invoiceReached && <button className="rounded bg-teal-900 px-3 py-1 text-white" onClick={() => {
           useDemo.getState().fastForwardInvoice();
           router.push('/contracts/C-2026-0417?tab=invoices');

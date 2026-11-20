@@ -2,10 +2,6 @@
 import Link from 'next/link';
 import { CAPTURE_ADDRESS, CONNECTED_GROUP } from '@/lib/settings';
 
-const TEAL = '#0C5E69';
-const LINE = '#C9D4D4';
-const MUTED = '#5F7377';
-
 const STEPS = [
   { title: 'Admin, once', lines: ['Consent: read connected', 'mailboxes; deploy add-ins'] },
   { title: 'Track', lines: ['Owner says yes on the', 'first supplier email'] },
@@ -24,33 +20,27 @@ const PROMPTS = [
 ];
 
 export function ConnectionFlow() {
-  const w = 104;
   return (
     <section className="my-10" id="how-it-connects">
       <h2 className="text-[18px] text-teal-title">How it connects</h2>
       <p className="mt-1 text-[13px] text-muted">
         Admins set up once; nobody is onboarded. Three prompts in the whole flow, each at a moment of intent, plus the publish gate.
       </p>
-      <svg viewBox="0 0 760 120" className="mt-4 w-full" role="img" aria-label="Admin once, then track, link, check at Send, Word, publish and handover.">
-        <defs>
-          <marker id="cf-arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">
-            <path d="M0,0 L10,5 L0,10 z" fill={MUTED} />
-          </marker>
-        </defs>
-        {STEPS.map((st, i) => {
-          const x = 4 + i * (w + 4);
-          return (
-            <g key={st.title}>
-              <rect x={x} y={14} width={w - 8} height={88} rx={10} fill={i === 0 ? '#fff' : i === STEPS.length - 1 ? '#E3F2EF' : '#fff'} stroke={i === 0 ? LINE : TEAL} />
-              <text x={x + 10} y={36} fontSize={12} fontWeight={600} fill={TEAL}>{st.title}</text>
-              {st.lines.map((l, j) => (
-                <text key={l} x={x + 10} y={56 + j * 15} fontSize={9.5} fill={MUTED}>{l}</text>
-              ))}
-              {i < STEPS.length - 1 && <line x1={x + w - 8} y1={58} x2={x + w + 3} y2={58} stroke={MUTED} markerEnd="url(#cf-arrow)" />}
-            </g>
-          );
-        })}
-      </svg>
+      <div role="list" className="mt-4 grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label="Admin once, then track, link, check at Send, Word, publish and handover">
+        {STEPS.map((st, i) => (
+          <div
+            role="listitem"
+            key={st.title}
+            className={`rounded-lg border px-3 py-2.5 ${i === 0 ? 'border-line bg-white' : i === STEPS.length - 1 ? 'border-teal-900 bg-mint/40' : 'border-teal-900 bg-white'}`}
+          >
+            <div className="flex items-center gap-1.5 text-[12.5px] font-semibold leading-[18px] text-teal-900">
+              <span className="grid h-[18px] w-[18px] shrink-0 place-items-center rounded-full bg-teal-900 text-[10px] leading-none text-white">{i + 1}</span>
+              <span className="min-w-0">{st.title}</span>
+            </div>
+            <div className="mt-1 text-[11.5px] leading-[16px] text-muted">{st.lines.join(' ')}</div>
+          </div>
+        ))}
+      </div>
 
       <div className="mt-4 overflow-x-auto">
         <table className="w-full text-left text-[12px]">
