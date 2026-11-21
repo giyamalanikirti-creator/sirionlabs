@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Button, Spinner, Tab, TabList, makeStyles } from '@fluentui/react-components';
+import { Button, MessageBar, MessageBarBody, Spinner, Tab, TabList, makeStyles } from '@fluentui/react-components';
+import { trackChangesOffConsequences, untrackedWarning } from '@/lib/engines/trackChanges';
 import { CompareTab, DraftTab, STATUS_TEXT, withAgreedWording } from '@/components/addin/WordTabs';
 import { ApproveTab, IssueCard, WordHeader, type IssueActions } from '@/components/addin/WordReview';
 import { WordConnect, type WordConnection } from '@/components/addin/WordConnect';
@@ -14,7 +15,7 @@ import { CONTRACT_ID } from '@/lib/settings';
 
 type PaneTab = 'review' | 'draft' | 'compare' | 'approve';
 
-const omit = (m: Record<string, string>, key: string) => Object.fromEntries(Object.entries(m).filter(([k]) => k !== key));
+const omit = <T,>(m: Record<string, T>, key: string): Record<string, T> => Object.fromEntries(Object.entries(m).filter(([k]) => k !== key));
 import Link from 'next/link';
 import { OriginTag } from '@/components/addin/SirionBlocks';
 import { useDemo as useDemoStore } from '@/lib/store';
@@ -63,6 +64,15 @@ export function WordApp({ versionId }: { versionId: string }) {
   /** Edits typed in Word in this session, by clause: the whole new clause text. */
   const [localEdits, setLocalEdits] = useState<Record<string, string>>({});
   const [localComments, setLocalComments] = useState<Record<string, string>>({});
+  /** Clauses edited here while Track Changes was off. */
+  const [untrackedLocal, setUntrackedLocal] = useState<Record<string, true>>({});
+  const trackChanges = useDemo((st) => st.trackChanges);
+  const setTrackChanges = useDemo((st) => st.setTrackChanges);
+  const untrackedTerms = useDemo((st) => st.signing.untracked);
+  /** How an edit made now lands in the file, for toasts. */
+  const asWhat = trackChanges ? 'as a tracked change' : 'with no markup (Track Changes is off)';
+  const noteTracking = (no: string) =>
+    setUntrackedLocal((m) => (trackChanges ? omit(m, no) : { ...m, [no]: true }));
   const [editing, setEditing] = useState<string>();
   const [editText, setEditText] = useState('');
   const logEvent = useDemo((st) => st.logEvent);
@@ -127,6 +137,7 @@ export function WordApp({ versionId }: { versionId: string }) {
         before: clause.text.startsWith(operative) ? operative : clause.text,
         after: agreedWording(row.termKey, row.position),
         tail,
+        plain: untrackedTerms?.includes(row.termKey),
       });
       c.push({
         clauseNo: clause.no,
@@ -140,7 +151,7 @@ export function WordApp({ versionId }: { versionId: string }) {
       const clause = version.clauses.find((cl) => cl.no === no);
       if (!clause || text === clause.text) continue;
       const i = e.findIndex((x) => x.clauseNo === no);
-      const edit = { clauseNo: no, before: clause.text, after: text, tail: '' };
+      const edit = { clauseNo: no, before: clause.text, after: text, tail: '', plain: Boolean(untrackedLocal[no]) };
       if (i >= 0) e[i] = edit;
       else e.push(edit);
       if (localComments[no]) {
@@ -151,7 +162,9 @@ export function WordApp({ versionId }: { versionId: string }) {
       }
     }
     return { edits: e, comments: c };
-  }, [rows, version, localEdits, localComments]);
+  }, [rows, version, localEdits, localComments, untrackedLocal, untrackedTerms]);
+  const untrackedCount = edits.filter((x) => x.plain).length;
+  const trackedCount = edits.length - untrackedCount;
 
   /* The ledger lens runs on the file as it now reads: inserted wording and edits typed here included. */
   const working = useMemo(() => {
@@ -207,9 +220,11 @@ export function WordApp({ versionId }: { versionId: string }) {
   const commitEdit = () => {
     if (!editing) return;
     setLocalEdits((m) => ({ ...m, [editing]: editText }));
+    noteTracking(editing);
     const l = liveGuard;
     logEvent(`Clause ${editing} edited in Word${l?.status === 'differs' ? `: differs from what was agreed (${l.agreedPlain})` : ''}.`);
-    toast(l?.status === 'differs' ? 'Kept as a tracked change. It differs from what was agreed and is flagged.' : 'Kept as a tracked change.');
+    const kept = trackChanges ? 'Kept as a tracked change.' : 'Changed with no markup: Track Changes is off.';
+    toast(l?.status === 'differs' ? `${kept} It differs from what was agreed and is flagged.` : kept);
     setEditing(undefined);
   };
 
@@ -225,6 +240,7 @@ export function WordApp({ versionId }: { versionId: string }) {
   const isSigningGap = (row?: LedgerRow) => versionId === 'v6' && row?.signing === 'gap';
   const putLocal = (no: string, text: string, comment?: string) => {
     setLocalEdits((m) => ({ ...m, [no]: text }));
+    noteTracking(no);
     if (comment) setLocalComments((m) => ({ ...m, [no]: comment }));
   };
 
@@ -237,7 +253,7 @@ export function WordApp({ versionId }: { versionId: string }) {
       else putLocal(clause.no, withAgreedWording(clause, row), row.supplierNote);
       goToClause(clause.no);
       logEvent(`Clause ${clause.no}: agreed wording inserted in Word (${version!.id}).`);
-      toast(`Agreed wording inserted in clause ${clause.no}, with a supplier-safe comment.`);
+      toast(`Agreed wording inserted in clause ${clause.no} ${asWhat}, with a supplier-safe comment.`);
     },
     onUseRung: (issue, value, key) => {
       const row = rowOf(issue);
@@ -249,7 +265,7 @@ export function WordApp({ versionId }: { versionId: string }) {
         putLocal(clause.no, agreedWording(row.termKey, value) + (first >= 0 ? clause.text.slice(first + 1) : ''), 'Proposed wording for this clause.');
       }
       goToClause(clause.no);
-      toast(`Playbook ${key} inserted in clause ${clause.no} as a tracked change.`);
+      toast(`Playbook ${key} inserted in clause ${clause.no} ${asWhat}.`);
     },
     onAccept: (issue, reason) => {
       const row = rowOf(issue);
@@ -281,6 +297,18 @@ export function WordApp({ versionId }: { versionId: string }) {
 
   const emailGaps = review.issues.filter((i) => i.sources.includes('email') && i.lens?.status === 'differs' && rowOf(i)?.signing !== 'waived');
   const insertAll = () => emailGaps.forEach((g) => issueActions.onInsertAgreed(g));
+  const offConsequences = trackChangesOffConsequences({
+    openGaps: emailGaps.filter((g) => rowOf(g)?.signing !== 'inserted').map((g) => ({ label: g.label, costLakhPerYr: g.costLakhPerYr })),
+    trackedCount,
+    untrackedCount,
+    isSigningCopy: versionId === 'v6',
+    supplier: cloudDeskDeal.supplier,
+  });
+  const untrackedNote = untrackedWarning(untrackedCount, cloudDeskDeal.supplier);
+  const onTrackChanges = (on: boolean) => {
+    setTrackChanges(on);
+    toast(on ? 'Track Changes on. New edits are marked for CloudDesk.' : 'Track Changes off. Edits now change the text with no markup.');
+  };
   const onPublished = (anyway: boolean, reason?: string) => {
     if (anyway && emailGaps.length) {
       const first = rowOf(emailGaps[0])!;
@@ -340,7 +368,8 @@ export function WordApp({ versionId }: { versionId: string }) {
       {Object.keys(localEdits).length > 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '6px 16px', background: '#EEF6F7', fontSize: 12.5, borderBottom: '1px solid #D6E4E6' }}>
           <OriginTag kind="today" />
-          {Object.keys(localEdits).length} tracked change{Object.keys(localEdits).length === 1 ? '' : 's'} in this file
+          {Object.keys(localEdits).length} edit{Object.keys(localEdits).length === 1 ? '' : 's'} in this file
+          {untrackedCount > 0 && <span style={{ color: '#9D5D00' }}>· {untrackedCount} with no markup</span>}
           {lens.some((l) => localEdits[l.clauseNo] && l.status === 'differs') && (
             <span style={{ color: '#C50F1F' }}>· {lens.filter((l) => localEdits[l.clauseNo] && l.status === 'differs').length} differ from what was agreed</span>
           )}
@@ -365,8 +394,19 @@ export function WordApp({ versionId }: { versionId: string }) {
       <WordRibbon
         paneOpen={paneOpen}
         onTogglePane={() => setPaneOpen((v) => !v)}
-        trackChanges
+        trackChanges={trackChanges}
+        onTrackChanges={onTrackChanges}
+        offConsequences={offConsequences}
       />
+      {!trackChanges && versionId !== 'v7' && (
+        <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '7px 16px', background: '#FFF4CE', borderBottom: '1px solid #F2DF9C', fontSize: 13, color: '#3D2E00' }}>
+          <strong>Track Changes is off.</strong>
+          <span>Edits change the text with no markup, so {cloudDeskDeal.supplier} won&apos;t see what changed.</span>
+          <Button size="small" appearance="secondary" style={{ marginLeft: 'auto' }} onClick={() => onTrackChanges(true)}>
+            Turn it on
+          </Button>
+        </div>
+      )}
       <div className={s.body}>
         <div className={s.canvas}>
           <div className={local.canvasInner}>
@@ -415,6 +455,11 @@ export function WordApp({ versionId }: { versionId: string }) {
             ) : (
             <>
             {working && <WordHeader version={version} rows={rows} issues={review.issues} matches={review.matches} connectedBy={connectedBy} />}
+            {untrackedNote && (
+              <MessageBar intent="warning" style={{ marginBottom: 10 }}>
+                <MessageBarBody>{untrackedNote}</MessageBarBody>
+              </MessageBar>
+            )}
             <TabList size="small" selectedValue={tab} onTabSelect={(_, d) => setTab(d.value as PaneTab)} style={{ marginBottom: 10 }}>
               <Tab value="review">Review</Tab>
               {versionId !== 'v7' && <Tab value="draft">Draft</Tab>}
@@ -471,16 +516,18 @@ export function WordApp({ versionId }: { versionId: string }) {
                   onCancel={() => setEditing(undefined)}
                   onRevert={(no) => {
                     setLocalEdits((m) => omit(m, no));
+                    setUntrackedLocal((m) => omit(m, no));
                     setLocalComments((m) => omit(m, no));
                   }}
                   onInsert={(no, text, rowId) => {
                     setLocalEdits((m) => ({ ...m, [no]: text }));
+                    noteTracking(no);
                     const row = rows.find((r) => r.id === rowId);
                     if (row) setLocalComments((m) => ({ ...m, [no]: row.supplierNote }));
                     setEditing(undefined);
                     goToClause(no);
                     logEvent(`Clause ${no}: agreed wording inserted from the ledger in Word.`);
-                    toast(`Agreed wording inserted in clause ${no}, with a supplier-safe comment.`);
+                    toast(`Agreed wording inserted in clause ${no} ${asWhat}, with a supplier-safe comment.`);
                   }}
                   onGoTo={goToClause}
                 />
@@ -504,7 +551,7 @@ export function WordApp({ versionId }: { versionId: string }) {
           </PaneFrame>
         )}
       </div>
-      <WordStatusBar pages={pages} words={countWords(version)} />
+      <WordStatusBar pages={pages} words={countWords(version)} trackChanges={trackChanges} />
     </div>
   );
 }

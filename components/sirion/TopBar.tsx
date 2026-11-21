@@ -8,7 +8,6 @@ import { useDemo, type Role } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { formatDateTime } from '@/lib/format';
 import { dealById } from '@/lib/data';
-import Link from 'next/link';
 
 
 const ROLES: { id: Role; name: string; role: string; initials: string }[] = [
@@ -58,10 +57,6 @@ export function TopBar() {
   return (
     <header className="relative z-40 flex h-16 shrink-0 items-center justify-between gap-6 border-b border-line bg-white px-6">
       <div className="flex min-w-0 items-center gap-4">
-        <Link href="/" aria-label="Sirion home" className="shrink-0">
-          <span className="text-[19px] font-semibold tracking-[-0.01em] text-[#2B3437]">Sirion</span>
-        </Link>
-        <span aria-hidden className="h-6 w-px shrink-0 bg-line" />
         <div className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-full bg-page px-3 py-1.5 text-[13px]">
           {crumbs.map((c, i) => (
             <span key={c} className={`flex items-center gap-1.5 ${i === crumbs.length - 1 ? 'min-w-0' : 'shrink-0'}`}>

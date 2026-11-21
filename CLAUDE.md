@@ -12,7 +12,7 @@ This is a student prototype for the Sirion ISB assignment. It is a working web a
 2. **Golden numbers must match.** The table in BUILD_SPEC §8.10 is checked by tests in `tests/`. A phase is not done until `npm test`, `npm run lint` and `npm run build` all pass.
 3. **The demo must never break.** Every AI call has a cached fixture or rules fallback. Use it when `DEMO_MODE=cached`, when no API key is set, or on any error or timeout. The full demo must run with no API key.
 4. **Three looks, kept apart:**
-    - The **Sirion-style app** (`app/(sirion)/`) matches Sirion's look (layout, colours, cards, charts) using Tailwind and shadcn/ui. Its top-left shows Sirion's mark and name (a redrawn SVG in `components/sirion/SirionMark.tsx`, added at the user's request) because it is shown as Sirion with Deal Ledger added. The add-on itself is always called **Deal Ledger** and keeps its own mark.
+    - The **Sirion-style app** (`app/(sirion)/`) matches Sirion's look (layout, colours, cards, charts) using Tailwind and shadcn/ui. Its top-left shows Sirion's mark only, no wordmark (traced from the user's logo file into `components/sirion/SirionMark.tsx`, at the user's request) because it is shown as Sirion with Deal Ledger added. The add-on itself is always called **Deal Ledger** and keeps its own mark.
     - The **Outlook and Word mocks** (`app/(microsoft)/`) look like Outlook and Word, built with Fluent UI React v9. Never use Microsoft, Outlook or Word logos or app icons. Show the product names only as plain text, next to a small "Mock" pill.
     - **Our add-in panes** inside Outlook and Word use Fluent components with our teal brand theme (BUILD_SPEC §4D).
     - Never build a login or sign-in screen. Every page shows the demo strip (BUILD_SPEC §4F).

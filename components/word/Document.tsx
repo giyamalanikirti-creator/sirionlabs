@@ -100,6 +100,8 @@ export interface TrackedEdit {
   after: string;
   /** The rest of the clause, which the amendment leaves alone. */
   tail?: string;
+  /** Made with Track Changes off: the new text, with no markup. */
+  plain?: boolean;
 }
 
 export interface ClauseMarker {
@@ -160,6 +162,8 @@ function ClauseBody({ clause, edit, highlighted }: { clause: Clause; edit?: Trac
     const end = clause.text.indexOf('. ') + 1;
     return <><mark>{end ? clause.text.slice(0, end) : clause.text}</mark>{end ? clause.text.slice(end) : ''}</>;
   }
+
+  if (edit.plain) return <>{edit.after}{edit.tail ?? ''}</>;
 
   // Only the operative sentence is struck through. The rest of the clause is
   // untouched, which is what an amendment to one term actually looks like.

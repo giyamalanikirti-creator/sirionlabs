@@ -11,6 +11,9 @@ import {
   Button,
   Divider,
   makeStyles,
+  Popover,
+  PopoverSurface,
+  PopoverTrigger,
   shorthands,
   Switch,
   tokens,
@@ -28,7 +31,11 @@ import {
   SearchRegular,
   ArrowSyncRegular,
   AppsAddInRegular,
+  ErrorCircleRegular,
+  WarningRegular,
+  InfoRegular,
 } from '@fluentui/react-icons';
+import type { Consequence } from '@/lib/engines/trackChanges';
 import { Mark } from '@/components/sirion/Mark';
 
 const WORD_BLUE = '#185ABD';
@@ -200,14 +207,89 @@ function Cmd({ icon, label, compact }: { icon: React.ReactElement; label: string
   );
 }
 
+const TONE = {
+  risk: { icon: <ErrorCircleRegular />, colour: '#C50F1F' },
+  warn: { icon: <WarningRegular />, colour: '#9D5D00' },
+  info: { icon: <InfoRegular />, colour: '#616161' },
+};
+
+/**
+ * The Track Changes switch. Turning it on is instant; turning it off first
+ * shows a small prompt, anchored to the switch, with what it would change.
+ */
+function TrackChangesSwitch({
+  on,
+  onChange,
+  offConsequences,
+}: {
+  on: boolean;
+  onChange: (on: boolean) => void;
+  offConsequences: Consequence[];
+}) {
+  const [asking, setAsking] = useState(false);
+  return (
+    <Popover
+      open={asking}
+      onOpenChange={(_, d) => {
+        if (!d.open) setAsking(false);
+      }}
+      positioning="below-start"
+      withArrow
+      trapFocus
+    >
+      <PopoverTrigger disableButtonEnhancement>
+        <span style={nowrap}>
+          <Switch
+            checked={on}
+            label="Track Changes"
+            onChange={(_, d) => {
+              if (d.checked) onChange(true);
+              else setAsking(true);
+            }}
+          />
+        </span>
+      </PopoverTrigger>
+      <PopoverSurface aria-label="Turn off Track Changes?" style={{ width: 340, padding: 16 }}>
+        <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 10 }}>Turn off Track Changes?</div>
+        <ul style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 9 }}>
+          {offConsequences.map((c) => (
+            <li key={c.text} style={{ display: 'flex', gap: 8, fontSize: 13, lineHeight: '19px' }}>
+              <span style={{ color: TONE[c.tone].colour, fontSize: 16, lineHeight: '19px', flexShrink: 0, display: 'flex' }}>{TONE[c.tone].icon}</span>
+              <span>{c.text}</span>
+            </li>
+          ))}
+        </ul>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 14 }}>
+          <Button appearance="primary" size="small" onClick={() => setAsking(false)}>
+            Keep tracking
+          </Button>
+          <Button
+            size="small"
+            onClick={() => {
+              setAsking(false);
+              onChange(false);
+            }}
+          >
+            Turn off
+          </Button>
+        </div>
+      </PopoverSurface>
+    </Popover>
+  );
+}
+
 export function WordRibbon({
   paneOpen,
   onTogglePane,
   trackChanges,
+  onTrackChanges,
+  offConsequences,
 }: {
   paneOpen: boolean;
   onTogglePane: () => void;
   trackChanges: boolean;
+  onTrackChanges: (on: boolean) => void;
+  offConsequences: Consequence[];
 }) {
   const s = useWordStyles();
   /* Below 1200 px of frame width, secondary commands go icon-only (with tooltips) so no label wraps. */
@@ -231,7 +313,7 @@ export function WordRibbon({
       </div>
       <div className={s.commandBar} ref={barRef} style={{ flexWrap: 'nowrap', overflow: 'hidden' }}>
         <Cmd icon={<DocumentEditRegular />} label="Editor" compact={compact} />
-        <Switch checked={trackChanges} label="Track Changes" onChange={() => {}} style={nowrap} />
+        <TrackChangesSwitch on={trackChanges} onChange={onTrackChanges} offConsequences={offConsequences} />
         <span className={s.markupPill} style={nowrap}>
           All Markup
           <ChevronDownRegular fontSize={12} />
@@ -262,13 +344,13 @@ export function WordRibbon({
   );
 }
 
-export function WordStatusBar({ pages, words }: { pages: number; words: number }) {
+export function WordStatusBar({ pages, words, trackChanges }: { pages: number; words: number; trackChanges: boolean }) {
   const s = useWordStyles();
   return (
     <footer className={s.statusBar}>
       <span>
-        Page 2 of {pages} · {words.toLocaleString('en-IN')} words · English (India) · Track Changes:
-        On
+        Page 2 of {pages} · {words.toLocaleString('en-IN')} words · English (India) · Track Changes:{' '}
+        {trackChanges ? 'On' : 'Off'}
       </span>
       <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
         <span

@@ -150,6 +150,8 @@ interface DemoState {
   signing: {
     versionId: 'v6';
     inserted: TermKey[];
+    /** Inserted while Track Changes was off: the text changed with no markup. */
+    untracked?: TermKey[];
     waived: { termKey: TermKey; reason: string }[];
     sentBackAt?: string;
     checkedAt?: string;
@@ -169,6 +171,9 @@ interface DemoState {
 
   // actions
   setClock: (iso: string) => void;
+  /** Word's Track Changes switch (signing copy). */
+  trackChanges: boolean;
+  setTrackChanges: (on: boolean) => void;
   setRole: (role: Role) => void;
   startStage: (step: 1 | 2 | 3 | 4 | 5, restart?: boolean) => void;
   previewStage: (step: 1 | 2 | 3 | 4 | 5) => void;
@@ -229,6 +234,14 @@ interface DemoState {
   reset: () => void;
 }
 
+/** Add a term to the inserted list, and note whether it went in with Track Changes off. */
+function markInserted(s: Pick<DemoState, 'signing' | 'trackChanges'>, termKey: TermKey): DemoState['signing'] {
+  const untracked = new Set(s.signing.untracked ?? []);
+  if (s.trackChanges) untracked.delete(termKey);
+  else untracked.add(termKey);
+  return { ...s.signing, inserted: [...new Set([...s.signing.inserted, termKey])], untracked: [...untracked] };
+}
+
 const BASE = {
   clock: STEP_CLOCK[0],
   sirionRole: 'lead' as Role,
@@ -263,6 +276,7 @@ const BASE = {
   contract: undefined,
   invoices: [] as Invoice[],
   invoiceFastForward: false,
+  trackChanges: true,
   disputeRaised: false,
   invoiceResolved: false,
   notices: [] as Notice[],
@@ -277,6 +291,11 @@ export const useDemo = create<DemoState>()(
       ...BASE,
 
       setClock: (iso) => set({ clock: iso }),
+      setTrackChanges: (on) =>
+        set((s) => ({
+          trackChanges: on,
+          events: [...s.events, { at: s.clock, text: `Track Changes turned ${on ? 'on' : 'off'} in Word.` }],
+        })),
       setRole: (sirionRole) => set({ sirionRole }),
 
       logEvent: (text) =>
@@ -469,8 +488,8 @@ export const useDemo = create<DemoState>()(
         if (!row) return;
         set((s) => ({
           ledger: rows,
-          signing: { ...s.signing, inserted: [...new Set([...s.signing.inserted, row.termKey])] },
-          events: [...s.events, { at: s.clock, text: `${row.label}: playbook ${label} inserted as a tracked change.` }],
+          signing: markInserted(s, row.termKey),
+          events: [...s.events, { at: s.clock, text: `${row.label}: playbook ${label} inserted ${s.trackChanges ? 'as a tracked change' : 'with Track Changes off (no markup)'}.` }],
         }));
         if (label === 'walk-away') {
           const agreedRow = ledgerAtStep(4).find((r) => r.id === rowId);
@@ -786,10 +805,10 @@ export const useDemo = create<DemoState>()(
         if (!row) return;
         set((s) => ({
           ledger: rows,
-          signing: { ...s.signing, inserted: [...new Set([...s.signing.inserted, row.termKey])] },
+          signing: markInserted(s, row.termKey),
           events: [
             ...s.events,
-            { at: s.clock, text: `${row.label}: agreed wording inserted as a tracked change.` },
+            { at: s.clock, text: `${row.label}: agreed wording inserted ${s.trackChanges ? 'as a tracked change' : 'with Track Changes off (no markup)'}.` },
           ],
         }));
       },
@@ -832,7 +851,8 @@ export const useDemo = create<DemoState>()(
           !state.signing.inserted.includes(gap.termKey) && !state.signing.waived.some((row) => row.termKey === gap.termKey),
         )) return;
         const at = state.clock;
-        const count = state.signing.inserted.length;
+        const untracked = state.signing.untracked?.length ?? 0;
+        const count = state.signing.inserted.length - untracked;
         const sent: EmailMessage = {
           id: 'M15',
           threadId: 'T1',
@@ -860,7 +880,13 @@ export const useDemo = create<DemoState>()(
           sentVia: via,
           sentMessages: [...s.sentMessages, sent],
           completedSteps: s.completedSteps.includes(4) ? s.completedSteps : [...s.completedSteps, 4],
-          events: [...s.events, { at, text: `v7 sent back to CloudDesk ${via === 'portal' ? 'through the Sirion counterparty portal' : 'by email'} with ${count} tracked changes.` }],
+          events: [
+            ...s.events,
+            {
+              at,
+              text: `v7 sent back to CloudDesk ${via === 'portal' ? 'through the Sirion counterparty portal' : 'by email'} with ${count} tracked change${count === 1 ? '' : 's'}${untracked ? ` and ${untracked} untracked edit${untracked === 1 ? '' : 's'} CloudDesk will see with no markup` : ''}.`,
+            },
+          ],
         }));
       },
 

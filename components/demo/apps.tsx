@@ -27,7 +27,7 @@ export const APPS: Record<AppKey, AppDef> = {
 };
 
 export function AppIcon({ app, size = 14, light = false }: { app: AppKey; size?: number; light?: boolean }) {
-  if (app === 'sirion') return <SirionMark size={size + 4} onDark={light} />;
+  if (app === 'sirion') return <SirionMark size={size + 2} colour={light ? '#FFFFFF' : '#0E5E66'} />;
   const Icon = app === 'word' ? FileText : Mail;
   return <Icon size={size} strokeWidth={2} color={light ? '#FFFFFF' : APPS[app].colour} />;
 }

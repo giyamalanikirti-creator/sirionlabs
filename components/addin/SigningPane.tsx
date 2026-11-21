@@ -29,6 +29,7 @@ import { signingCheck } from '@/lib/engines/signing';
 import { formatLakh, HEADLINE_SUFFIX } from '@/lib/format';
 import { dealAtRisk } from '@/lib/engines/atRisk';
 import { playbookOptions } from '@/lib/engines/playbook';
+import { untrackedWarning } from '@/lib/engines/trackChanges';
 import { MoveBox, OriginTag } from './SirionBlocks';
 import type { TermValue } from '@/lib/types';
 import { useSourceDrawer } from '@/lib/drawer';
@@ -57,6 +58,9 @@ export function SigningPane({
   const sendBack = useDemo((st) => st.sendBack);
   const sentBackAt = useDemo((st) => st.signing.sentBackAt);
   const sentVia = useDemo((st) => st.sentVia);
+  const untracked = useDemo((st) => st.signing.untracked?.length ?? 0);
+  const trackOn = useDemo((st) => st.trackChanges);
+  const noMarkup = untracked ? ` · ${untracked} edit${untracked === 1 ? '' : 's'} with no markup` : '';
   const signed = version.id === 'v7';
   const toast = useDemo((st) => st.toast);
 
@@ -213,7 +217,7 @@ export function SigningPane({
           style={{ width: '100%', marginBottom: 10 }}
           onClick={() => {
             insertAll();
-            toast(`Agreed wording inserted in ${openGaps.length} clauses.`);
+            toast(`Agreed wording inserted in ${openGaps.length} clauses${trackOn ? ' as tracked changes' : ' with no markup (Track Changes is off)'}.`);
           }}
         >
           Fix all {openGaps.length} with agreed wording
@@ -222,13 +226,18 @@ export function SigningPane({
 
       {readyToReturn && !sentBackAt && (
         <div style={{ marginBottom: 10 }}>
+          {untracked > 0 && (
+            <MessageBar intent="warning" style={{ marginBottom: 8 }}>
+              <MessageBarBody>{untrackedWarning(untracked, cloudDeskDeal.supplier)}</MessageBarBody>
+            </MessageBar>
+          )}
           <Button
             appearance="primary"
             data-tour="send-back"
             style={{ width: '100%', marginBottom: 6 }}
             onClick={() => {
               sendBack('email');
-              toast('Sent to Priya Nair as v7');
+              toast(`Sent to Priya Nair as v7${noMarkup}`);
             }}
           >
             Send back to CloudDesk
@@ -238,7 +247,7 @@ export function SigningPane({
             style={{ width: '100%' }}
             onClick={() => {
               sendBack('portal');
-              toast('Shared with CloudDesk in the Sirion counterparty portal as v7');
+              toast(`Shared with CloudDesk in the Sirion counterparty portal as v7${noMarkup}`);
             }}
           >
             Share in Sirion counterparty portal
@@ -252,7 +261,7 @@ export function SigningPane({
       {sentBackAt && !signed && (
         <MessageBar intent="success" style={{ marginBottom: 10 }}>
           <MessageBarBody>
-            {sentVia === 'portal' ? 'v7 shared with CloudDesk in the Sirion portal' : 'v7 sent to Priya Nair'} with the tracked changes and notes.
+            {sentVia === 'portal' ? 'v7 shared with CloudDesk in the Sirion portal' : 'v7 sent to Priya Nair'} with {untracked ? `${untracked} edit${untracked === 1 ? '' : 's'} CloudDesk will see with no markup, and the notes.` : 'the tracked changes and notes.'}
           </MessageBarBody>
         </MessageBar>
       )}
