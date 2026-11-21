@@ -132,7 +132,8 @@ export default function InsightsPage() {
         />
         <KpiTile
           label="Send anyway rate"
-          value={liveWarnings ? `${Math.round((liveSendAnyway / liveWarnings) * 100)}%` : 'No data yet'}
+          value={liveWarnings ? `${Math.round((liveSendAnyway / liveWarnings) * 100)}%` : null}
+          empty="No warnings yet"
           caption={`This session · rethink above ${Math.round(SEND_ANYWAY_RETHINK * 100)}%`}
         />
       </div>

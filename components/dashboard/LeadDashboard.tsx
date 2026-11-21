@@ -20,7 +20,7 @@ import { OPENING_LINE, QUICK_INTRO } from '@/lib/demo/quickPath';
 import { useGuide } from '@/components/demo/useGuide';
 
 export function LeadDashboard() {
-  const { rows, atRisk, allOpenAtRisk, counts, attention, signed, hydrated, reconciliation, asOf } = useLedger();
+  const { rows, atRisk, allOpenAtRisk, counts, attention, signed, hydrated } = useLedger();
 
   const roundReviewed = useDemo((state) => state.completedSteps.includes(1));
   const notices = useDemo((state) => state.notices);
@@ -61,7 +61,7 @@ export function LeadDashboard() {
           foot={
             <>
               <QuarterTrend />
-              <p className="mt-2.5 text-[11px] leading-[16px] text-muted">
+              <p className="mt-auto pt-2.5 text-[11px] leading-[16px] text-muted">
                 North star. Measured by a sampled audit of the email trail, not by this tool.
               </p>
             </>
@@ -78,14 +78,13 @@ export function LeadDashboard() {
             <>
               <dl className="space-y-1.5">
                 <SplitRow label="CloudDesk (live)" value={formatLakh(signed ? 0 : atRisk)} />
-                {!signed && <p className="text-[11.5px] leading-[16px] text-muted" suppressHydrationWarning>{reconciliation} · {asOf}</p>}
                 <SplitRow
                   label="11 other open deals"
                   value={formatLakh(allOpenAtRisk - (signed ? 0 : atRisk))}
                   muted
                 />
               </dl>
-              <p className="mt-2.5 text-[11px] leading-[16px] text-muted">
+              <p className="mt-auto pt-2.5 text-[11px] leading-[16px] text-muted">
                 Expected annual average. Next-renewal costs are spread across the contract term.
               </p>
             </>

@@ -89,30 +89,41 @@ export function KpiTile({
   caption,
   foot,
   tone = 'teal',
+  empty = 'None yet',
 }: {
   label: string;
-  value: React.ReactNode;
+  /** null shows `empty` in small text, so a tile with nothing to report keeps its layout. */
+  value: React.ReactNode | null;
+  empty?: string;
   /** A smaller unit after the figure ("lakh"), so every tile's figure is one size and one line. */
   unit?: React.ReactNode;
   caption?: string;
   foot?: React.ReactNode;
   tone?: 'teal' | 'danger';
 }) {
+  // "₹2.4 lakh" → a large "₹2.4" and a smaller "lakh", so the figure stays on one line.
+  const split = typeof value === 'string' && unit === undefined ? value.match(/^(.*?)\s+(lakh|crore)$/) : null;
+  const figure = split ? split[1] : value;
+  const shownUnit = split ? split[2] : unit;
   return (
     <div className="flex h-full flex-col rounded-card border border-line bg-card px-6 py-5 shadow-card">
       <p className="text-[15px] font-medium leading-[21px] text-ink">{label}</p>
-      <p
-        className={cn(
-          'mt-2 whitespace-nowrap font-light leading-none tracking-tight',
-          'text-[44px] xl:text-[52px]',
-          tone === 'danger' ? 'text-danger' : 'text-teal-900',
-        )}
-      >
-        {value}
-        {unit && <span className="ml-1.5 text-[24px] font-normal tracking-normal xl:text-[26px]">{unit}</span>}
-      </p>
+      {value === null ? (
+        <p className="mt-3 text-[20px] leading-[28px] text-muted">{empty}</p>
+      ) : (
+        <p
+          className={cn(
+            'mt-2 whitespace-nowrap font-light leading-none tracking-tight',
+            'text-[44px] xl:text-[52px]',
+            tone === 'danger' ? 'text-danger' : 'text-teal-900',
+          )}
+        >
+          {figure}
+          {shownUnit && <span className="ml-1.5 text-[24px] font-normal tracking-normal xl:text-[26px]">{shownUnit}</span>}
+        </p>
+      )}
       {caption && <p className="mt-2.5 text-[12px] leading-[18px] text-muted">{caption}</p>}
-      {foot && <div className="mt-3 border-t border-line pt-2.5">{foot}</div>}
+      {foot && <div className="mt-3 flex flex-1 flex-col border-t border-line pt-2.5">{foot}</div>}
     </div>
   );
 }
