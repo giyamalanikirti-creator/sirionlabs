@@ -261,8 +261,17 @@ function round1(n: number) {
 
 export { formatPct };
 
+/** The collapsible reference sections on /story; a link opens the section. */
+const MORE_LINKS = [
+  { href: '/story#how-this-works', label: 'How this works' },
+  { href: '/story#architecture-privacy', label: 'Architecture & privacy' },
+  { href: '/story#financial-methodology', label: 'Financial methodology' },
+  { href: '/story#peer-benchmarks', label: 'Peer benchmarks' },
+  { href: '/story#sources-and-scope-of-claims', label: 'Sources and scope of claims' },
+];
+
 const CASE_LINKS = [
-  { href: '/story#1-why-negotiation', label: 'Why this stage' },
+  { href: '/story#1-why-negotiation', label: 'Why negotiation' },
   { href: '/story#2-stakeholder-map', label: 'Stakeholder map' },
   { href: '/story#3-the-problem', label: 'The problem' },
   { href: '/story#5-success-metrics', label: 'Success metrics' },
@@ -299,6 +308,16 @@ function HomeHero() {
               </li>
             ))}
           </ul>
+          <details className="mt-2 border-t border-line pt-2">
+            <summary className="cursor-pointer text-[13px] font-semibold text-ink">More detail</summary>
+            <ul className="mt-1.5 space-y-1">
+              {MORE_LINKS.map((l) => (
+                <li key={l.href}>
+                  <Link href={l.href} className="text-[13px] text-teal-900 hover:underline">{l.label}</Link>
+                </li>
+              ))}
+            </ul>
+          </details>
         </nav>
       </div>
     </section>
