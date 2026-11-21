@@ -76,7 +76,7 @@ export function DealPage({ initialRow, initialTab }: { initialRow?: string; init
             <div className="text-right">
               <MoneyPlain lakh={signed ? 0 : atRisk} size="xl" suffix={null} tone={atRisk > 0 ? 'danger' : 'teal'} />
               <p className="mt-0.5 text-[12px] text-muted">
-                {signed ? 'at risk — signed and enforced' : 'a year (expected), across the deal'}
+                {signed ? 'at risk: signed and enforced' : 'a year (expected), across the deal'}
               </p>
               {!signed && (
                 <p className="mt-1 max-w-[340px] text-[12px] leading-[17px] text-muted" suppressHydrationWarning>

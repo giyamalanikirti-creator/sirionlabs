@@ -847,7 +847,7 @@ export const useDemo = create<DemoState>()(
             ...s.signing,
             waived: [...s.signing.waived, { termKey: row.termKey, reason }],
           },
-          events: [...s.events, { at: s.clock, text: `${row.label}: gap waived — ${reason}` }],
+          events: [...s.events, { at: s.clock, text: `${row.label}: gap waived (${reason})` }],
         }));
         const gap = signingCheck(get().ledger, versionById('v6')!, cloudDeskDeal).gaps.find((g) => g.rowId === rowId);
         get().requestApproval({

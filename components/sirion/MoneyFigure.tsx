@@ -10,7 +10,7 @@ const BASIS_LABEL: Record<PriceTag['basis'], string> = {
   own_renewals: 'our own past renewals',
   own_service_events: 'our own uptime records',
   formula: "Finance's cost of money",
-  none: '—',
+  none: '–',
 };
 
 const CONFIDENCE_LABEL: Record<PriceTag['confidence'], string> = {
@@ -119,7 +119,7 @@ export function MoneyPlain({
   suffix?: string | null;
   tone?: 'teal' | 'danger' | 'muted';
 }) {
-  if (lakh === null) return <span className="text-[12.5px] text-muted">—</span>;
+  if (lakh === null) return <span className="text-[12.5px] text-muted">–</span>;
   const sizes = {
     sm: 'text-[12.5px] font-medium',
     md: 'text-[14px] font-semibold',

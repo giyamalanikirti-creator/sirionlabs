@@ -99,12 +99,12 @@ export function LedgerTab({ rows, initialRow }: { rows: LedgerRow[]; initialRow?
                       </Link>
                     )}
                   </Td>
-                  <Td className="max-w-[220px] text-[12px] text-muted">{row.reason ?? '—'}</Td>
+                  <Td className="max-w-[220px] text-[12px] text-muted">{row.reason ?? '–'}</Td>
                   <Td className="text-[12px]">
                     {row.approvedBy ? (
                       <span className="text-ink">{personName(row.approvedBy.personId)}</span>
                     ) : (
-                      <span className="text-muted">—</span>
+                      <span className="text-muted">–</span>
                     )}
                   </Td>
                 </tr>
@@ -169,7 +169,7 @@ export function LedgerTab({ rows, initialRow }: { rows: LedgerRow[]; initialRow?
                                 .map((t) => (
                                   <li key={t.id} className="rounded-lg border border-line bg-white p-3">
                                     <p className="text-[12.5px] text-ink">
-                                      {THREAT_LABELS[t.kind]} —{' '}
+                                      {THREAT_LABELS[t.kind]}:{' '}
                                       <strong className="font-medium">{plainValue(t.value)}</strong>
                                     </p>
                                     {t.hidden && (

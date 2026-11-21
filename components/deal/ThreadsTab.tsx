@@ -91,7 +91,7 @@ export function ThreadsTab() {
                 {bodyRead ? (
                   <span className="text-ink">Yes</span>
                 ) : (
-                  <span className="text-muted">No — headers only</span>
+                  <span className="text-muted">No, headers only</span>
                 )}
               </Td>
             </tr>
@@ -100,7 +100,7 @@ export function ThreadsTab() {
       </Table>
 
       <p className="px-6 py-4 text-[11.5px] leading-[17px] text-muted">
-        Matching sees sender, recipients, subject and attachment fingerprints — never a body. A
+        Matching sees sender, recipients, subject and attachment fingerprints, never a body. A
         body is read only when the thread is a strong match, or after the lead links a weak one.
         That is why the offsite thread and the laptop quotes match nothing and are never opened.
       </p>

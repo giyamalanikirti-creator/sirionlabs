@@ -52,7 +52,7 @@ export function LegalDashboard() {
                     <span className="text-[11.5px] text-muted">Not checked yet</span>
                   )}
                 </Td>
-                <Td>{r.approvedBy ? <SourceChip source={r.approvedBy.source} /> : '—'}</Td>
+                <Td>{r.approvedBy ? <SourceChip source={r.approvedBy.source} /> : '–'}</Td>
               </tr>
             ))}
             {OTHER_ROWS.map((r) => (

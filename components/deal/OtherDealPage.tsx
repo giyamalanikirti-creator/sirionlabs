@@ -167,7 +167,7 @@ function Scripted({ deal }: { deal: ScriptedDeal }) {
                         ))}
                       </>
                     ) : (
-                      <span className="text-muted">—</span>
+                      <span className="text-muted">–</span>
                     )}
                   </Td>
                 </tr>

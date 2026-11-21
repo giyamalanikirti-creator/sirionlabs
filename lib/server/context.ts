@@ -15,7 +15,7 @@ export function ledgerSnapshot(rows: LedgerRow[]): string {
         .join('; ');
       return `- ${r.termKey} (${TERM_LABELS[r.termKey]}): our position ${plainValue(
         r.position,
-      )}; state ${r.state}${live ? `; live offers against it — ${live}` : ''}`;
+      )}; state ${r.state}${live ? `; live offers against it: ${live}` : ''}`;
     })
     .join('\n');
 }

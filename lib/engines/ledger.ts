@@ -165,7 +165,7 @@ export function applyReaderUpdates(
             source,
           );
           events.push(
-            `${row.label}: ${row.state === 'agreed' ? 'new ask' : 'proposal'} — ${plainValue(
+            `${row.label}: ${row.state === 'agreed' ? 'new ask' : 'proposal'}: ${plainValue(
               u.value,
             )}.`,
           );
@@ -292,7 +292,7 @@ export function confirmRow(
   addHistory(
     row,
     opts.at,
-    `Confirmed at ${plainValue(value)}${opts.note ? ` — ${opts.note}` : ''}.`,
+    `Confirmed at ${plainValue(value)}${opts.note ? `: ${opts.note}` : ''}.`,
     row.source,
   );
   return next;

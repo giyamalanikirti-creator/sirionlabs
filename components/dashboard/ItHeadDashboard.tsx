@@ -98,7 +98,7 @@ export function ItHeadDashboard() {
                 </span>
                 <div className="min-w-0 flex-1">
                   <p className="text-[13px] text-ink">
-                    {o.termKey ? TERM_LABELS[o.termKey] : 'A term'} —{' '}
+                    {o.termKey ? TERM_LABELS[o.termKey] : 'A term'}:{' '}
                     {o.choice === 'loop_in'
                       ? 'you looped in procurement'
                       : o.choice === 'dont_send'

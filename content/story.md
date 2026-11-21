@@ -63,7 +63,7 @@ The strongest objection is that much of the financial leakage happens *after* si
 
 ## 3. The problem: the signed document forgets the conversation
 
-**Problem statement:** What the company agrees and what the company signs can be two different things — and a standard playbook review does not prove they are the same.
+**Problem statement:** What the company agrees and what the company signs can be two different things, and a standard playbook review does not prove they are the same.
 
 Three recurrent failures illustrate the gap:
 
@@ -71,7 +71,7 @@ Three recurrent failures illustrate the gap:
 - **The unrecorded side concession.** Vikram and Rohan discuss a 10% versus a 5% service credit. “Fine with that” could refer to either. It must remain **needs confirming**, not be guessed into “agreed.” A later reply from Rohan can become the actual source of agreement.
 - **The contract that contradicts itself.** BrightStaff's clause 6 says 8%, while the signed Schedule 2 rate card says 10%. The invoice follows the schedule. This is an internal signed-document conflict that needs an owner, not an automatic supplier accusation.
 
-**Why this is material, and what is evidence rather than an assumption.** WorldCC and Deloitte's 2023 research found average contract value erosion of **8.6%**, across the contract lifecycle — an industry-wide estimate, not a Meridian result. WorldCC's *Closing the Procurement Value Gap* research with Ironclad, published in **2026**, puts cumulative leakage at about **11%**, including missed negotiation savings, unrecorded changes and poor renewal planning. These are distinct studies and should not be added together. A {{keep:19 October 2026}} Harvey article also explicitly discusses emails and side promises not reaching the executed agreement. None of these publications proves that Deal Ledger's specific product will work; the prototype and the pilot must test that claim.
+**Why this is material, and what is evidence rather than an assumption.** WorldCC and Deloitte's 2023 research found average contract value erosion of **8.6%**, across the contract lifecycle: an industry-wide estimate, not a Meridian result. WorldCC's *Closing the Procurement Value Gap* research with Ironclad, published in **2026**, puts cumulative leakage at about **11%**, including missed negotiation savings, unrecorded changes and poor renewal planning. These are distinct studies and should not be added together. A {{keep:19 October 2026}} Harvey article also explicitly discusses emails and side promises not reaching the executed agreement. None of these publications proves that Deal Ledger's specific product will work; the prototype and the pilot must test that claim.
 
 **A falsifiable first-week diagnostic:** Audit 20 historical supplier contracts, reconstruct the supplier-side negotiated positions from available correspondence and compare them with executed documents. Count (a) positions missing despite passing the playbook, (b) renewals without documented review and (c) invoice exceptions traceable to such gaps. The hypothesis is **one to three omitted positions per contract**, with at least some carrying financial value; it is not an observed Meridian fact. If the count is close to zero, our proposed differentiation is weak.
 
@@ -84,7 +84,7 @@ CloudDesk is a **₹60 lakh annual / three-year / ₹1.8 crore committed** softw
 The live dashboard on [Home](/#workspace) keeps its visuals and their distinct denominators:
 
 - **Signing-quality north-star trend:** **50% ({{keep:Jan–Mar 2026}}) → 58% (Apr–Jun) → 65% (Jul–Sep)**. The latest point is **13 of 20 audited contracts** signed with no agreed term missing; three newer contracts await audit. These are illustrative demo numbers, obtained by independent correspondence audit, not by the product grading itself.
-- **Where agreement actually happens:** **42% of 214 negotiated terms** in the last six months were agreed **outside the formal contract document** (supplier email, side threads and calls). Marked **Demo data**; the source-distribution chart shows the split.
+- **Where agreement actually happens:** **42% of 214 negotiated terms** in the last six months were agreed **outside the formal contract document** (supplier email, side threads and calls).
 - **Value at risk, open portfolio:** **₹20.3 lakh a year** across **12 open deals**, with **₹4.4 lakh** attributed to the live CloudDesk snapshot and **₹15.9 lakh** to the other 11, shown with the **“If signed as is, by open deal” top-eight bar chart**. This is an expected annual average, not a cash loss; a one-time renewal exposure is annualised over the contract term and its full one-time exposure is shown too.
 
 ## 4. Working prototype: one deal, five connected moments, one downstream proof
@@ -99,19 +99,19 @@ The live dashboard on [Home](/#workspace) keeps its visuals and their distinct d
 | Reviewed Word version → Sirion | The actual executed terms become owner-linked obligations and invoice rules |
 | Signed clause → Neha in Finance | An invoice variance is explained through the precise clause and earlier evidence |
 
-### A. Supplier round lands — Ananya, Outlook, 14 November
+### A. Supplier round lands: Ananya, Outlook, 14 November
 
 Rohan emails CloudDesk MSA v4. Sirion's existing Outlook add-in identifies the contract and can sync the attachment as the next counterparty version. **New:** Deal Ledger separately reads the supplier email, proposes typed commercial terms with **exact quotations**, and checks every quotation against the permitted original message before using it. The round card distinguishes **“What the email says,” “What the attached document changed” and “What remains open.”** It flags the untracked §14.2 notice-period change and surfaces the apparent fixed-pricing commitment. Each position retains the sender, timestamp, quote, source, confidence and any condition.
 
 **Respond to round** prepares a reply and a tracked v5. The reply acknowledges resolved terms, specifies the changes requested and explicitly says the service credit remains open. A human reviews and sends it. A proposed edit is **not** recorded as supplier-accepted merely because it appears in Meridian's outgoing v5.
 
-### B. Side thread appears — Ananya, Outlook, 16 November
+### B. Side thread appears: Ananya, Outlook, 16 November
 
 A supplier-domain thread involving Vikram may belong to the CloudDesk deal. Candidate matching uses **headers only**: sender/recipient domain, participants, subject/thread identifiers and the known deal. Where the live supplier round explicitly names the colleague and the supplier domain matches, the candidate can be linked **automatically with visible Undo**; otherwise the owner must confirm. Body text is not read before a thread is linked. Ananya can unlink it later, removing its derived quotations and logging the change.
 
 Once linked, Deal Ledger displays the 10% and 5% service-credit positions side by side. It does not resolve the ambiguous phrase “fine with that” on its own. The term remains **needs confirming** and the product drafts one precise supplier question. The response, when received, becomes the auditable source.
 
-### C. A business-owner reply is checked — Vikram, Outlook, 18 November
+### C. A business-owner reply is checked: Vikram, Outlook, 18 November
 
 Vikram is replying directly to Rohan. He need not open Sirion or a separate dashboard. The Send check compares recipients, draft text and attachment names against the *current* ledger. It looks for a reply that reopens an agreed term, gives away an open term, settles something still needing confirmation, or attaches an obsolete version. Internal-only messages are **never checked**.
 
@@ -119,13 +119,13 @@ One consolidated alert points to the exact sentence, a modelled annual cost and 
 
 In a production Outlook add-in, the non-blocking warning is designed around the Smart Alerts **prompt-user** behaviour, where Send Anyway is possible; the demo uses deterministic rules. If the add-in is missing, the user is not signed in, or the check cannot finish within its short target (~3 seconds), the experience fails open and visibly says **“Not checked”** rather than implying protection. Actual client-timeout and send behaviour must follow Microsoft's platform constraints.
 
-### D. Check the signing copy — Ananya, Word, 19 November
+### D. Check the signing copy: Ananya, Word, 19 November
 
 The supplier returns a clean v6. Sirion for Word already checks against **company policy** with IssueDetection and Redline Agent. **Deal Ledger adds a second, deal-specific check** against the email ledger. The Word pane keeps the familiar **contract record → Review → Approve → Publish** structure and marks blocks **Today in Sirion** or **New · Deal Ledger**.
 
 **One Review list** merges playbook issues and email-agreement discrepancies, prioritised by expected annual cost and approval criticality. Each finding card shows (1) the agreed term and its verified source quote, date and person; (2) the draft's clause and word-level change; (3) condition/dependency status; (4) expected **₹ per year if signed as is**, with confidence and two lines of calculation; (5) the playbook **preferred / fallback / walk-away** ladder; and (6) four actions: **Insert agreed wording**, **Ask supplier**, **Accept theirs** (routed for approval), or **Reading is wrong** (correct the ledger with an audit entry). Peer outcomes are an **internal reference only**, not the source of the monetary headline.
 
-**The hero gap — payment clause §9.3:**
+**The hero gap, payment clause §9.3:**
 
 > **Company playbook:** 45 days is permitted. **Deal agreement:** Rohan agreed to **60 days**, conditional on a **three-year term**. **Draft:** §9.3 says **45 days**. **Condition check:** §3.1 does give three years. **Result:** The draft passes policy but loses 15 days of working capital. The illustrative model estimates approximately **₹25,000 a year**, subject to the configured financing rate.
 
@@ -133,17 +133,17 @@ The supplier returns a clean v6. Sirion for Word already checks against **compan
 
 **Publish/signing gate:** Re-read the precise final file and compare it with every *agreed* term and approval dependency. A missing position cannot be published silently. The owner must fix it or record a reason and named approver, with the decision logged. A warning at Send is non-blocking; the **Publish gate is a separate, stronger control**. Never claim an unapproved waiver is approved.
 
-### E. Handover — Sirion, 21 November
+### E. Handover: Sirion, 21 November
 
 Before activation, compare the signed copy with reviewed v7. Then take only **signed** commitments into Sirion's existing obligations, Calendar and invoice-rule workflows: notice period, actual expiry and renewal decision dates; signed prices/escalators; payment rules; service-level credit definitions. Every obligation has **an owner, a due date, a clause reference and a link to the negotiation evidence**. If the deadline falls on a weekend, display both the contractual date and the adjusted working-day reminder. A notices clause such as “received next working day” goes to Legal to confirm; Deal Ledger does not silently interpret it as a settled legal determination.
 
-### F. Prove the chain on an invoice — Neha, Finance
+### F. Prove the chain on an invoice: Neha, Finance
 
 At the later December 2027 invoice event, the CloudDesk discrepancy of **₹32,000** is explained in one trace: **invoice line → signed clause → email position and approval trail**. It is not labelled an automatic financial recovery. BrightStaff provides a second path: **clause 6 = 8%**, **Schedule 2 = 10%**, and the invoice follows Schedule 2. Because two signed sections conflict, route it to the contract owner for interpretation before raising a supplier dispute. SwiftShip remains the next expansion flow (new email/PDF quote) rather than distracting from the CloudDesk renewal.
 
 <!-- collapse:How this works -->
 
-### The complete ledger — one durable record per deal
+### The complete ledger: one durable record per deal
 
 Each term includes **term type and value; status** (*agreed, open, reopened, conceded, needs confirming*); **verified source line** (email, document version or call note); **who stated or agreed it** and when; **conditions**; **approval owner and dependency**; **model confidence**; **current draft match**; **expected annual exposure**; and **full edit/change history**. Negotiation status and draft-match status are separate: a term can be *agreed in email* but *missing from v6*. Any authorised user correction is logged. Call agreements enter with a human-entered call note as their source and are marked for confirmation; Teams transcripts with quotations are a later phase.
 
@@ -180,7 +180,7 @@ Each term includes **term type and value; status** (*agreed, open, reopened, con
 
 <!-- collapse:Financial methodology -->
 
-### Financial logic — all numbers calculated by code
+### Financial logic: all numbers calculated by code
 
 > **Expected cost = historically observed chance / magnitude of the adverse outcome × exposed monetary base, expressed as an annual average over the specific contract term.** These are estimates to help prioritise negotiation, not realised losses or legal entitlements. Each row's calculated annual amount reconciles to the deal headline; unpriced risks sit outside the total.
 
@@ -190,9 +190,9 @@ Each term includes **term type and value; status** (*agreed, open, reopened, con
 | **Renewal notice** | Use historical unreviewed-renewal incidence and unused-seat/renewal cost; annualise the **one-time** expected exposure over the contract term | Annual contribution *and* full next-renewal exposure, separately; the notice change from 30 to 90 days is not itself a cash cost |
 | **Payment terms** | Financing rate × affected payments × days brought forward / 365 | A 15-day change on ₹60 lakh at a hypothetical 10% annual financing rate is approximately ₹25,000/year |
 | **Service credits** | Difference in credit percentage × monthly fee × historically affected months | CloudDesk: (10% − 5%) × ₹5 lakh/month × 2 observed uptime misses = ₹50,000/year, conditional on the signed SLA |
-| **Legal-owned risks** | Do not manufacture a price without defensible data | **Not priced — Legal review required** |
+| **Legal-owned risks** | Do not manufacture a price without defensible data | **Not priced: Legal review required** |
 
-**Live-round reconciliation:** ~₹3.9 lakh price-revision exposure + ₹50,000 service-credit exposure = **₹4.4 lakh/year** for the CloudDesk state before round 4. A later signing-copy total is recomputed from the clauses still mismatched in *that* version — in the prototype, v6 on its own reconciles to ₹5.3 lakh/year (price ₹3.9 lakh + renewal notice ₹1.1 lakh + payment ₹25,000) — and is never copied from an earlier scenario or added to the live-round figure. Version, scope, as-of time, itemised rows and assumptions are shown together everywhere.
+**Live-round reconciliation:** ~₹3.9 lakh price-revision exposure + ₹50,000 service-credit exposure = **₹4.4 lakh/year** for the CloudDesk state before round 4. A later signing-copy total is recomputed from the clauses still mismatched in *that* version. In the prototype, v6 on its own reconciles to ₹5.3 lakh/year (price ₹3.9 lakh + renewal notice ₹1.1 lakh + payment ₹25,000). It is never copied from an earlier scenario or added to the live-round figure. Version, scope, as-of time, itemised rows and assumptions are shown together everywhere.
 
 **Confidence and missing history:** Invoices, renewal history and uptime records are Meridian's primary source. Fewer than **eight genuinely comparable records** calls for an explicit low-data warning and, if necessary, **Not priced**. Optional anonymised peer outcomes are a reference band and negotiation leverage, **not an input to Meridian's own ₹ headline**.
 
@@ -200,7 +200,7 @@ Each term includes **term type and value; status** (*agreed, open, reopened, con
 
 <!-- collapse:Peer benchmarks -->
 
-### What other companies saw — optional peer benchmark (sample data)
+### What other companies saw: optional peer benchmark (sample data)
 
 Sirion could offer a **contributor-only, opt-in “give to get”** view of anonymised outcomes for comparable clause types. The peer line shows **median and middle 50%**, never raw contracts or organisation identities. It appears only if at least **five contributing companies and 20 qualifying contracts** exist, data are at least one quarter old, and the displayed rates are rounded sufficiently (for example to 0.5 percentage points). Show **category-level**, never supplier-specific, pricing comparisons. Access is governed by company opt-in and legal/privacy review because cross-company pricing data can be competition-sensitive. Peer lines are internal and never enter supplier-facing content. **Every peer figure in the prototype is sample data.**
 

@@ -103,7 +103,7 @@ export function CfoDashboard() {
                 <Td>
                   <StatePill state={r.state} condition={r.condition?.text} />
                 </Td>
-                <Td className="text-ink/80">{r.approvedBy?.condition ?? '—'}</Td>
+                <Td className="text-ink/80">{r.approvedBy?.condition ?? '–'}</Td>
                 <Td>
                   <SourceChip source={r.approvedBy!.source} />
                 </Td>
@@ -117,7 +117,7 @@ export function CfoDashboard() {
                 <Td>
                   <StatePill state="agreed" />
                 </Td>
-                <Td>—</Td>
+                <Td>–</Td>
                 <Td className="text-[11.5px]">Email · {a.at} · demo data</Td>
               </tr>
             ))}
@@ -125,7 +125,7 @@ export function CfoDashboard() {
         </Table>
         <p className="px-6 py-3 text-[11.5px] text-muted">
           Approvals come from emails copied to {`deals@meridian.example`}. The approver's own words
-          are stored, not a summary — open a chip to read them.
+          are stored, not a summary. Open a chip to read them.
         </p>
       </SirionCard>
 

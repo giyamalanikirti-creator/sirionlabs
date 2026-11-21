@@ -172,7 +172,7 @@ export function FullLedger() {
                     </div>
                   </Td>
                   <Td className="text-[12px]">{agreedBy(row)}</Td>
-                  <Td className="max-w-[220px] text-[12px] text-muted">{approvalDependsOn(row, rows) ?? '—'}</Td>
+                  <Td className="max-w-[220px] text-[12px] text-muted">{approvalDependsOn(row, rows) ?? '–'}</Td>
                   <Td className="text-[11.5px]">
                     {conf.pct !== undefined && (
                       <span className={`mr-1 font-semibold ${conf.low ? 'text-amber-fg' : 'text-teal-900'}`}>{conf.pct}%</span>
@@ -180,7 +180,7 @@ export function FullLedger() {
                     <span className={conf.low ? 'text-amber-fg' : 'text-muted'}>{conf.label}</span>
                   </Td>
                   <Td align="right">
-                    {share !== null ? <span className="font-semibold text-danger">{formatLakh(share)}</span> : <span className="text-muted">—</span>}
+                    {share !== null ? <span className="font-semibold text-danger">{formatLakh(share)}</span> : <span className="text-muted">–</span>}
                   </Td>
                   <Td align="right">
                     <div className="flex flex-col items-end gap-1">

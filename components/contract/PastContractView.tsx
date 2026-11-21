@@ -30,8 +30,8 @@ export function PastContractView({ contract }: { contract: PastContract }) {
       <div className="grid gap-4 lg:grid-cols-2">
         <SirionCard title="Key terms" caption="Read-only in this demo. These contracts are the history the ₹ estimates are built from.">
           <dl className="space-y-2 text-[12.5px]">
-            <Line label="Price">{contract.priceWording ? PRICE[contract.priceWording] : '—'}</Line>
-            <Line label="Renewal notice">{contract.noticeDays ? `${contract.noticeDays} days` : '—'}</Line>
+            <Line label="Price">{contract.priceWording ? PRICE[contract.priceWording] : '–'}</Line>
+            <Line label="Renewal notice">{contract.noticeDays ? `${contract.noticeDays} days` : '–'}</Line>
             <Line label="Auto-renews">{contract.autoRenew ? 'Yes' : 'No'}</Line>
             <Line label="Status">{contract.status === 'expiring' ? 'Expiring' : contract.status === 'active' ? 'Active' : 'Expired'}</Line>
           </dl>

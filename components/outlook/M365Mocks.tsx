@@ -147,8 +147,8 @@ export function IntegratedAppsMock() {
                       'Not deployed'
                     )}
                   </td>
-                  <td className={s.td}>{deployed ? CONNECTED_GROUP : '—'}</td>
-                  <td className={s.td}>{deployed ? 'Fixed for Procurement and Legal · Available for everyone else' : '—'}</td>
+                  <td className={s.td}>{deployed ? CONNECTED_GROUP : '–'}</td>
+                  <td className={s.td}>{deployed ? 'Fixed for Procurement and Legal · Available for everyone else' : '–'}</td>
                 </tr>
               ))}
             </tbody>

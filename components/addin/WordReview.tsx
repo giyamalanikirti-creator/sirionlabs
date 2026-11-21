@@ -453,7 +453,7 @@ export function IssueCard({
             <Badge size="small" appearance="tint" color={l.confidence === 'high' ? 'success' : l.confidence === 'formula' ? 'informative' : 'warning'}>
               {l.confidence === 'formula'
                 ? "Formula · Finance's cost of money"
-                : `Based on ${l.n ?? '—'} of your ${BASIS_NOUN[row.termKey] ?? 'records'} · ${l.confidence ?? 'low'}`}
+                : `Based on ${l.n ?? '–'} of your ${BASIS_NOUN[row.termKey] ?? 'records'} · ${l.confidence ?? 'low'}`}
             </Badge>
           </div>
 

@@ -13,7 +13,7 @@ export const TERM_LABELS: Record<TermKey, string> = {
 
 /** Short form for a table cell: "Fixed for 3 years", "60 days". */
 export function plainValue(v: TermValue | undefined | null, termYears = 3): string {
-  if (!v) return '—';
+  if (!v) return '–';
   switch (v.kind) {
     case 'term':
       return `${v.years} year${v.years === 1 ? '' : 's'}`;
@@ -36,7 +36,7 @@ export function plainValue(v: TermValue | undefined | null, termYears = 3): stri
 
 /** Sentence form for dialogs: "Price is fixed for 3 years". */
 export function plainSentence(v: TermValue | undefined | null, termYears = 3): string {
-  if (!v) return '—';
+  if (!v) return '–';
   switch (v.kind) {
     case 'term':
       return `a ${v.years}-year term`;
