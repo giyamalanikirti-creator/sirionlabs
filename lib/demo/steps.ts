@@ -22,17 +22,18 @@ import readerM12 from '@/data/fixtures/reader_M12.json';
 import readerT2 from '@/data/fixtures/reader_T2.json';
 import readerM13 from '@/data/fixtures/reader_M13.json';
 import readerM14 from '@/data/fixtures/reader_M14.json';
+import { deepShift, sh, shiftText } from '@/lib/demo/timeShift';
 
 export type Step = 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export const STEP_CLOCK: Record<Step, string> = {
-  0: '2026-11-14T10:00:00+05:30',
-  1: '2026-11-14T10:05:00+05:30',
-  2: '2026-11-16T17:45:00+05:30',
-  3: '2026-11-18T10:50:00+05:30',
-  4: '2026-11-19T09:30:00+05:30',
-  5: '2026-11-21T12:00:00+05:30',
-  6: '2027-12-05T10:00:00+05:30',
+  0: sh('2026-11-14T10:00:00+05:30'),
+  1: sh('2026-11-14T10:05:00+05:30'),
+  2: sh('2026-11-16T17:45:00+05:30'),
+  3: sh('2026-11-18T10:50:00+05:30'),
+  4: sh('2026-11-19T09:30:00+05:30'),
+  5: sh('2026-11-21T12:00:00+05:30'),
+  6: sh('2027-12-05T10:00:00+05:30'),
 };
 
 export const STEP_TITLES: Record<Step, string> = {
@@ -45,13 +46,13 @@ export const STEP_TITLES: Record<Step, string> = {
   6: 'An invoice that does not match',
 };
 
-export const FIXTURES = {
+export const FIXTURES = deepShift({
   M8: readerM8 as unknown as Omit<ReaderResult, 'source'>,
   M12: readerM12 as unknown as Omit<ReaderResult, 'source'>,
   T2: readerT2 as unknown as Omit<ReaderResult, 'source'>,
   M13: readerM13 as unknown as Omit<ReaderResult, 'source'>,
   M14: readerM14 as unknown as Omit<ReaderResult, 'source'>,
-};
+});
 
 const applyOpts = {
   supplierOrgPersonIds: SUPPLIER_PERSON_IDS,
@@ -109,7 +110,7 @@ export function stepTwoAfterLink(rows: LedgerRow[]) {
 export function stepTwoConfirm(
   rows: LedgerRow[],
   value: TermValue = { kind: 'service_credit', pct: 10, uptimeTarget: 99.5 },
-  note = 'Confirmed with Rohan by phone, 16 Nov',
+  note = shiftText('Confirmed with Rohan by phone, 16 Nov'),
 ) {
   return confirmRow(rows, 'R-credit', value, {
     note,

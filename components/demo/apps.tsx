@@ -20,7 +20,7 @@ export interface AppDef {
 }
 
 export const APPS: Record<AppKey, AppDef> = {
-  sirion: { key: 'sirion', label: 'Sirion app', short: 'Sirion', colour: '#0C5E69', href: '/' },
+  sirion: { key: 'sirion', label: 'Sirion platform', short: 'Sirion platform', colour: '#0C5E69', href: '/' },
   ananya: { key: 'ananya', label: 'Ananya · Outlook', short: 'Ananya · Outlook', caption: 'Procurement', colour: '#0F6CBD', persona: 'AR', href: '/outlook/ananya' },
   vikram: { key: 'vikram', label: 'Vikram · Outlook', short: 'Vikram · Outlook', caption: 'IT head', colour: '#0F6CBD', persona: 'VS', href: '/outlook/vikram' },
   word: { key: 'word', label: 'Word', short: 'Word', colour: '#185ABD', href: '/word/v6?from=sirion' },

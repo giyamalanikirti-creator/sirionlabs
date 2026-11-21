@@ -36,6 +36,7 @@ import { formatDateShort, formatLakh, HEADLINE_SUFFIX } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 import type { LedgerRow, TermKey, TermValue } from '@/lib/types';
 import { ValueEditor } from './ValueEditor';
+import { shiftText } from '@/lib/demo/timeShift';
 
 const STATUS_STYLE: Record<LedgerStatus, string> = {
   Agreed: 'bg-mint text-teal-900',
@@ -365,7 +366,7 @@ function CallTermDialog({ rows, onClose }: { rows: LedgerRow[]; onClose: () => v
         <input
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="e.g. Confirmed with Rohan by phone, 16 Nov"
+          placeholder={shiftText("e.g. Confirmed with Rohan by phone, 16 Nov")}
           className="mt-1 w-full rounded-md border border-line px-2.5 py-1.5 text-[12.5px] font-normal"
         />
       </label>

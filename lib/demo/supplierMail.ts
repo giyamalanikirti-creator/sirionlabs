@@ -8,6 +8,7 @@
  * clock past a CloudDesk moment.
  */
 import type { EmailMessage } from '@/lib/types';
+import { deepShift } from '@/lib/demo/timeShift';
 
 export interface MailRow {
   id: string;
@@ -51,7 +52,7 @@ function mail(
   };
 }
 
-export const SUPPLIER_MAIL: DealMail[] = [
+export const SUPPLIER_MAIL: DealMail[] = deepShift([
   {
     dealId: 'D-NIMBUS',
     emails: [
@@ -201,6 +202,6 @@ export const SUPPLIER_MAIL: DealMail[] = [
       { id: 'SG-replacement', label: 'Replacement time', agreed: 'Not agreed yet', state: 'open', emailId: 'SG1', quote: 'Overtime rates, the replacement time for absent guards and payment terms will follow' },
     ],
   },
-];
+]);
 
 export const dealMailFor = (dealId: string) => SUPPLIER_MAIL.find((d) => d.dealId === dealId);

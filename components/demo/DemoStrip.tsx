@@ -14,6 +14,7 @@ import { useHydrated } from '@/lib/useHydrated';
 import { formatDateLong, formatTime } from '@/lib/format';
 import { STEP_CLOCK } from '@/lib/demo/steps';
 import { AppSwitcher } from './AppSwitcher';
+import { sh } from '@/lib/demo/timeShift';
 
 function clockLabel(iso: string) {
   const weekday = new Intl.DateTimeFormat('en-IN', { weekday: 'short', timeZone: 'Asia/Kolkata' }).format(new Date(iso));
@@ -27,7 +28,7 @@ export function DemoStrip() {
   const clock = useDemo((s) => s.clock);
   const [menu, setMenu] = useState(false);
   const prequel = search.get('prequel') === '1';
-  const shown = prequel ? '2026-11-01T11:30:00+05:30' : hydrated ? clock : STEP_CLOCK[0];
+  const shown = prequel ? sh('2026-11-01T11:30:00+05:30') : hydrated ? clock : STEP_CLOCK[0];
 
   return (
     <header className="ds-scope relative flex h-[52px] shrink-0 items-center gap-4 bg-ink px-4 text-white">

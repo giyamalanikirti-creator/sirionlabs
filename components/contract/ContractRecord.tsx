@@ -35,6 +35,8 @@ import type { Obligation } from '@/lib/types';
 import { CalendarPlus, FileCheck2, Receipt, X } from 'lucide-react';
 import { plainValue } from '@/lib/plain';
 import { CONTRACT_ID } from '@/lib/settings';
+import { shiftText } from '@/lib/demo/timeShift';
+import { STEP_CLOCK } from '@/lib/demo/steps';
 
 export function ContractRecord({ initialTab = 'overview' }: { initialTab?: string }) {
   const [tab, setTab] = useState(initialTab);
@@ -199,7 +201,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
             <Field label="Seats">{cloudDeskDeal.seats}</Field>
             <Field label="Owner">{personName('ananya')}</Field>
             <Field label="Business owner">{personName('vikram')}</Field>
-            <Field label="Signed copy">v7 · {formatDateLong(signedAt ?? '2026-11-21')}</Field>
+            <Field label="Signed copy">v7 · {formatDateLong(signedAt ?? STEP_CLOCK[5])}</Field>
           </dl>
         </SirionCard>
 
@@ -411,7 +413,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
                   toast('Fast-forwarded to December 2027.');
                 }}
               >
-                Fast-forward to Dec 2027
+                {shiftText('Fast-forward to Dec 2027')}
               </Button>
             ) : (
               <Button size="sm" onClick={() => setShowInvoiceHistory(!showInvoiceHistory)}>
@@ -562,7 +564,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
         id: 'v7',
         name: 'CloudDesk_MSA_v7.docx',
         who: 'CloudDesk',
-        at: signedAt ?? '2026-11-21T12:00:00+05:30',
+        at: signedAt ?? STEP_CLOCK[5],
         signed: true,
       },
     ];
@@ -704,7 +706,7 @@ function DisputeComposer({
                 body,
                 mailboxes: ['ananya'],
               });
-              toast('Dispute sent to CloudDesk, quoting clause 9.1 and Rohan’s 14 Nov email.');
+              toast(shiftText('Dispute sent to CloudDesk, quoting clause 9.1 and Rohan’s 14 Nov email.'));
               onClose();
             }}
           >

@@ -15,6 +15,7 @@ import { people } from '@/lib/data';
 import { AUTO_TRACK_LAKH, CAPTURE_ADDRESS, CONNECTED_GROUP } from '@/lib/settings';
 import { formatLakh } from '@/lib/format';
 import { Tag } from '@/components/ui/Tag';
+import { shiftText } from '@/lib/demo/timeShift';
 
 function Row({
   n,
@@ -171,7 +172,7 @@ export default function SetupPage() {
             </ol>
             <div className="mt-3 flex flex-wrap gap-2">
               <Link href="/outlook/ananya?msg=M1&prequel=1">
-                <Button variant="primary" size="sm" disabled={!allDone}>See the first prompt in Outlook (1 Nov)</Button>
+                <Button variant="primary" size="sm" disabled={!allDone}>{shiftText('See the first prompt in Outlook (1 Nov)')}</Button>
               </Link>
               <Link href="/story#how-it-connects">
                 <Button size="sm">How it connects</Button>

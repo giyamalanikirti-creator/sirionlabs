@@ -8,6 +8,9 @@ import { DemoChrome } from '@/components/demo/DemoChrome';
  * Sirion side; Carlito is metric-compatible with Calibri and carries the Word
  * mock's page body (§3).
  */
+/** Every request renders on today's date (the story is anchored to it), so no page is prerendered with a stale date. */
+export const dynamic = 'force-dynamic';
+
 export const metadata: Metadata = {
   title: 'Deal Ledger',
   description:

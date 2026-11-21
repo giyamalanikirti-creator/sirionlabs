@@ -1,6 +1,7 @@
 /** How email and Word get connected to Sirion: admin once → track → link → Send check → Word → publish → handover. */
 import Link from 'next/link';
 import { CAPTURE_ADDRESS, CONNECTED_GROUP } from '@/lib/settings';
+import { shiftText } from '@/lib/demo/timeShift';
 
 const STEPS = [
   { title: 'Admin, once', lines: ['Consent: read connected', 'mailboxes; deploy add-ins'] },
@@ -97,7 +98,7 @@ export function ConnectionFlow() {
       </ul>
       <p className="mt-3 text-[12px]">
         <Link href="/setup" className="font-medium text-teal-900 underline">See how this was set up</Link> ·{' '}
-        <Link href="/outlook/ananya?msg=M1&prequel=1" className="font-medium text-teal-900 underline">The first prompt, 1 Nov</Link>
+        <Link href="/outlook/ananya?msg=M1&prequel=1" className="font-medium text-teal-900 underline">{shiftText('The first prompt, 1 Nov')}</Link>
       </p>
     </section>
   );

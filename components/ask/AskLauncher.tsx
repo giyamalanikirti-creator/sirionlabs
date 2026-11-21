@@ -218,7 +218,7 @@ export function AskLauncher() {
             {open ? <X size={size * 0.42} color="#FFFFFF" strokeWidth={2.4} /> : <SirionMark size={Math.round(size * 0.5)} colour="#FFFFFF" />}
           </span>
         </button>
-        {unread && !open && <span role="status" aria-label="New answer" className="absolute -right-0.5 -top-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#A23B9A]" />}
+        {unread && !open && <span role="status" aria-label="New answer" className="absolute -right-0.5 -top-0.5 h-3.5 w-3.5 rounded-full border-2 border-white bg-[#12A37A]" />}
         </span>
       </div>
     </div>

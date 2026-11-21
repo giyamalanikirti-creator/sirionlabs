@@ -1,6 +1,7 @@
 /** Agreed wording, supplier notes and the supplier-safe check — BUILD_SPEC §8.6. */
 import type { LedgerRow, TermKey, TermValue } from '@/lib/types';
 import { indianGroup, numberToWords } from '@/lib/format';
+import { shiftText } from '@/lib/demo/timeShift';
 
 const SEATS = 500;
 const UNIT_PRICE = 12000;
@@ -121,8 +122,8 @@ export const RESTORE_NOTICE_DRAFT =
   "Rohan, v4 changes the renewal notice in 14.2 to 90 days. We agreed 30, so I've put it back in the attached. Ananya";
 
 /** The clarifying question, asked in the supplier thread (supplier-safe). */
-export const CLARIFY_DRAFT =
-  'Hi Rohan, thanks. To make sure we record this correctly: on service credits, are you accepting 10% of the monthly fee for any month below 99.5% uptime, as proposed on 13 Nov? Thanks, Ananya';
+export const CLARIFY_DRAFT = shiftText(
+  'Hi Rohan, thanks. To make sure we record this correctly: on service credits, are you accepting 10% of the monthly fee for any month below 99.5% uptime, as proposed on 13 Nov? Thanks, Ananya');
 
 /**
  * The dispute email to the supplier for an invoice above the signed price.

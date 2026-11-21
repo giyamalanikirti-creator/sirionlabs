@@ -281,17 +281,17 @@ body {
 
 /* Walkthrough guide colour: only the guide uses it (never product states). */
 :root {
-  --guide-50: #eef2ff;
-  --guide-200: #c7d2fe;
-  --guide-600: #4f46e5;
-  --guide-700: #4338ca;
+  --guide-50: #eaf6f5;
+  --guide-200: #b3dfe3;
+  --guide-600: #127fa6;
+  --guide-700: #0d6485;
 }
 
 /* Coach mark: the element to press next pulses in the guide colour. */
 @keyframes tour-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.55); }
-  70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(18, 127, 166, 0.55); }
+  70% { box-shadow: 0 0 0 10px rgba(18, 127, 166, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(18, 127, 166, 0); }
 }
 .tour-target {
   outline: 2px solid var(--guide-600) !important;
@@ -313,7 +313,7 @@ body {
   .tour-target,
   .guide-pulse {
     animation: none;
-    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.35);
+    box-shadow: 0 0 0 3px rgba(18, 127, 166, 0.35);
   }
   .guide-overlay-in {
     animation: none;
@@ -335,7 +335,7 @@ body {
 .ask-orb-ring {
   position: absolute;
   inset: -25%;
-  background: conic-gradient(from 0deg, #0c5e69, #afcfc8, #8b8cf8, #a23b9a, #0c5e69);
+  background: conic-gradient(from 0deg, #0c5e69, #2bb673, #a7e0d4, #1f8fe5, #0c5e69);
   animation: ask-spin 12s linear infinite;
 }
 .ask-orb[data-state='thinking'] .ask-orb-ring { animation-duration: 1.5s; }
@@ -349,8 +349,8 @@ body {
 }
 @keyframes ask-spin { to { transform: rotate(360deg); } }
 @keyframes ask-glow {
-  0%, 100% { box-shadow: 0 6px 18px rgba(12, 94, 105, 0.32), 0 0 0 0 rgba(139, 140, 248, 0.45); }
-  50% { box-shadow: 0 6px 18px rgba(12, 94, 105, 0.32), 0 0 0 10px rgba(139, 140, 248, 0); }
+  0%, 100% { box-shadow: 0 6px 18px rgba(12, 94, 105, 0.32), 0 0 0 0 rgba(31, 143, 229, 0.45); }
+  50% { box-shadow: 0 6px 18px rgba(12, 94, 105, 0.32), 0 0 0 10px rgba(31, 143, 229, 0); }
 }
 .ask-label {
   opacity: 0;
@@ -362,7 +362,7 @@ body {
 .ask-launcher:focus-within .ask-label { opacity: 1; transform: translateX(0); }
 .ask-panel-in { animation: ask-panel-in 180ms ease-out; transform-origin: bottom right; }
 @keyframes ask-panel-in { from { opacity: 0; transform: scale(0.96) translateY(8px); } to { opacity: 1; transform: none; } }
-.ask-dots span { display: inline-block; width: 6px; height: 6px; margin-right: 4px; border-radius: 9999px; background: #8b8cf8; animation: ask-dot 1s ease-in-out infinite; }
+.ask-dots span { display: inline-block; width: 6px; height: 6px; margin-right: 4px; border-radius: 9999px; background: #1f8fe5; animation: ask-dot 1s ease-in-out infinite; }
 .ask-dots span:nth-child(2) { animation-delay: 0.15s; }
 .ask-dots span:nth-child(3) { animation-delay: 0.3s; }
 @keyframes ask-dot { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-3px); } }
@@ -371,3 +371,7 @@ body {
   .ask-orb, .ask-label { transition: none; }
   .ask-orb:hover { transform: none; }
 }
+
+/* Walkthrough fills: green to blue (replaces the earlier indigo). */
+.bg-guide-600 { background-image: linear-gradient(90deg, #12a37a, #1f6fd1); }
+.bg-guide-600:hover, .hover\:bg-guide-700:hover { filter: brightness(0.94); }

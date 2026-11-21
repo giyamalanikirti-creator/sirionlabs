@@ -7,6 +7,8 @@
  */
 import type { EmailMessage, LedgerRow } from '@/lib/types';
 import { STEP_CLOCK } from './steps';
+import { sh, shiftText } from './timeShift';
+import { formatDateShort } from '@/lib/format';
 
 export interface TourState {
   readMessageIds: string[];
@@ -38,18 +40,18 @@ const creditAgreed = (s: TourState) => s.ledger.some((r) => r.id === 'R-credit' 
 
 export const SCRIPT: Record<1 | 2 | 3 | 4 | 5 | 6, ScriptAction[]> = {
   1: [
-    { id: '1a', label: 'Open Rohan’s email (14 Nov)', target: 'msg-M8', href: '/outlook/ananya?msg=M8', done: (s) => s.readMessageIds.includes('M8') },
+    { id: '1a', label: shiftText('Open Rohan’s email (14 Nov)'), target: 'msg-M8', href: '/outlook/ananya?msg=M8', done: (s) => s.readMessageIds.includes('M8') },
     { id: '1b', label: 'Compare clause 14.2', target: 'compare-14.2', href: '/outlook/ananya?msg=M8', done: (s) => s.tourClicks.includes('compare-14.2') || s.respondedMessageIds.includes('M8') },
     { id: '1c', label: 'Respond to round', target: 'respond-round', href: '/outlook/ananya?msg=M8', done: (s) => s.respondedMessageIds.includes('M8') },
     { id: '1d', label: 'Send the reply with v5', target: 'compose-send', href: '/outlook/ananya?msg=M8', done: (s) => s.syncedVersionIds.includes('v5') },
   ],
   2: [
-    { id: '2a', label: 'Open “fine with that” (16 Nov)', target: 'msg-M12', href: '/outlook/ananya?msg=M12', done: (s) => s.readMessageIds.includes('M12') },
+    { id: '2a', label: shiftText('Open “fine with that” (16 Nov)'), target: 'msg-M12', href: '/outlook/ananya?msg=M12', done: (s) => s.readMessageIds.includes('M12') },
     { id: '2b', label: 'Draft clarification', target: 'send-clarification', href: '/outlook/ananya?msg=M12', done: (s) => s.tourClicks.includes('send-clarification') || Boolean(s.clarifySentAt) || creditAgreed(s) },
     { id: '2c', label: 'Send it to Rohan', target: 'compose-send', href: '/outlook/ananya?msg=M12', done: (s) => Boolean(s.clarifySentAt) || creditAgreed(s) },
   ],
   3: [
-    { id: '3a', label: 'Open Rohan’s price ask (18 Nov)', target: 'msg-M13', href: '/outlook/vikram?msg=M13', done: (s) => s.readMessageIds.includes('M13') },
+    { id: '3a', label: shiftText('Open Rohan’s price ask (18 Nov)'), target: 'msg-M13', href: '/outlook/vikram?msg=M13', done: (s) => s.readMessageIds.includes('M13') },
     { id: '3b', label: 'Reply (draft is filled in)', target: 'reply', href: '/outlook/vikram?msg=M13', done: (s) => s.tourClicks.includes('reply') || s.sendOutcomes.some((o) => o.personId === 'vikram') },
     { id: '3c', label: 'Press Send', target: 'compose-send', href: '/outlook/vikram?msg=M13', done: (s) => s.sendOutcomes.some((o) => o.personId === 'vikram') },
     { id: '3d', label: 'Loop in, edit or send anyway', target: 'guard-actions', href: '/outlook/vikram?msg=M13', done: (s) => s.completedSteps.includes(3) },
@@ -69,13 +71,22 @@ export const SCRIPT: Record<1 | 2 | 3 | 4 | 5 | 6, ScriptAction[]> = {
   ],
 };
 
-/** The walkthrough's days, for the calendar in the script bar. */
+/** A calendar day from the clock: "14", "Nov" (or "Dec ’27" once the year moves on). */
+function calDay(iso: string, baseYear: string) {
+  const [day, month] = formatDateShort(iso).split(' ');
+  return { day, month: iso.slice(0, 4) === baseYear ? month : `${month} ’${iso.slice(2, 4)}` };
+}
+
+const PREQUEL = sh('2026-11-01T11:30:00+05:30');
+const BASE_YEAR = STEP_CLOCK[1].slice(0, 4);
+
+/** The walkthrough's days, for the calendar in the rail. Computed from the clock, so they follow the real date. */
 export const CALENDAR = [
-  { key: 'prequel', day: '1', month: 'Nov', label: 'Tracking starts', clock: '2026-11-01T11:30:00+05:30', href: '/outlook/ananya?msg=M1&prequel=1', step: 0 },
-  { key: 's1', day: '14', month: 'Nov', label: 'Round 4', clock: STEP_CLOCK[1], href: '/outlook/ananya?msg=M8', step: 1 },
-  { key: 's2', day: '16', month: 'Nov', label: 'Side thread', clock: STEP_CLOCK[2], href: '/outlook/ananya?msg=M12', step: 2 },
-  { key: 's3', day: '18', month: 'Nov', label: 'Vikram replies', clock: STEP_CLOCK[3], href: '/outlook/vikram?msg=M13', step: 3 },
-  { key: 's4', day: '19', month: 'Nov', label: 'Signing copy', clock: STEP_CLOCK[4], href: '/word/v6?from=sirion', step: 4 },
-  { key: 's5', day: '21', month: 'Nov', label: 'Signed', clock: STEP_CLOCK[5], href: '/contracts/C-2026-0417?tab=obligations', step: 5 },
-  { key: 's6', day: '5', month: 'Dec ’27', label: 'Invoice', clock: STEP_CLOCK[6], href: '/contracts/C-2026-0417?tab=invoices', step: 6 },
+  { key: 'prequel', ...calDay(PREQUEL, BASE_YEAR), label: 'Tracking starts', clock: PREQUEL, href: '/outlook/ananya?msg=M1&prequel=1', step: 0 },
+  { key: 's1', ...calDay(STEP_CLOCK[1], BASE_YEAR), label: 'Round 4', clock: STEP_CLOCK[1], href: '/outlook/ananya?msg=M8', step: 1 },
+  { key: 's2', ...calDay(STEP_CLOCK[2], BASE_YEAR), label: 'Side thread', clock: STEP_CLOCK[2], href: '/outlook/ananya?msg=M12', step: 2 },
+  { key: 's3', ...calDay(STEP_CLOCK[3], BASE_YEAR), label: 'Vikram replies', clock: STEP_CLOCK[3], href: '/outlook/vikram?msg=M13', step: 3 },
+  { key: 's4', ...calDay(STEP_CLOCK[4], BASE_YEAR), label: 'Signing copy', clock: STEP_CLOCK[4], href: '/word/v6?from=sirion', step: 4 },
+  { key: 's5', ...calDay(STEP_CLOCK[5], BASE_YEAR), label: 'Signed', clock: STEP_CLOCK[5], href: '/contracts/C-2026-0417?tab=obligations', step: 5 },
+  { key: 's6', ...calDay(STEP_CLOCK[6], BASE_YEAR), label: 'Invoice', clock: STEP_CLOCK[6], href: '/contracts/C-2026-0417?tab=invoices', step: 6 },
 ] as const;

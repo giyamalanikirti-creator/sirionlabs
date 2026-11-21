@@ -373,7 +373,7 @@ function BrightStaffConflict({ deal }: { deal: ScriptedDeal }) {
               onClick={() => {
                 setRouted(true);
                 logEvent(`${deal.supplier}: invoice INV-BS-0127 routed to ${owner} (contract owner): clause 6 and Schedule 2 disagree.`);
-                toast(`Routed to ${owner}, the contract owner, with both clauses and the 7 Nov email.`);
+                toast(`Routed to ${owner}, the contract owner, with both clauses and the ${formatDateShort(email.at)} email.`);
               }}
             >
               {routed ? `Routed to ${owner}` : 'Route to contract owner'}

@@ -21,6 +21,7 @@ import { useGuide } from './useGuide';
 import { StepCircle, StepItem, type StepStatus } from './StepItem';
 import { AFTER_SIGNING, GUIDE_STAGES } from '@/lib/demo/guide';
 import { ConfirmDialog } from './ConfirmDialog';
+import { shiftText } from '@/lib/demo/timeShift';
 
 const PREF_KEY = 'deal-ledger-rail';
 const ring = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-guide-600';
@@ -206,7 +207,7 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
                 <PlugZap size={15} className="shrink-0 text-muted" /> How it was set up
               </button>
               <button onClick={() => nav('/outlook/ananya?msg=M1&prequel=1')} className={`ml-7 block rounded-md px-1.5 py-0.5 text-left text-[12px] text-muted hover:text-ink ${ring}`}>
-                Then: the first prompt, 1 Nov
+                {shiftText('Then: the first prompt, 1 Nov')}
               </button>
             </li>
             <li>
@@ -282,14 +283,14 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
 
       <ConfirmDialog
         open={confirm === 'reset'}
-        title="Reset the walkthrough to 14 Nov?"
+        title={shiftText("Reset the walkthrough to 14 Nov?")}
         body="Your choices will be cleared."
         confirmLabel="Reset demo"
         onCancel={() => setConfirm(null)}
         onConfirm={() => {
           setConfirm(null);
           useDemo.getState().reset();
-          useDemo.getState().toast('Walkthrough reset to 14 Nov.');
+          useDemo.getState().toast(shiftText('Walkthrough reset to 14 Nov.'));
           nav('/');
         }}
       />
@@ -327,8 +328,8 @@ function RailMini({ onExpand }: { onExpand: () => void }) {
     <nav aria-label="Walkthrough (collapsed)" className="flex h-full w-16 flex-col items-center gap-3 border-r border-line bg-white py-3">
       <button onClick={onExpand} aria-label="Expand the walkthrough" className={`relative grid h-10 w-10 place-items-center rounded-full ${ring}`} title={`${g.doneCount} of 5 done`}>
         <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden>
-          <circle cx="18" cy="18" r={r} fill="none" stroke="#C7D2FE" strokeWidth="3" />
-          <circle cx="18" cy="18" r={r} fill="none" stroke="#4F46E5" strokeWidth="3" strokeDasharray={`${c * pct} ${c}`} strokeLinecap="round" transform="rotate(-90 18 18)" />
+          <circle cx="18" cy="18" r={r} fill="none" stroke="#B3DFE3" strokeWidth="3" />
+          <circle cx="18" cy="18" r={r} fill="none" stroke="#127FA6" strokeWidth="3" strokeDasharray={`${c * pct} ${c}`} strokeLinecap="round" transform="rotate(-90 18 18)" />
         </svg>
         <span className="absolute text-[11px] font-semibold text-ink">{g.doneCount}/5</span>
       </button>

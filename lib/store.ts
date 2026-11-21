@@ -44,6 +44,7 @@ import { worstThreat } from '@/lib/engines/atRisk';
 import { priceChange } from '@/lib/engines/pricing';
 import { plainValue } from '@/lib/plain';
 import { formatDateTime } from '@/lib/format';
+import { shiftText } from '@/lib/demo/timeShift';
 
 export type Role = 'lead' | 'it_head' | 'cfo' | 'legal';
 
@@ -682,7 +683,7 @@ export const useDemo = create<DemoState>()(
           disputeRaised: true,
           disputeEmail: message,
           sentMessages: [...s.sentMessages, message],
-          events: [...s.events, { at: s.clock, text: `Dispute sent to CloudDesk on INV-CD-2712, quoting clause 9.1 and Rohan's email of 14 Nov.` }],
+          events: [...s.events, { at: s.clock, text: shiftText(`Dispute sent to CloudDesk on INV-CD-2712, quoting clause 9.1 and Rohan's email of 14 Nov.`) }],
         })),
 
       startDeal: (dealId) =>

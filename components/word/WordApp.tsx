@@ -428,7 +428,7 @@ export function WordApp({ versionId }: { versionId: string }) {
       )}
       {versionId === 'v4' && hydrated && clock < STEP_CLOCK[4] && (
         <div style={{ padding: '6px 16px', background: '#FFF8E5', fontSize: 12.5, borderBottom: '1px solid #F2E2B3' }}>
-          The signing copy arrives on 19 Nov (step 4). This is v4, the draft that came with Rohan&apos;s round-4 email.
+          The signing copy arrives on {formatDateShort(STEP_CLOCK[4])} (step 4). This is v4, the draft that came with Rohan&apos;s round-4 email.
         </div>
       )}
       <WordRibbon

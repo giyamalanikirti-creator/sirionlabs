@@ -17,6 +17,7 @@ import { CAPTURE_ADDRESS, CONTRACT_ID } from '@/lib/settings';
 import { formatDateShort } from '@/lib/format';
 import { Block, OriginTag } from './SirionBlocks';
 import { usePaneStyles } from './paneStyles';
+import { sh } from '@/lib/demo/timeShift';
 
 /** First time the pane opens for a user: one card, never shown again. */
 export function FirstRunCard({ onDone }: { onDone?: () => void }) {
@@ -231,5 +232,5 @@ export function SetupGapNotice({ gap }: { gap: 'not_enabled' | 'not_consented' |
   );
 }
 
-export const PREQUEL_CLOCK = '2026-11-01T11:30:00+05:30';
+export const PREQUEL_CLOCK = sh('2026-11-01T11:30:00+05:30');
 export const prequelDate = formatDateShort(PREQUEL_CLOCK);

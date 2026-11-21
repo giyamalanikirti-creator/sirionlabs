@@ -3,7 +3,7 @@
 /**
  * Recharts wrappers styled to the Sirion reference screenshots (§4A):
  * stacked bars with rounded tops, thick donuts with outside leader labels,
- * single-series teal bars, and a mint-bars-plus-periwinkle-line trend.
+ * single-series teal bars, and a mint-bars-plus-blue-line trend.
  */
 import {
   Bar,
@@ -22,7 +22,7 @@ import {
   YAxis,
 } from 'recharts';
 
-export const SERIES = ['#828BFC', '#0C5E69', '#B1D0CA', '#4364B2', '#E0E767'];
+export const SERIES = ['#3B9EDC', '#0C5E69', '#B1D0CA', '#4364B2', '#E0E767'];
 const GRID = '#EDF1F1';
 const TICK = { fill: '#5B6D71', fontSize: 11 };
 

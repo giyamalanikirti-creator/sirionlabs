@@ -34,6 +34,7 @@ import { messages as allMessages } from '@/lib/data';
 import { extractValue } from '@/lib/engines/diff';
 import { CLARIFY_DRAFT } from '@/lib/engines/wording';
 import { roundReply, roundSummary } from '@/lib/engines/replyCopy';
+import { STEP_CLOCK } from '@/lib/demo/steps';
 import { formatDay, renewalDates } from '@/lib/engines/dates';
 import { BasisTag } from '@/components/ui/Tag';
 import { termStatuses } from '@/lib/engines/termStatus';
@@ -218,7 +219,7 @@ function RoundFourCard({ rows }: { rows: LedgerRow[] }) {
 
   return (
     <Block title="What was agreed in email · round 4" kind="new" accent>
-      <div className={s.cardMeta}>14 Nov · {personName('rohan')}</div>
+      <div className={s.cardMeta}>{formatDateShort(STEP_CLOCK[1])} · {personName('rohan')}</div>
       {/* Review fix C2: one sentence and one button first; the rest is disclosure. */}
       <p style={{ fontSize: 13.5, lineHeight: '19px', fontWeight: 600, margin: '4px 0 8px' }}>{summary.text}</p>
       {noticeThreat && (

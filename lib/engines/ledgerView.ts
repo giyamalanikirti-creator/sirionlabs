@@ -9,6 +9,7 @@ import { formatDateShort } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 import { READER_CONFIDENCE_MIN } from '@/lib/settings';
 import { worstThreat } from './atRisk';
+import { sh } from '@/lib/demo/timeShift';
 
 export type LedgerStatus = 'Agreed' | 'Open' | 'Reopened' | 'Conceded' | 'Needs confirming' | 'Missing at signing';
 
@@ -127,7 +128,7 @@ export interface MemoryEntry {
 
 const ROUND_OF = (at: string) => {
   // Round n is the period after version n was sent (v1 = 1 Nov, v4 = 14 Nov…).
-  const dates = ['2026-11-01', '2026-11-03', '2026-11-06', '2026-11-14', '2026-11-15', '2026-11-19', '2026-11-21'];
+  const dates = ['2026-11-01', '2026-11-03', '2026-11-06', '2026-11-14', '2026-11-15', '2026-11-19', '2026-11-21'].map((d) => sh(d));
   let round = 1;
   dates.forEach((d, i) => {
     if (at.slice(0, 10) >= d) round = i + 1;

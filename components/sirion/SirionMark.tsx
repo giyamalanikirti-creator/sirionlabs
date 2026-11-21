@@ -1,6 +1,6 @@
 /**
  * Sirion's mark: the looped "S", traced to a vector from the logo image the
- * user supplied. Shown alone (no wordmark) in the Sirion app's top-left and on
+ * user supplied. Shown alone (no wordmark) in the Sirion platform's top-left and on
  * the app switcher. Deal Ledger, the add-on, keeps its own mark.
  */
 const D =

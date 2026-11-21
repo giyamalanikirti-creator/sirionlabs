@@ -28,8 +28,9 @@ import { CONTRACT_ID } from '@/lib/settings';
 import type { EmailMessage, LedgerRow } from '@/lib/types';
 import { recommendedMove } from '@/lib/engines/playbook';
 import { usePaneStyles } from './paneStyles';
+import { STEP_CLOCK } from '@/lib/demo/steps';
 
-/** The shared origin tag (components/ui/Tag), so panes and the Sirion app match. */
+/** The shared origin tag (components/ui/Tag), so panes and the Sirion platform match. */
 export function OriginTag({ kind }: { kind: 'today' | 'new' }) {
   return <Tag kind={kind} />;
 }
@@ -93,7 +94,7 @@ export function DealHeaderBlock({ message }: { message: EmailMessage }) {
   const synced = useDemo((st) => st.syncedVersionIds);
   const signedAt = useDemo((st) => st.signedAt);
   const current = [...versions]
-    .filter((v) => synced.includes(v.id) || v.sentAt < '2026-11-14T10:00:00+05:30')
+    .filter((v) => synced.includes(v.id) || v.sentAt < STEP_CLOCK[0])
     .sort((a, b) => a.sentAt.localeCompare(b.sentAt))
     .pop();
   const file = message.attachments.find((a) => a.dealIdTag);

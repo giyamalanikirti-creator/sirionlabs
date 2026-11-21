@@ -11,11 +11,12 @@ import { formatLakh } from '@/lib/format';
 import { personName } from '@/lib/data';
 import { termCommitmentLakh } from '@/lib/engines/pricing';
 import { cloudDeskDeal } from '@/lib/data';
+import { shiftText } from '@/lib/demo/timeShift';
 
 /** Illustrative approvals from other deals, so the page is not a single row. */
 const OTHER_APPROVALS = [
-  { deal: 'BrightStaff Services', term: 'Term', position: '2 years', amount: '₹1.7 crore', at: '28 Oct 2026' },
-  { deal: 'CloudOps Suite', term: 'Term', position: '3 years', amount: '₹1.3 crore', at: '14 Oct 2026' },
+  { deal: 'BrightStaff Services', term: 'Term', position: '2 years', amount: '₹1.7 crore', at: shiftText('28 Oct 2026') },
+  { deal: 'CloudOps Suite', term: 'Term', position: '3 years', amount: '₹1.3 crore', at: shiftText('14 Oct 2026') },
 ];
 
 export function CfoDashboard() {

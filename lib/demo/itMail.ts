@@ -5,8 +5,9 @@
  * supplier proposal he is copied on.
  */
 import type { EmailMessage } from '@/lib/types';
+import { deepShift } from '@/lib/demo/timeShift';
 
-export const IT_MAIL: EmailMessage[] = [
+export const IT_MAIL: EmailMessage[] = deepShift([
   {
     id: 'V1',
     threadId: 'TV1',
@@ -33,4 +34,4 @@ export const IT_MAIL: EmailMessage[] = [
       'Monthly availability for Meridian Foods in October was 99.12%, below the 99.5% target. Two incidents on 9 and 23 October affected sign-in for up to 3 hours. Root-cause reports are attached to your service portal. CloudDesk Service Desk',
     mailboxes: ['vikram'],
   },
-];
+]);

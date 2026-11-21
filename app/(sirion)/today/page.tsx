@@ -4,6 +4,7 @@ import { PageHeader, SirionCard } from '@/components/sirion/ui';
 import { termsFound } from '@/lib/data';
 import { StepBadge, Tag } from '@/components/ui/Tag';
 import { TryAsk } from '@/components/ask/TryAsk';
+import { shiftText } from '@/lib/demo/timeShift';
 
 const OUTSIDE = termsFound.split.filter((x) => x.source !== 'Word versions').reduce((a, b) => a + b.pct, 0);
 
@@ -19,7 +20,7 @@ const TODAY = [
 ];
 
 const NEW = [
-  { title: 'What was agreed in email', body: 'Email says: price fixed (Rohan, 14 Nov, quoted). File also changed: 14.2 now 90 days, not a tracked change.', step: 1 },
+  { title: 'What was agreed in email', body: shiftText('Email says: price fixed (Rohan, 14 Nov, quoted). File also changed: 14.2 now 90 days, not a tracked change.'), step: 1 },
   { title: '₹ on every gap', body: '₹1.6 lakh a year if signed as is, built row by row from your own invoices and renewals.', step: 1 },
   { title: 'Respond to round', body: 'One action drafts the reply and prepares v5 with tracked changes.', step: 1 },
   { title: 'Side threads', body: 'Vikram’s thread with Rohan linked automatically, with Undo. “Fine with that” sent back to be clarified.', step: 2 },

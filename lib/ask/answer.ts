@@ -28,6 +28,7 @@ import type { LedgerRow, SourceRef, TermKey, TermValue } from '@/lib/types';
 import { answer as advise } from './advisor';
 import { CLAUSE_TOPICS, INTENT_BY_ID } from './intents';
 import type { AskAction, AskAnswer, AskQuote, AskScope, AskState, IntentId, Slots, SourceChipSpec } from './types';
+import { shiftText } from '@/lib/demo/timeShift';
 
 const deal = cloudDeskDeal;
 /** "Annual price" reads as "Price" in chips and lists. */
@@ -514,7 +515,7 @@ function signingMatch(s: AskState): AskAnswer {
   if (s.signedAt) {
     text.push('The signed copy (v7) has every agreed term. Signed and handed over to Sirion.');
   } else {
-    if (!arrived) text.push(`The signing copy hasn’t arrived yet (expected 19 Nov). ${vId} is the latest draft:`);
+    if (!arrived) text.push(`The signing copy hasn’t arrived yet (expected ${formatDateShort(STEP_CLOCK[4])}). ${vId} is the latest draft:`);
     text.push(
       open.length
         ? `${open.length} agreed term${open.length === 1 ? ' is' : 's are'} not in ${arrived ? 'this copy' : vId}. Expected cost if signed as is: ${formatLakh(totalLakh)} a year.`
@@ -656,7 +657,7 @@ function invoiceMismatch(s: AskState): AskAnswer {
         sources: dealChips(s),
         text: [
           s.contract
-            ? 'No invoice mismatch yet. Every CloudDesk invoice so far matches the signed price. December 2027’s invoice arrives on 5 Dec 2027.'
+            ? shiftText('No invoice mismatch yet. Every CloudDesk invoice so far matches the signed price. December 2027’s invoice arrives on 5 Dec 2027.')
             : 'There is nothing to check yet: CloudDesk isn’t signed, so no invoices are billed against it. After signing, every invoice is checked against the agreed price.',
         ],
         actions: [openInLedger(s.contract ? `/contracts/${CONTRACT_ID}?tab=invoices` : LEDGER_LINKS.ledger, s.contract ? 'Open invoices' : 'Open in Deal Ledger')],

@@ -148,7 +148,7 @@ export function SourceDrawerBody({ source }: { source: SourceRef }) {
   return <NoteSource source={source} />;
 }
 
-/** The docked drawer used across the Sirion app. */
+/** The docked drawer used across the Sirion platform. */
 export function SourceDrawer() {
   const { source, inline, close } = useSourceDrawer();
   if (!source || inline) return null;

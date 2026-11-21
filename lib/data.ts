@@ -24,14 +24,15 @@ import type {
 import { DEMO_DEAL_ID } from '@/lib/settings';
 import { SUPPLIER_INBOX } from '@/lib/demo/supplierInbox';
 import { IT_MAIL } from '@/lib/demo/itMail';
+import { deepShift } from '@/lib/demo/timeShift';
 
 export const people = peopleJson as Person[];
 export const threads = threadsJson as Thread[];
-export const messages = messagesJson as unknown as EmailMessage[];
-export const versions = versionsJson as unknown as DocVersion[];
-export const ledgerInitial = ledgerInitialJson as unknown as LedgerRow[];
-export const deals = dealsJson as unknown as Deal[];
-export const pastContracts = contractsJson as PastContract[];
+export const messages = deepShift(messagesJson) as unknown as EmailMessage[];
+export const versions = deepShift(versionsJson) as unknown as DocVersion[];
+export const ledgerInitial = deepShift(ledgerInitialJson) as unknown as LedgerRow[];
+export const deals = deepShift(dealsJson) as unknown as Deal[];
+export const pastContracts = deepShift(contractsJson) as PastContract[];
 
 export const kpiHistory = kpiHistoryJson;
 export const termsFound = termsFoundJson;
@@ -50,7 +51,7 @@ export const personName = (id: string): string => personById(id)?.name ?? id;
  * Scripted replies that arrive in response to something the user does in the
  * demo (they are not in the seeded inbox). The source drawer can still open them.
  */
-export const CLARIFY_REPLY: EmailMessage = {
+export const CLARIFY_REPLY: EmailMessage = deepShift({
   id: 'M12R',
   threadId: 'T1',
   from: 'rohan.iyer@clouddesk.example',
@@ -62,7 +63,7 @@ export const CLARIFY_REPLY: EmailMessage = {
   body:
     'Sorry for the confusion, Ananya. We accept the 10% service credit for any month below 99.5% uptime, as you proposed on 13 Nov. Rohan',
   mailboxes: ['ananya'],
-};
+});
 export const CLARIFY_REPLY_QUOTE = 'We accept the 10% service credit for any month below 99.5% uptime';
 
 const EXTRA_MESSAGES: EmailMessage[] = [CLARIFY_REPLY, ...SUPPLIER_INBOX, ...IT_MAIL];

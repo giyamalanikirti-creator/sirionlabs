@@ -31,7 +31,7 @@ function SectionHead({ children, right }: { children: React.ReactNode; right?: R
 function Chip({ chip, onGo }: { chip: SourceChipSpec; onGo: (href: string) => void }) {
   const cls =
     chip.kind === 'count'
-      ? 'border-[#8B8CF8] text-[#4F46B8] bg-white'
+      ? 'border-[#1F8FE5] text-[#1559AD] bg-white'
       : chip.kind === 'ledger'
         ? 'border-teal-900/30 bg-[#EAF4F2] text-teal-900'
         : 'border-line bg-page text-ink';

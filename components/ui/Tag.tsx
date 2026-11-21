@@ -1,5 +1,5 @@
 /**
- * The one origin tag, used everywhere: in the Sirion app (Tailwind) and in the
+ * The one origin tag, used everywhere: in the Sirion platform (Tailwind) and in the
  * add-in panes (Fluent). Inline styles, so it belongs to neither and looks the
  * same in both. 11 px, 600 weight, 2 × 8 px padding, full radius.
  */

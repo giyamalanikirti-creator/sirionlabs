@@ -14,6 +14,7 @@
 import type { EmailMessage } from '@/lib/types';
 import { fuelSurchargeGap, markupGap } from '@/lib/engines/otherTerms';
 import type { ClauseValue } from '@/lib/engines/conflicts';
+import { deepShift } from '@/lib/demo/timeShift';
 
 export interface ScriptedEmail {
   id: string;
@@ -71,7 +72,7 @@ export interface ScriptedDeal {
 const BRIGHTSTAFF_VALUE_INR = 8_500_000;
 export const brightStaffGap = markupGap(BRIGHTSTAFF_VALUE_INR, 8, 10);
 
-export const BRIGHTSTAFF: ScriptedDeal = {
+export const BRIGHTSTAFF: ScriptedDeal = deepShift({
   dealId: 'D-BRIGHTSTAFF',
   supplier: 'BrightStaff Services',
   ownerId: 'karan',
@@ -120,10 +121,10 @@ export const BRIGHTSTAFF: ScriptedDeal = {
       'Clause 6 of the same signed contract states 8%, and the HR head agreed 8% by email on 7 Nov.',
     ],
   },
-};
+});
 
 /** BrightStaff's signing copy (v3), clause by clause, for the internal-conflict check (review fix A2). */
-export const BRIGHTSTAFF_SIGNING_COPY = {
+export const BRIGHTSTAFF_SIGNING_COPY = deepShift({
   versionId: 'v3',
   fileName: 'BrightStaff_MSA_v3.docx',
   sentAt: '2026-11-13T17:10:00+05:30',
@@ -133,7 +134,7 @@ export const BRIGHTSTAFF_SIGNING_COPY = {
     { ref: 'Clause 4', termKey: 'payment', value: 30, unit: 'days', text: 'Customer shall pay within 30 days of timesheet approval.' },
   ] satisfies ClauseValue[],
   precedence: { ref: 'Clause 1.4', text: 'If the body of this Agreement conflicts with a Schedule, the body prevails.' },
-};
+});
 
 /* ---------------- SwiftShip ---------------- */
 
@@ -142,7 +143,7 @@ const SWIFTSHIP_FREIGHT_INR = 3_600_000;
 export const DIESEL_BY_MONTH = [93.4, 94.1, 92.8, 93.6, 94.5, 95.0];
 export const swiftShipGap = fuelSurchargeGap(SWIFTSHIP_FREIGHT_INR, 0.5, 92, 88, DIESEL_BY_MONTH);
 
-export const SWIFTSHIP_MESSAGES: EmailMessage[] = [
+export const SWIFTSHIP_MESSAGES: EmailMessage[] = deepShift([
   {
     id: 'S1',
     threadId: 'TS1',
@@ -167,9 +168,9 @@ export const SWIFTSHIP_MESSAGES: EmailMessage[] = [
     body: 'Please find our quote attached: ₹36 lakh a year for outbound freight, two-year term, payment in 45 days. Imran',
     mailboxes: ['ananya'],
   },
-];
+]);
 
-export const SWIFTSHIP: ScriptedDeal = {
+export const SWIFTSHIP: ScriptedDeal = deepShift({
   dealId: 'D-SWIFTSHIP',
   supplier: 'SwiftShip Logistics',
   ownerId: 'ananya',
@@ -218,7 +219,7 @@ export const SWIFTSHIP: ScriptedDeal = {
       { label: 'Fuel surcharge', value: '0.5% per ₹1 above ₹92 a litre', from: 'Email, 11 Nov (after the call)' },
     ],
   },
-};
+});
 
 export const SCRIPTED_DEALS: Record<string, ScriptedDeal> = {
   [BRIGHTSTAFF.dealId]: BRIGHTSTAFF,

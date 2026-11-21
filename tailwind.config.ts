@@ -18,7 +18,7 @@ const config: Config = {
           700: '#0F6671',
           title: '#1E5A57',
         },
-        periwinkle: '#828BFC',
+        periwinkle: '#3B9EDC',
         mint: '#B1D0CA',
         indigo: '#4364B2',
         lime: '#E0E767',
@@ -35,10 +35,11 @@ const config: Config = {
         danger: '#C2410C',
         // Walkthrough guide only: never used for product states (green = agreed, teal = Sirion, blue = Microsoft).
         guide: {
-          50: '#EEF2FF',
-          200: '#C7D2FE',
-          600: '#4F46E5',
-          700: '#4338CA',
+          // Green to blue (was indigo). Solid fills also get the green-to-blue gradient in globals.css.
+          50: '#EAF6F5',
+          200: '#B3DFE3',
+          600: '#127FA6',
+          700: '#0D6485',
         },
         outlook: '#0F6CBD',
         word: '#185ABD',

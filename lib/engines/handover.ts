@@ -6,6 +6,7 @@ import { extractValue } from './diff';
 import type { TermKey } from '@/lib/types';
 import { formatInr } from '@/lib/format';
 import { renewalDates } from './dates';
+import { sh } from '@/lib/demo/timeShift';
 
 const DAY = 86400000;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -170,7 +171,7 @@ export function demoInvoices(record: ContractRecord): Invoice[] {
 export const FAST_FORWARD_INVOICE: Invoice = {
   id: 'INV-CD-2712',
   contractId: CONTRACT_ID,
-  month: '2027-12',
+  month: sh('2027-12-05').slice(0, 7),
   amountInr: 532000,
   uptime: 99.87,
 };

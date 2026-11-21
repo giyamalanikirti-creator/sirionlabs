@@ -12,15 +12,16 @@ import { agreedWording } from './wording';
 import { priceChange } from './pricing';
 import { plainValue, sameValue } from '@/lib/plain';
 import { formatDateShort } from '@/lib/format';
+import { shiftText } from '@/lib/demo/timeShift';
 
 /**
  * Extra context a reader of the gap needs, beyond the two values.
  * These are facts about this deal's own history, not generated text.
  */
 export const GAP_NOTES: Partial<Record<TermKey, string>> = {
-  price: "Neha Kapoor's approval (12 Nov) depends on this",
+  price: shiftText("Neha Kapoor's approval (12 Nov) depends on this"),
   renewal_notice: 'CloudDesk now requires us to give notice 60 days earlier than agreed.',
-  payment: 'Traded for the 3-year term (10 Nov)',
+  payment: shiftText('Traded for the 3-year term (10 Nov)'),
 };
 
 function sourceChip(row: LedgerRow): string {

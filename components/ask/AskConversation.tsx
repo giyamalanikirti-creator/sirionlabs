@@ -58,7 +58,7 @@ export function AskConversation({ scope, step, onNavigate, large = false }: { sc
                   onClick={() => send(s.prompt, s.intent)}
                   className="flex w-full items-start gap-2 rounded-lg border border-line bg-white px-3 py-2.5 text-left text-[13.5px] leading-[19px] text-ink hover:border-teal-900/40 hover:bg-page"
                 >
-                  <FileText size={15} className="mt-[2px] shrink-0 text-[#8B8CF8]" />
+                  <FileText size={15} className="mt-[2px] shrink-0 text-[#1F8FE5]" />
                   {s.prompt}
                 </button>
               ))}
