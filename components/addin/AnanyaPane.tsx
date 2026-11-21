@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { NextStage } from '@/components/demo/NextStage';
 import { ReaderPreview } from '@/components/outlook/ReaderPreview';
 import {
   Badge,
@@ -72,7 +71,6 @@ export function AnanyaPane({
   const s = usePaneStyles();
   const atRisk = dealAtRisk(rows, cloudDeskDeal);
   const roundReviewed = useDemo((state) => Boolean(state.readerRuns.M8));
-  const sideDismissed = useDemo((st) => st.dismissedThreadIds.includes('T2'));
   const responded = useDemo((st) => st.respondedMessageIds.includes('M8'));
   const respond = useDemo((st) => st.respondToRound);
   const toast = useDemo((st) => st.toast);
@@ -91,16 +89,19 @@ export function AnanyaPane({
       <TrackedBanner />
       {message && <DealHeaderBlock message={message} />}
 
-      <div className={s.headline}>
-        <span className={s.headlineLabel}>
-          <OriginTag kind="new" /> If CloudDesk’s current terms were signed as they stand
-        </span>
-        <span>
-          <span className={s.money}>{busy || openMessageId === 'M8' && !roundReviewed ? 'Updating…' : formatLakh(atRisk)}</span>{' '}
-          <span className={s.moneySuffix}>{HEADLINE_SUFFIX}</span>
-        </span>
+      <section className={s.card} style={{ borderColor: tokens.colorBrandStroke1, boxShadow: `inset 3px 0 0 ${tokens.colorBrandBackground}` }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
+          <span className={s.sectionLabel} style={{ margin: 0 }}>If signed as is</span>
+          <OriginTag kind="new" />
+        </div>
+        <div style={{ marginTop: 4 }}>
+          <span style={{ fontSize: 28, lineHeight: '34px', fontWeight: 600, color: tokens.colorBrandForeground1 }}>
+            {busy || openMessageId === 'M8' && !roundReviewed ? 'Updating…' : formatLakh(atRisk)}
+          </span>{' '}
+          <span className={s.moneySuffix}>a year (expected)</span>
+        </div>
         {!busy && <PaneHeadlineExplainer rows={rows} />}
-      </div>
+      </section>
 
       {notices.map((n, i) => (
         <MessageBar key={i} intent="warning" style={{ marginBottom: 10 }}>
@@ -131,8 +132,6 @@ export function AnanyaPane({
         <ActionRow versionId="v4" onRespond={respondToRound} responded={responded} />
       )}
 
-      {!busy && openMessageId === 'M8' && <NextStage step={2} />}
-      {!busy && (openMessageId === 'M12' || openMessageId === 'M12R') && (rows.some((row) => row.id === 'R-credit' && row.state === 'agreed') || sideDismissed) && <NextStage step={3} />}
       <ReaderPreview />
 
       <details className={s.card}>

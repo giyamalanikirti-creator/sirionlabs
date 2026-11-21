@@ -1,104 +1,83 @@
 'use client';
 
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { BookOpenText, RotateCcw } from 'lucide-react';
+/**
+ * The demo bar (52 px, ink): our mark and "Deal Ledger · prototype", the app
+ * switcher in the centre, the demo clock and a small menu on the right.
+ * Reset lives in the guide rail's footer, away from the switcher.
+ */
+import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Clock, MoreHorizontal } from 'lucide-react';
+import { Mark } from '@/components/sirion/Mark';
 import { useDemo } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
-import { formatDemoDate } from '@/lib/format';
+import { formatDateLong, formatTime } from '@/lib/format';
 import { STEP_CLOCK } from '@/lib/demo/steps';
+import { AppSwitcher } from './AppSwitcher';
 
-const SURFACES = [
-  { label: 'Sirion app', href: '/' },
-  { label: "Ananya’s inbox · Procurement", href: '/outlook/ananya' },
-  { label: "Vikram’s inbox · IT head", href: '/outlook/vikram' },
-  { label: 'Word', href: '/word', word: true },
-];
+function clockLabel(iso: string) {
+  const weekday = new Intl.DateTimeFormat('en-IN', { weekday: 'short', timeZone: 'Asia/Kolkata' }).format(new Date(iso));
+  return `${weekday} ${formatDateLong(iso)}, ${formatTime(iso)}`;
+}
 
 export function DemoStrip() {
   const router = useRouter();
-  const pathname = usePathname();
   const search = useSearchParams();
-  const prequel = search.get('prequel') === '1';
   const hydrated = useHydrated();
   const clock = useDemo((s) => s.clock);
-  const setGuideOpen = useDemo((s) => s.setGuideOpen);
-  const reset = useDemo((s) => s.reset);
-  const toast = useDemo((s) => s.toast);
-
-  const v6Arrived = hydrated && clock >= STEP_CLOCK[4];
-  const shownClock = prequel ? '2026-11-01T11:30:00+05:30' : hydrated ? clock : STEP_CLOCK[0];
-
-  const isActive = (href: string) =>
-    href === '/' ? !pathname.startsWith('/outlook') && !pathname.startsWith('/word') : pathname.startsWith(href);
+  const [menu, setMenu] = useState(false);
+  const prequel = search.get('prequel') === '1';
+  const shown = prequel ? '2026-11-01T11:30:00+05:30' : hydrated ? clock : STEP_CLOCK[0];
 
   return (
-    <>
-    <div className="ds-scope flex h-8 shrink-0 items-center justify-between gap-4 bg-ink px-3 text-[12px] text-white/90">
-      <div className="hidden shrink-0 items-center gap-2 lg:flex">
-        <span className="font-semibold tracking-tight text-white">Deal Ledger</span>
+    <header className="ds-scope relative flex h-[52px] shrink-0 items-center gap-4 bg-ink px-4 text-white">
+      <div className="flex shrink-0 items-center gap-2">
+        <Mark size={24} tone="light" />
+        <span className="hidden whitespace-nowrap text-[14px] font-semibold xl:inline">
+          Deal Ledger <span className="font-normal text-white/60">· prototype</span>
+        </span>
       </div>
-
-      <div className="flex min-w-0 flex-1 items-center justify-center gap-3">
-        <div className="flex items-center rounded-md bg-white/10 p-[2px]">
-          {SURFACES.map((s) => {
-            // Word always opens: the latest draft (v4) before the signing copy arrives, the signing copy (v6) after.
-            const href = s.word ? (v6Arrived ? '/word/v6?from=sirion' : '/word/v4?from=sirion') : s.href;
-            const label = s.word ? (v6Arrived ? 'Word (signing copy)' : 'Word (latest draft)') : s.label;
-            const active = isActive(s.href);
-            return (
+      <div className="flex min-w-0 flex-1 justify-center">
+        <AppSwitcher />
+      </div>
+      <div className="flex shrink-0 items-center gap-2">
+        <span
+          suppressHydrationWarning
+          title="The walkthrough moves through time. Each step sets the clock."
+          className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border border-white/25 px-3 py-1 text-[13px] text-white/80 lg:flex"
+        >
+          <Clock size={13} /> <span className="hidden 2xl:inline">Demo clock ·</span> {clockLabel(shown)}
+        </span>
+        <button
+          onClick={() => setMenu((v) => !v)}
+          aria-label="More"
+          aria-expanded={menu}
+          className="rounded-md p-1.5 text-white/80 hover:bg-white/10 hover:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-guide-200"
+        >
+          <MoreHorizontal size={18} />
+        </button>
+        {menu && (
+          <div role="menu" className="absolute right-4 top-[48px] z-[200] w-56 rounded-lg border border-line bg-white py-1 text-ink shadow-pop">
+            {[
+              ['About this case', '/story'],
+              ['How it was set up', '/setup'],
+              ['Privacy and admin', '/settings'],
+            ].map(([label, href]) => (
               <button
-                key={s.href}
-                onClick={() => router.push(href)}
-                className={[
-                  'whitespace-nowrap rounded px-2.5 py-[3px] text-[11.5px] transition-colors',
-                  active ? 'bg-white text-ink font-medium' : 'text-white/75 hover:text-white',
-                ].join(' ')}
+                key={href}
+                role="menuitem"
+                onClick={() => {
+                  setMenu(false);
+                  router.push(href);
+                }}
+                className="block w-full px-3 py-2 text-left text-[13px] hover:bg-page"
               >
                 {label}
               </button>
-            );
-          })}
-        </div>
-        <span
-          suppressHydrationWarning
-          className="hidden whitespace-nowrap rounded-full border border-white/20 px-2.5 py-[2px] text-[11px] text-white/70 xl:inline-block"
-        >
-          {formatDemoDate(shownClock)}
-        </span>
+            ))}
+          </div>
+        )}
       </div>
-
-      <div className="flex shrink-0 items-center gap-1">
-        <button
-          onClick={() => setGuideOpen(true)}
-          className="flex items-center gap-1.5 rounded px-2 py-[3px] text-[11.5px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-        >
-          <BookOpenText size={13} strokeWidth={1.8} />
-          Walkthrough
-        </button>
-        <button
-          onClick={() => {
-            useDemo.getState().resetSetup();
-            router.push('/setup');
-            toast('Setup reset. Replay the Microsoft 365 connection.');
-          }}
-          className="flex items-center gap-1.5 rounded px-2 py-[3px] text-[11.5px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-          title="Replay how Deal Ledger was connected"
-        >
-          Reset setup
-        </button>
-        <button
-          onClick={() => {
-            reset();
-            router.push('/');
-            toast('Walkthrough reset.');
-          }}
-          className="flex items-center gap-1.5 rounded px-2 py-[3px] text-[11.5px] text-white/80 transition-colors hover:bg-white/10 hover:text-white"
-        >
-          <RotateCcw size={13} strokeWidth={1.8} />
-          Reset
-        </button>
-      </div>
-    </div>
-    </>
+    </header>
   );
 }

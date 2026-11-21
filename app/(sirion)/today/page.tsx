@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { PageHeader, SirionCard } from '@/components/sirion/ui';
 import { termsFound } from '@/lib/data';
+import { StepBadge, Tag } from '@/components/ui/Tag';
 
 const OUTSIDE = termsFound.split.filter((x) => x.source !== 'Word versions').reduce((a, b) => a + b.pct, 0);
 
@@ -48,12 +49,9 @@ function Block({ title, body, kind, step }: { title: string; body: string; kind:
     >
       <p className="flex items-center justify-between gap-2 font-semibold text-ink">
         <span>{title}</span>
-        <span
-          className={`whitespace-nowrap rounded-full px-1.5 py-[1px] text-[9.5px] font-semibold ${
-            kind === 'new' ? 'bg-teal-900 text-white' : 'border border-line bg-page text-muted'
-          }`}
-        >
-          {kind === 'new' ? `New${step ? ` · step ${step}` : ''}` : 'Today in Sirion'}
+        <span className="flex shrink-0 items-center gap-1">
+          {kind === 'new' && step ? <StepBadge step={step} /> : null}
+          <Tag kind={kind === 'dim' ? 'today' : kind} />
         </span>
       </p>
       <p className="mt-0.5 text-muted">{body}</p>

@@ -14,7 +14,6 @@ import { ProgressDialog } from '@/components/addin/SmartAlertDialog';
 import { SendGuardDialog } from '@/components/addin/SendGuardDialog';
 import { sendGuard, type GuardFinding, type GuardResult } from '@/lib/engines/sendGuard';
 import { currentVersionId } from '@/lib/demo/rowEmail';
-import { NextStage } from '@/components/demo/NextStage';
 import { TrySentence, type TryChip } from './TrySentence';
 import { SwiftShipPane } from '@/components/addin/SwiftShipPane';
 import { SWIFTSHIP_MESSAGES } from '@/lib/demo/moreDeals';
@@ -82,7 +81,6 @@ export function OutlookApp({ person }: { person: Person }) {
   const toast = useDemo((st) => st.toast);
   const setClock = useDemo((st) => st.setClock);
   const advanceTo = useDemo((st) => st.advanceTo);
-  const completedSteps = useDemo((st) => st.completedSteps);
   const settings = useDemo((st) => st.settings);
   const mailboxOn = !hydrated || settings.mailboxes[person] !== false;
   const isOwner = person !== 'ananya';
@@ -623,7 +621,6 @@ export function OutlookApp({ person }: { person: Person }) {
                     <Button size="small" onClick={() => useDemo.getState().rateLastWarning(person, true)}>Useful</Button>
                     <Button size="small" onClick={() => useDemo.getState().rateLastWarning(person, false)}>Not useful</Button>
                   </details>}
-                  {completedSteps.includes(3) && <NextStage step={4} />}
                   </>
                 )}
               </PaneFrame>

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 /**
  * Word for the web chrome, Review tab — BUILD_SPEC §4C.
  * No Microsoft logos or app icons; the product name is plain text beside a
@@ -188,6 +189,17 @@ export function WordTitleBar({ fileName }: { fileName: string }) {
   );
 }
 
+const nowrap = { whiteSpace: 'nowrap' as const, flexShrink: 0 };
+
+/** A secondary ribbon command: icon-only with a tooltip when the frame is narrow. */
+function Cmd({ icon, label, compact }: { icon: React.ReactElement; label: string; compact: boolean }) {
+  return (
+    <Button appearance="subtle" size="small" icon={icon} title={compact ? label : undefined} aria-label={label} style={nowrap}>
+      {compact ? null : label}
+    </Button>
+  );
+}
+
 export function WordRibbon({
   paneOpen,
   onTogglePane,
@@ -198,6 +210,16 @@ export function WordRibbon({
   trackChanges: boolean;
 }) {
   const s = useWordStyles();
+  /* Below 1200 px of frame width, secondary commands go icon-only (with tooltips) so no label wraps. */
+  const barRef = useRef<HTMLDivElement>(null);
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    const el = barRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) => setCompact(entry.contentRect.width < 1200));
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   return (
     <>
       <div className={s.tabs}>
@@ -207,42 +229,31 @@ export function WordRibbon({
           </span>
         ))}
       </div>
-      <div className={s.commandBar}>
-        <Button appearance="subtle" size="small" icon={<DocumentEditRegular />}>
-          Editor
-        </Button>
-        <Switch checked={trackChanges} label="Track Changes" onChange={() => {}} />
-        <span className={s.markupPill}>
+      <div className={s.commandBar} ref={barRef} style={{ flexWrap: 'nowrap', overflow: 'hidden' }}>
+        <Cmd icon={<DocumentEditRegular />} label="Editor" compact={compact} />
+        <Switch checked={trackChanges} label="Track Changes" onChange={() => {}} style={nowrap} />
+        <span className={s.markupPill} style={nowrap}>
           All Markup
           <ChevronDownRegular fontSize={12} />
         </span>
-        <Button appearance="subtle" size="small" icon={<ChevronLeftRegular />}>
-          Previous
-        </Button>
-        <Button appearance="subtle" size="small" icon={<ChevronRightRegular />}>
-          Next
-        </Button>
-        <Button appearance="subtle" size="small" icon={<CheckmarkRegular />} iconPosition="before">
+        <Cmd icon={<ChevronLeftRegular />} label="Previous" compact={compact} />
+        <Cmd icon={<ChevronRightRegular />} label="Next" compact={compact} />
+        <Button appearance="subtle" size="small" icon={<CheckmarkRegular />} iconPosition="before" style={nowrap}>
           Accept
         </Button>
-        <Button appearance="subtle" size="small" icon={<DismissRegular />}>
+        <Button appearance="subtle" size="small" icon={<DismissRegular />} style={nowrap}>
           Reject
         </Button>
-        <Button appearance="subtle" size="small" icon={<CommentAddRegular />}>
-          New Comment
-        </Button>
-        <Button appearance="subtle" size="small" icon={<ArrowSyncRegular />}>
-          Compare
-        </Button>
+        <Cmd icon={<CommentAddRegular />} label="New Comment" compact={compact} />
+        <Cmd icon={<ArrowSyncRegular />} label="Compare" compact={compact} />
         <Divider vertical style={{ height: 22, flexGrow: 0 }} />
-        <Button appearance="subtle" size="small" icon={<AppsAddInRegular />}>
-          Add-ins
-        </Button>
+        <Cmd icon={<AppsAddInRegular />} label="Add-ins" compact={compact} />
         <Button
           appearance={paneOpen ? 'primary' : 'subtle'}
           size="small"
           icon={<Mark size={14} tone={paneOpen ? 'light' : 'dark'} />}
           onClick={onTogglePane}
+          style={nowrap}
         >
           Deal Ledger
         </Button>

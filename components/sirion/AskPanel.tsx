@@ -4,6 +4,7 @@
 import { useState } from 'react';
 import { Copy, Send, Sparkles, X } from 'lucide-react';
 import { useAsk, type AskTurn } from '@/lib/useAsk';
+import { useGuideUi } from '@/lib/guideUi';
 import { useDemo } from '@/lib/store';
 import { TERM_LABELS } from '@/lib/plain';
 import type { TermKey } from '@/lib/types';
@@ -61,21 +62,14 @@ export function AnswerView({ turn }: { turn: AskTurn }) {
 }
 
 export function AskPanel() {
-  const [open, setOpen] = useState(false);
+  const open = useGuideUi((st) => st.askOpen);
+  const setOpen = useGuideUi((st) => st.setAskOpen);
   const [termKey, setTermKey] = useState<TermKey | ''>('');
   const [q, setQ] = useState('');
   const { turns, ask, busy } = useAsk({ termKey: termKey || undefined });
 
   return (
     <>
-      {!open && (
-        <button
-          onClick={() => setOpen(true)}
-          className="absolute bottom-4 right-4 z-40 flex items-center gap-2 rounded-full bg-teal-900 px-4 py-2.5 text-[13px] font-semibold text-white shadow-pop hover:bg-teal-700"
-        >
-          <Sparkles size={15} /> Ask Deal Ledger
-        </button>
-      )}
       {open && (
         <aside className="absolute bottom-0 right-0 top-0 z-40 flex w-[400px] max-w-full flex-col border-l border-line bg-white shadow-drawer" aria-label="Ask Deal Ledger">
           <header className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">

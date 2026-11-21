@@ -13,18 +13,7 @@ import { useHydrated } from '@/lib/useHydrated';
 import { people } from '@/lib/data';
 import { AUTO_TRACK_LAKH, CAPTURE_ADDRESS, CONNECTED_GROUP } from '@/lib/settings';
 import { formatLakh } from '@/lib/format';
-
-function Tag({ kind }: { kind: 'today' | 'new' }) {
-  return (
-    <span
-      className={`whitespace-nowrap rounded-full px-2 py-[1px] text-[10px] font-semibold ${
-        kind === 'new' ? 'bg-teal-900 text-white' : 'border border-line bg-page text-muted'
-      }`}
-    >
-      {kind === 'new' ? 'New: Deal Ledger' : 'Today in Sirion'}
-    </span>
-  );
-}
+import { Tag } from '@/components/ui/Tag';
 
 function Row({
   n,

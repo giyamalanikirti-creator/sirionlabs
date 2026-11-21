@@ -32,6 +32,15 @@ const config: Config = {
         ink: '#1F2A2E',
         muted: '#7D9093',
         danger: '#C2410C',
+        // Walkthrough guide only: never used for product states (green = agreed, teal = Sirion, blue = Microsoft).
+        guide: {
+          50: '#EEF2FF',
+          200: '#C7D2FE',
+          600: '#4F46E5',
+          700: '#4338CA',
+        },
+        outlook: '#0F6CBD',
+        word: '#185ABD',
       },
       fontFamily: {
         sans: ['var(--font-inter)', 'Inter', 'system-ui', 'sans-serif'],

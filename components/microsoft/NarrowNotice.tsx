@@ -6,11 +6,13 @@ import { useEffect, useState } from 'react';
 export function NarrowNotice() {
   const [narrow, setNarrow] = useState(false);
 
+  /* Measured against the app frame (beside the guide rail), not the window. */
   useEffect(() => {
-    const check = () => setNarrow(window.innerWidth < 1200);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
+    const frame = document.getElementById('app-frame');
+    if (!frame) return;
+    const ro = new ResizeObserver(([entry]) => setNarrow(entry.contentRect.width < 1100));
+    ro.observe(frame);
+    return () => ro.disconnect();
   }, []);
 
   if (!narrow) return null;
@@ -19,7 +21,7 @@ export function NarrowNotice() {
     <div
       style={{
         position: 'fixed',
-        bottom: 120,
+        bottom: 16,
         left: '50%',
         transform: 'translateX(-50%)',
         zIndex: 300,
@@ -32,7 +34,7 @@ export function NarrowNotice() {
         fontFamily: 'Inter, system-ui, sans-serif',
       }}
     >
-      Best viewed on a laptop (1280 px or wider)
+      Best viewed with more room: collapse the walkthrough or widen the window
     </div>
   );
 }

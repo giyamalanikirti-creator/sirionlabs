@@ -36,7 +36,7 @@ export interface ScriptAction {
 
 const creditAgreed = (s: TourState) => s.ledger.some((r) => r.id === 'R-credit' && r.state === 'agreed');
 
-export const SCRIPT: Record<1 | 2 | 3 | 4 | 5, ScriptAction[]> = {
+export const SCRIPT: Record<1 | 2 | 3 | 4 | 5 | 6, ScriptAction[]> = {
   1: [
     { id: '1a', label: 'Open Rohan’s email (14 Nov)', target: 'msg-M8', href: '/outlook/ananya?msg=M8', done: (s) => s.readMessageIds.includes('M8') },
     { id: '1b', label: 'Compare clause 14.2', target: 'compare-14.2', href: '/outlook/ananya?msg=M8', done: (s) => s.tourClicks.includes('compare-14.2') || s.respondedMessageIds.includes('M8') },
@@ -61,9 +61,11 @@ export const SCRIPT: Record<1 | 2 | 3 | 4 | 5, ScriptAction[]> = {
   ],
   5: [
     { id: '5a', label: 'Review and save', target: 'review-save', href: '/contracts/C-2026-0417?tab=obligations', done: (s) => Boolean(s.contract) },
-    { id: '5b', label: 'Go to December’s invoice', target: 'tour-invoice', href: '/contracts/C-2026-0417?tab=invoices', done: (s) => s.invoiceFastForward },
-    { id: '5c', label: 'Raise dispute', target: 'raise-dispute', href: '/contracts/C-2026-0417?tab=invoices', done: (s) => s.tourClicks.includes('raise-dispute') || Boolean(s.disputeEmail) },
-    { id: '5d', label: 'Send the dispute', target: 'send-dispute', href: '/contracts/C-2026-0417?tab=invoices', done: (s) => Boolean(s.disputeEmail) },
+  ],
+  6: [
+    { id: '6a', label: 'Go to December’s invoice', target: 'tour-invoice', href: '/contracts/C-2026-0417?tab=invoices', done: (s) => s.invoiceFastForward },
+    { id: '6b', label: 'Raise dispute', target: 'raise-dispute', href: '/contracts/C-2026-0417?tab=invoices', done: (s) => s.tourClicks.includes('raise-dispute') || Boolean(s.disputeEmail) },
+    { id: '6c', label: 'Send the dispute', target: 'send-dispute', href: '/contracts/C-2026-0417?tab=invoices', done: (s) => Boolean(s.disputeEmail) },
   ],
 };
 

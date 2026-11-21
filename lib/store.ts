@@ -165,7 +165,6 @@ interface DemoState {
   notices: Notice[];
   completedSteps: Step[];
   events: { at: string; text: string }[];
-  guideOpen: boolean;
   lastToast?: { at: number; text: string };
 
   // actions
@@ -225,7 +224,6 @@ interface DemoState {
   resolveInvoice: () => void;
   addNotice: (notice: Notice) => void;
   readNotices: () => void;
-  setGuideOpen: (open: boolean) => void;
   toast: (text: string) => void;
   logEvent: (text: string) => void;
   reset: () => void;
@@ -270,7 +268,6 @@ const BASE = {
   notices: [] as Notice[],
   completedSteps: [0] as Step[],
   events: [{ at: STEP_CLOCK[0], text: 'Demo started. Ledger loaded from rounds 1–3.' }],
-  guideOpen: false,
   lastToast: undefined,
 };
 
@@ -286,8 +283,6 @@ export const useDemo = create<DemoState>()(
         set((s) => ({ events: [...s.events, { at: s.clock, text }] })),
 
       toast: (text) => set({ lastToast: { at: Date.now(), text } }),
-
-      setGuideOpen: (guideOpen) => set({ guideOpen }),
 
       markRead: (messageId) =>
         set((s) =>

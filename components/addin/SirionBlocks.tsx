@@ -15,6 +15,7 @@ import {
   WarningFilled,
 } from '@fluentui/react-icons';
 import { useDemo } from '@/lib/store';
+import { Tag } from '@/components/ui/Tag';
 import { cloudDeskDeal, personName, versionById, versions } from '@/lib/data';
 import { playbookReview } from '@/lib/engines/playbook';
 import { formatDateShort, formatLakh } from '@/lib/format';
@@ -24,27 +25,9 @@ import type { EmailMessage, LedgerRow } from '@/lib/types';
 import { recommendedMove } from '@/lib/engines/playbook';
 import { usePaneStyles } from './paneStyles';
 
+/** The shared origin tag (components/ui/Tag), so panes and the Sirion app match. */
 export function OriginTag({ kind }: { kind: 'today' | 'new' }) {
-  const today = kind === 'today';
-  return (
-    <span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        fontSize: 10,
-        fontWeight: 600,
-        letterSpacing: '0.02em',
-        padding: '1px 6px',
-        borderRadius: 999,
-        whiteSpace: 'nowrap',
-        color: today ? tokens.colorNeutralForeground3 : '#fff',
-        backgroundColor: today ? tokens.colorNeutralBackground3 : tokens.colorBrandBackground,
-        border: today ? `1px solid ${tokens.colorNeutralStroke2}` : 'none',
-      }}
-    >
-      {today ? 'Today in Sirion' : 'New: Deal Ledger'}
-    </span>
-  );
+  return <Tag kind={kind} />;
 }
 
 export function Block({

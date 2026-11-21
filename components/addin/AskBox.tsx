@@ -14,12 +14,13 @@ export function AskBox({ viewer = 'lead', termKey }: { viewer?: Viewer; termKey?
   const { turns, ask, busy, clear } = useAsk({ viewer, termKey });
   const toast = useDemo((s) => s.toast);
   const [q, setQ] = useState('');
+  const [focused, setFocused] = useState(false);
   const last = turns.at(-1);
   const starter = termKey ? `What should I put for ${TERM_LABELS[termKey].toLowerCase()} instead?` : 'What should I put for renewal notice instead?';
   const chips = viewer === 'owner' ? ['What is agreed with CloudDesk?', 'Can I agree to a yearly price review?', starter] : [starter, 'What’s at risk?', 'What should I do next?'];
 
   return (
-    <div style={{ borderTop: `1px solid ${tokens.colorNeutralStroke2}`, padding: '8px 12px', background: tokens.colorNeutralBackground2, flexShrink: 0 }}>
+    <div style={{ borderTop: `1px solid ${tokens.colorNeutralStroke2}`, padding: '6px 12px', background: tokens.colorNeutralBackground2, flexShrink: 0 }}>
       {last && (
         <div style={{ maxHeight: 240, overflowY: 'auto', marginBottom: 8, padding: 8, borderRadius: 6, background: tokens.colorNeutralBackground1, border: `1px solid ${tokens.colorNeutralStroke2}` }}>
           <div style={{ fontSize: 11.5, color: tokens.colorNeutralForeground3, marginBottom: 4 }}>You asked: {last.question}</div>
@@ -53,13 +54,19 @@ export function AskBox({ viewer = 'lead', termKey }: { viewer?: Viewer; termKey?
           ) : null}
         </div>
       )}
-      <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, fontWeight: 600, color: tokens.colorBrandForeground1 }}>
-        <SparkleRegular /> Ask Deal Ledger
-      </div>
-      {!last && (
+      {focused && !last && (
         <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4, marginBottom: 6 }}>
           {chips.map((c) => (
-            <Button key={c} size="small" appearance="outline" disabled={busy} onClick={() => void ask(c)} style={{ fontSize: 11, minWidth: 0 }}>
+            <Button
+              key={c}
+              size="small"
+              appearance="outline"
+              disabled={busy}
+              // Keep focus in the box so the chips don't vanish before the click lands.
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => void ask(c)}
+              style={{ fontSize: 11, minWidth: 0 }}
+            >
               {c}
             </Button>
           ))}
@@ -71,9 +78,20 @@ export function AskBox({ viewer = 'lead', termKey }: { viewer?: Viewer; termKey?
           void ask(q);
           setQ('');
         }}
-        style={{ display: 'flex', gap: 6 }}
+        style={{ display: 'flex', gap: 6, alignItems: 'center', height: 28 }}
       >
-        <Input size="small" value={q} onChange={(_, d) => setQ(d.value)} placeholder="What should I put instead?" style={{ flex: 1, minWidth: 0 }} maxLength={500} />
+        <Input
+          size="small"
+          value={q}
+          onChange={(_, d) => setQ(d.value)}
+          onFocus={() => setFocused(true)}
+          onBlur={() => setFocused(false)}
+          contentBefore={<SparkleRegular style={{ color: tokens.colorBrandForeground1 }} />}
+          placeholder="Ask Deal Ledger…"
+          aria-label="Ask Deal Ledger"
+          style={{ flex: 1, minWidth: 0 }}
+          maxLength={500}
+        />
         <Button size="small" appearance="primary" type="submit" icon={<SendRegular />} disabled={busy || !q.trim()} aria-label="Ask" />
       </form>
     </div>

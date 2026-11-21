@@ -279,24 +279,43 @@ body {
   animation: dl-pulse 1.4s ease-in-out infinite;
 }
 
-/* Walkthrough: the button to press pulses green; the current script chip breathes. */
+/* Walkthrough guide colour: only the guide uses it (never product states). */
+:root {
+  --guide-50: #eef2ff;
+  --guide-200: #c7d2fe;
+  --guide-600: #4f46e5;
+  --guide-700: #4338ca;
+}
+
+/* Coach mark: the element to press next pulses in the guide colour. */
 @keyframes tour-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0.65); }
-  70% { box-shadow: 0 0 0 10px rgba(22, 163, 74, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(22, 163, 74, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0.55); }
+  70% { box-shadow: 0 0 0 10px rgba(79, 70, 229, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(79, 70, 229, 0); }
 }
 .tour-target {
-  outline: 2px solid #16a34a !important;
+  outline: 2px solid var(--guide-600) !important;
   outline-offset: 2px;
   animation: tour-pulse 1.4s ease-out infinite;
   border-radius: 6px;
 }
-.tour-chip-current {
-  animation: tour-pulse 1.4s ease-out infinite;
+.guide-pulse {
+  animation: tour-pulse 1.6s ease-out infinite;
+}
+@keyframes guide-overlay-in {
+  from { transform: translateX(-12px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+.guide-overlay-in {
+  animation: guide-overlay-in 200ms ease-out;
 }
 @media (prefers-reduced-motion: reduce) {
   .tour-target,
-  .tour-chip-current {
+  .guide-pulse {
+    animation: none;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.35);
+  }
+  .guide-overlay-in {
     animation: none;
   }
 }

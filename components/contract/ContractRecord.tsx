@@ -392,7 +392,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
           bodyClassName="px-0 pb-0 pt-0"
           right={
             !isFastForwarded ? (
-              <Button
+              <Button data-tour="tour-invoice"
                 size="sm"
                 variant="primary"
                 onClick={() => {

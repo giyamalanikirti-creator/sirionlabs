@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { NextStage } from '@/components/demo/NextStage';
 import {
   Accordion,
   AccordionHeader,
@@ -258,7 +257,6 @@ export function SigningPane({
         </MessageBar>
       )}
 
-      {sentBackAt && !signed && <NextStage step={5} />}
 
       <p className={s.sectionLabel}>Rows that already match</p>
       <Accordion collapsible>
