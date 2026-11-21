@@ -117,7 +117,7 @@ export default function InsightsPage() {
         <KpiTile
           label="Terms agreed outside the formal document"
           value={`${outsideDocument}%`}
-          caption={`${termsFound.totalTerms} terms, last ${termsFound.windowMonths} months: email text, side threads and calls. Why the product exists.`}
+          caption="Illustrative split across Word, supplier email, side threads and calls."
         />
         <KpiTile
           label="Gaps caught at signing, CloudDesk"

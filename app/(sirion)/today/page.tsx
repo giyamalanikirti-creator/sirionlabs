@@ -239,8 +239,8 @@ export default function TodayPage() {
 
       <SirionCard title="Why this gap exists" className="mt-8">
         <p className="max-w-[860px] text-[15px] leading-[24px] text-ink">
-          <span className="font-semibold">{OUTSIDE}% of agreed terms</span> in the last {termsFound.windowMonths} months were agreed outside the formal
-          document: in supplier email text, side threads and calls (demo data). Sirion&apos;s plugins work on documents, so those terms only reach
+          In the example, <span className="font-semibold">{OUTSIDE}% of agreed terms</span> were agreed outside the formal
+          document, in supplier email text, side threads and calls. Sirion&apos;s plugins work on documents, so those terms only reach
           Sirion if someone retypes them. Deal Ledger reads them where they are agreed and keeps them in one record.
         </p>
       </SirionCard>

@@ -83,8 +83,8 @@ CloudDesk is a **₹60 lakh annual / three-year / ₹1.8 crore committed** softw
 
 The live dashboard on [Home](/#workspace) keeps its visuals and their distinct denominators:
 
-- **Signing-quality north-star trend:** **50% ({{keep:Jan–Mar 2026}}) → 58% (Apr–Jun) → 65% (Jul–Sep)**. The latest point is **13 of 20 audited contracts** signed with no agreed term missing; three newer contracts await audit. These are illustrative demo numbers, obtained by independent correspondence audit, not by the product grading itself.
-- **Where agreement actually happens:** **42% of 214 negotiated terms** in the last six months were agreed **outside the formal contract document** (supplier email, side threads and calls). Marked **Demo data**; the source-distribution chart shows the split.
+- **Signing-quality north-star trend:** **50% ({{keep:Jan–Mar 2026}}) → 58% (Apr–Jun) → 65% (Jul–Sep)**. The latest point is **13 of 20 audited contracts** signed with no agreed term missing; three newer contracts await audit. These are sample counts that illustrate how an independent audit of the negotiation record would work.
+- **Where agreement actually happens:** **42%** of terms in the dashboard example were agreed **outside the formal contract document** (supplier email, side threads and calls). Discovery covered 14 structured interviews. The chart percentages are illustrative assumptions.
 - **Value at risk, open portfolio:** **₹20.3 lakh a year** across **12 open deals**, with **₹4.4 lakh** attributed to the live CloudDesk snapshot and **₹15.9 lakh** to the other 11, shown with the **“If signed as is, by open deal” top-eight bar chart**. This is an expected annual average, not a cash loss; a one-time renewal exposure is annualised over the contract term and its full one-time exposure is shown too.
 
 ## 4. Working prototype: one deal, five connected moments, one downstream proof
@@ -210,7 +210,7 @@ Sirion could offer a **contributor-only, opt-in “give to get”** view of anon
 
 ### North star
 
-**Share of independently audited signed contracts in which *every supplier term truly agreed during negotiation is present in the executed copy*.** Report authorised waivers as a **separate** measure rather than counting them as a flawless signing outcome. An independent reviewer reconstructs the agreed positions from original source evidence, then checks the signed document. The illustrated **65% / 13 of 20** and its **50% → 58% → 65%** historical trend are on Home, tagged **demo data**.
+**Share of independently audited signed contracts in which *every supplier term truly agreed during negotiation is present in the executed copy*.** Report authorised waivers as a **separate** measure rather than counting them as a flawless signing outcome. An independent reviewer reconstructs the agreed positions from original source evidence, then checks the signed document. The illustrated **65% / 13 of 20** and its **50% → 58% → 65%** historical trend are on Home as an example audit.
 
 ### The decisive differentiation test
 

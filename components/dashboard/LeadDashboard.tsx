@@ -62,13 +62,13 @@ export function LeadDashboard() {
             <>
               <QuarterTrend />
               <p className="mt-2.5 text-[11px] leading-[16px] text-muted">
-                North star. Measured by a sampled audit of the email trail, not by this tool.
+                Example audit of signed contracts against the negotiation record.
               </p>
             </>
           }
         />
         <KpiTile
-          label="₹ a year if signed as is, across open deals"
+          label="Estimated annual exposure across open deals"
           value={<span suppressHydrationWarning>{formatLakh(allOpenAtRisk)}</span>}
           caption={`${openDeals.length} open deals · ${needsConfirming} row${
             needsConfirming === 1 ? '' : 's'
@@ -85,26 +85,28 @@ export function LeadDashboard() {
                 />
               </dl>
               <p className="mt-2.5 text-[11px] leading-[16px] text-muted">
-                Expected annual average. Next-renewal costs are spread across the contract term.
+                Shown if drafts are signed as is. Includes sample estimates for the other deals.
               </p>
             </>
           }
         />
-        <SirionCard title="Where agreed terms were found" className="lg:col-span-2" sample>
+        <SirionCard title="Where agreed terms were found" className="lg:col-span-2">
           <Donut
             data={termsFound.split.map((s) => ({ name: s.source, value: s.pct }))}
             height={212}
           />
           <p className="-mt-2 text-center text-[12px] text-muted">
             <strong className="font-semibold text-ink">{outsideDocument}%</strong> were agreed
-            outside the document, across {termsFound.totalTerms} terms in the last{' '}
-            {termsFound.windowMonths} months.
+            outside the contract draft in this example.
+          </p>
+          <p className="mt-1 text-center text-[11px] text-muted">
+            Discovery: 14 structured interviews. Chart split is illustrative.
           </p>
         </SirionCard>
       </div>
 
       <div className="mt-4 grid grid-cols-1 gap-4 xl:grid-cols-1">
-        <SirionCard title="If signed as is, by open deal" caption="₹ lakh a year, top 8">
+        <SirionCard title="If signed as is, by open deal" caption="₹ lakh a year, top 8 · CloudDesk calculation and sample deal estimates">
           <HBars data={atRiskByDeal} unit=" lakh/yr" height={262} />
         </SirionCard>
         {!signed && (
