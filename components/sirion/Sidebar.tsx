@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { BookOpen, Columns2, FileText, Handshake, Home, LineChart, ShieldCheck } from 'lucide-react';
-import { Mark } from './Mark';
+import { SirionMark } from './SirionMark';
 
 const NAV = [
   { href: '/', icon: Home, label: 'Home' },
@@ -22,8 +22,8 @@ export function Sidebar() {
 
   return (
     <nav className="flex w-16 shrink-0 flex-col items-center gap-1 bg-teal-900 py-3">
-      <Link href="/" className="mb-3 flex h-10 w-10 items-center justify-center" aria-label="Deal Ledger home">
-        <Mark size={28} tone="light" />
+      <Link href="/" className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-white" aria-label="Sirion home">
+        <SirionMark size={28} />
       </Link>
 
       {NAV.map(({ href, icon: Icon, label }) => {

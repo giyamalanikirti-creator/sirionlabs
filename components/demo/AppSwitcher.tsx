@@ -50,7 +50,7 @@ export function AppSwitcher() {
           >
             <span
               className="grid h-6 w-6 shrink-0 place-items-center rounded-md"
-              style={{ background: isActive ? 'rgba(255,255,255,0.18)' : '#FFFFFF' }}
+              style={{ background: isActive && key !== 'sirion' ? 'rgba(255,255,255,0.18)' : '#FFFFFF' }}
             >
               <AppIcon app={key} size={14} light={isActive && key !== 'sirion'} />
             </span>

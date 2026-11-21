@@ -41,10 +41,10 @@ export function SirionCard({
         <header className="flex items-start justify-between gap-3 px-6 pb-3 pt-5">
           <div className="min-w-0">
             <div className="flex items-center gap-2">
-              <h2 className="truncate text-[15px] text-teal-title">{title}</h2>
+              <h2 className="truncate text-[16px] text-teal-title">{title}</h2>
               {sample && <SamplePill />}
             </div>
-            {caption && <p className="mt-1 text-[11.5px] text-muted">{caption}</p>}
+            {caption && <p className="mt-1 text-[12.5px] leading-[18px] text-muted">{caption}</p>}
           </div>
           <div className="flex shrink-0 items-center gap-1">
             {right}
@@ -206,8 +206,8 @@ export function PageHeader({
   return (
     <div className="mb-5 flex items-start justify-between gap-6">
       <div className="min-w-0">
-        <h1 className="text-[20px] font-normal text-teal-title">{title}</h1>
-        {caption && <div className="mt-1 text-[12.5px] text-muted">{caption}</div>}
+        <h1 className="text-[22px] font-normal leading-[28px] text-teal-title">{title}</h1>
+        {caption && <div className="mt-1.5 max-w-[860px] text-[14px] leading-[21px] text-muted">{caption}</div>}
       </div>
       {right && <div className="flex shrink-0 items-center gap-2">{right}</div>}
     </div>

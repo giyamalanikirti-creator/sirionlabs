@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Check, Plus } from 'lucide-react';
 import { PageHeader, SirionCard } from '@/components/sirion/ui';
 import { termsFound } from '@/lib/data';
 import { StepBadge, Tag } from '@/components/ui/Tag';
@@ -26,14 +27,32 @@ const NEW = [
   { title: 'Handover with sources', body: 'Obligations and invoice rules each link back to the email line they came from.', step: 5 },
 ];
 
+const WORD_TODAY = [
+  { title: 'Content Library', body: 'Insert approved clauses.' },
+  { title: 'Review', body: 'Track changes, compare versions and flag risk with AI.' },
+  { title: 'Redline Agent', body: 'Preferred, fallback and walk-away clauses.' },
+  { title: 'Approve and publish', body: 'Changes are saved back as a new version.' },
+  { title: 'Share', body: 'Send to the counterparty through the Sirion portal.' },
+];
+
+const WORD_NEW = [
+  { title: 'Ledger lens', body: 'A marker beside every clause shows whether it matches what was agreed in email, with the source and the ₹ at stake.' },
+  { title: 'Edit guard', body: 'An edit that moves an agreed term is flagged as you type, with the cost and the approval it would need.' },
+  { title: 'Insert from ledger', body: 'The exact agreed wording, next to the Content Library, with a supplier-safe comment.' },
+  { title: 'Compare with email', body: 'Each change between rounds is tagged “discussed in email”, “not mentioned in email” or “not a tracked change”.' },
+  { title: 'Signing check', body: 'Runs when the clean copy arrives. Each gap shows the email line it came from and the approval that depends on it.' },
+  { title: '₹ on each option', body: 'A figure on the agreed wording, the fallback and the walk-away.' },
+  { title: 'Supplier-safe comments', body: 'No ₹ figures, internal names or limits in anything the supplier sees.' },
+];
+
 function Pane({ title, tone, children }: { title: string; tone: 'today' | 'new'; children: React.ReactNode }) {
   return (
     <div className="overflow-hidden rounded-xl border border-line bg-white shadow-card">
-      <div className={`flex items-center justify-between px-4 py-2.5 text-[12.5px] font-semibold ${tone === 'today' ? 'bg-page text-ink' : 'bg-teal-900 text-white'}`}>
-        <span>{title}</span>
-        <span className="text-[10.5px] font-medium opacity-80">Outlook add-in pane</span>
+      <div className={`flex items-center justify-between px-5 py-3.5 ${tone === 'today' ? 'border-b border-line bg-page text-ink' : 'bg-teal-900 text-white'}`}>
+        <span className="text-[15px] font-semibold">{title}</span>
+        <span className="text-[12.5px] opacity-80">Outlook add-in pane</span>
       </div>
-      <div className="space-y-2 p-3">{children}</div>
+      <div className="space-y-2.5 p-4">{children}</div>
     </div>
   );
 }
@@ -42,20 +61,43 @@ function Block({ title, body, kind, step }: { title: string; body: string; kind:
   return (
     <div
       className={[
-        'rounded-lg border px-3 py-2 text-[12px] leading-[17px]',
-        kind === 'new' ? 'border-teal-900/40 bg-mint/40' : 'border-line',
-        kind === 'dim' ? 'opacity-60' : '',
+        'rounded-lg border px-4 py-3',
+        kind === 'new' ? 'border-teal-900/30 bg-[#EAF4F2]' : 'border-line bg-white',
+        kind === 'dim' ? 'opacity-55' : '',
       ].join(' ')}
     >
-      <p className="flex items-center justify-between gap-2 font-semibold text-ink">
-        <span>{title}</span>
-        <span className="flex shrink-0 items-center gap-1">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[14px] font-semibold leading-[20px] text-ink">{title}</p>
+        <span className="flex shrink-0 items-center gap-1.5 pt-[1px]">
           {kind === 'new' && step ? <StepBadge step={step} /> : null}
           <Tag kind={kind === 'dim' ? 'today' : kind} />
         </span>
-      </p>
-      <p className="mt-0.5 text-muted">{body}</p>
+      </div>
+      <p className="mt-1 text-[13.5px] leading-[20px] text-[#3F4E52]">{body}</p>
     </div>
+  );
+}
+
+function FeatureList({ items, tone }: { items: { title: string; body: string }[]; tone: 'today' | 'new' }) {
+  const Icon = tone === 'new' ? Plus : Check;
+  return (
+    <ul className="divide-y divide-line">
+      {items.map((f) => (
+        <li key={f.title} className="flex gap-3 py-3 first:pt-0 last:pb-0">
+          <span
+            className={`mt-[2px] grid h-5 w-5 shrink-0 place-items-center rounded-full ${
+              tone === 'new' ? 'bg-teal-900 text-white' : 'border border-line bg-page text-muted'
+            }`}
+          >
+            <Icon size={12} strokeWidth={2.5} />
+          </span>
+          <div className="min-w-0">
+            <p className="text-[14px] font-semibold leading-[20px] text-ink">{f.title}</p>
+            <p className="mt-0.5 text-[14px] leading-[21px] text-[#3F4E52]">{f.body}</p>
+          </div>
+        </li>
+      ))}
+    </ul>
   );
 }
 
@@ -67,20 +109,21 @@ export default function TodayPage() {
         caption="Start here. Left is Sirion's Outlook plugin as it works today. Right is the same plugin with Deal Ledger on top. New parts are marked."
         right={
           <span className="flex flex-wrap items-center gap-3">
-            <Link href="/setup" className="text-[12.5px] font-medium text-teal-900 underline">
+            <Link href="/setup" className="text-[14px] font-medium text-teal-900 underline underline-offset-2">
               See how this was set up ↗
             </Link>
-            <Link href="/outlook/ananya?msg=M8" className="rounded-md bg-teal-900 px-4 py-2 text-[12.5px] font-medium text-white">
+            <Link href="/outlook/ananya?msg=M8" className="rounded-md bg-teal-900 px-4 py-2.5 text-[14px] font-semibold text-white hover:bg-teal-700">
               Start the walkthrough
             </Link>
           </span>
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <h2 className="mb-3 text-[17px] font-semibold text-ink">In Outlook</h2>
+      <div className="grid gap-5 lg:grid-cols-2">
         <Pane title="Sirion for Outlook · today" tone="today">
           {TODAY.map((b) => <Block key={b.title} {...b} kind="today" />)}
-          <p className="px-1 pt-1 text-[11.5px] leading-[17px] text-muted">
+          <p className="rounded-lg bg-page px-4 py-3 text-[14px] leading-[21px] text-ink">
             It files the file and reviews the file. It does not read what the email says, so a term agreed in the email body,
             a side thread or a reply that gives a term away is invisible to it.
           </p>
@@ -92,39 +135,29 @@ export default function TodayPage() {
         </Pane>
       </div>
 
-      <SirionCard title="In Word" className="mt-4">
-        <div className="grid gap-4 text-[12.5px] leading-[19px] md:grid-cols-2">
-          <div>
-            <p className="mb-1 font-semibold text-ink">Sirion for Word · today</p>
-            <ul className="list-disc space-y-0.5 pl-5 text-muted">
-              <li>Insert approved clauses from the Content Library</li>
-              <li>Track changes, compare versions, flag risk with AI</li>
-              <li>Preferred, fallback and walk-away clauses (Redline Agent)</li>
-              <li>Approve, reject or publish; changes saved back as a new version</li>
-              <li>Share with the counterparty through the Sirion portal</li>
-            </ul>
+      <h2 className="mb-3 mt-8 text-[17px] font-semibold text-ink">In Word</h2>
+      <div className="grid gap-5 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)]">
+        <section className="rounded-xl border border-line bg-white p-5 shadow-card">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h3 className="text-[15px] font-semibold text-ink">Sirion for Word · today</h3>
+            <Tag kind="today" />
           </div>
-          <div>
-            <p className="mb-1 font-semibold text-teal-900">Added by Deal Ledger</p>
-            <ul className="list-disc space-y-0.5 pl-5 text-ink">
-              <li>Ledger lens: a marker beside every clause showing whether it matches what was agreed in email, with the source and ₹</li>
-              <li>Edit guard: an edit typed in Word that moves an agreed term is flagged as you type, with the cost and the approval it would need</li>
-              <li>Insert from ledger: the exact agreed wording, next to the Content Library, with a supplier-safe comment</li>
-              <li>Compare with email: each change between rounds tagged “discussed in email”, “not mentioned in email” or “not a tracked change”</li>
-              <li>The signing check runs when the clean copy arrives, against what was agreed in email</li>
-              <li>Each gap shows the email line it came from and the approval that depends on it</li>
-              <li>A ₹ figure on the agreed wording, the fallback and the walk-away</li>
-              <li>Supplier-safe comments: no ₹, no internal names, no limits</li>
-            </ul>
+          <FeatureList items={WORD_TODAY} tone="today" />
+        </section>
+        <section className="rounded-xl border border-teal-900/30 bg-white p-5 shadow-card">
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <h3 className="text-[15px] font-semibold text-teal-900">Added by Deal Ledger</h3>
+            <Tag kind="new" />
           </div>
-        </div>
-      </SirionCard>
+          <FeatureList items={WORD_NEW} tone="new" />
+        </section>
+      </div>
 
-      <SirionCard title="Why this gap exists" className="mt-4">
-        <p className="text-[12.5px] leading-[19px] text-ink">
-          {OUTSIDE}% of agreed terms in the last {termsFound.windowMonths} months were agreed outside the formal document: in supplier email text, side threads
-          and calls (demo data). Sirion&apos;s plugins work on documents, so those terms only reach Sirion if someone retypes them.
-          Deal Ledger reads them where they are agreed and keeps them in one record.
+      <SirionCard title="Why this gap exists" className="mt-8">
+        <p className="max-w-[860px] text-[15px] leading-[24px] text-ink">
+          <span className="font-semibold">{OUTSIDE}% of agreed terms</span> in the last {termsFound.windowMonths} months were agreed outside the formal
+          document: in supplier email text, side threads and calls (demo data). Sirion&apos;s plugins work on documents, so those terms only reach
+          Sirion if someone retypes them. Deal Ledger reads them where they are agreed and keeps them in one record.
         </p>
       </SirionCard>
     </>

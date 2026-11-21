@@ -590,7 +590,7 @@ export function InlinePaneDrawer() {
             borderBottom: '1px solid #E6EBEB',
           }}
         >
-          <span style={{ fontSize: 12, fontWeight: 500, color: '#7D9093', letterSpacing: '0.04em' }}>
+          <span style={{ fontSize: 12, fontWeight: 500, color: '#5B6D71', letterSpacing: '0.04em' }}>
             SOURCE
           </span>
           <Button size="small" appearance="subtle" icon={<DismissRegular />} onClick={close} />

@@ -30,7 +30,8 @@ const config: Config = {
         card: '#FFFFFF',
         line: '#E6EBEB',
         ink: '#1F2A2E',
-        muted: '#7D9093',
+        // Secondary text: 5.3:1 on white, so captions stay readable (was #7D9093, 3.4:1).
+        muted: '#5B6D71',
         danger: '#C2410C',
         // Walkthrough guide only: never used for product states (green = agreed, teal = Sirion, blue = Microsoft).
         guide: {

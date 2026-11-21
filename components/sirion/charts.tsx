@@ -24,7 +24,7 @@ import {
 
 export const SERIES = ['#828BFC', '#0C5E69', '#B1D0CA', '#4364B2', '#E0E767'];
 const GRID = '#EDF1F1';
-const TICK = { fill: '#7D9093', fontSize: 11 };
+const TICK = { fill: '#5B6D71', fontSize: 11 };
 
 const tooltipStyle = {
   contentStyle: {
@@ -47,7 +47,7 @@ function ChartLegend() {
       height={28}
       iconType="square"
       iconSize={9}
-      wrapperStyle={{ fontSize: 11, color: '#7D9093', paddingTop: 6 }}
+      wrapperStyle={{ fontSize: 11, color: '#5B6D71', paddingTop: 6 }}
     />
   );
 }

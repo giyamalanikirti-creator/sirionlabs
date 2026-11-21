@@ -37,7 +37,7 @@ export function StakeholderMap() {
         <Node x={520} y={44} title="Legal" sub="reviews a point in time" />
         <Node x={520} y={264} title="Supplier" sub="talks to everyone" tone="supplier" />
 
-        <text x={360} y={338} textAnchor="middle" fill="#7D9093" fontSize="10.5">
+        <text x={360} y={338} textAnchor="middle" fill="#5B6D71" fontSize="10.5">
           Dashed line: the business owner and the supplier talk directly. That is where most
           unrecorded concessions are made.
         </text>
@@ -82,7 +82,7 @@ function Line({
         markerEnd={dashed ? undefined : 'url(#arrow)'}
       />
       {label && (
-        <text x={lx} y={ly} textAnchor="middle" fill="#7D9093" fontSize="10.5">
+        <text x={lx} y={ly} textAnchor="middle" fill="#5B6D71" fontSize="10.5">
           {label}
         </text>
       )}
@@ -112,7 +112,7 @@ function Node({
       <text x={x + 72} y={y + 22} textAnchor="middle" fill={titleColour} fontSize="12.5" fontWeight="600">
         {title}
       </text>
-      <text x={x + 72} y={y + 38} textAnchor="middle" fill="#7D9093" fontSize="10.5">
+      <text x={x + 72} y={y + 38} textAnchor="middle" fill="#5B6D71" fontSize="10.5">
         {sub}
       </text>
     </g>

@@ -8,6 +8,8 @@ import { useDemo, type Role } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { formatDateTime } from '@/lib/format';
 import { dealById } from '@/lib/data';
+import Link from 'next/link';
+
 
 const ROLES: { id: Role; name: string; role: string; initials: string }[] = [
   { id: 'lead', name: 'Ananya Rao', role: 'Procurement lead', initials: 'AR' },
@@ -56,17 +58,24 @@ export function TopBar() {
   return (
     <header className="relative z-40 flex h-16 shrink-0 items-center justify-between gap-6 border-b border-line bg-white px-6">
       <div className="flex min-w-0 items-center gap-4">
-        <div className="flex items-center gap-1.5 rounded-full bg-page px-3 py-1.5 text-[12px]">
+        <Link href="/" aria-label="Sirion home" className="shrink-0">
+          <span className="text-[19px] font-semibold tracking-[-0.01em] text-[#2B3437]">Sirion</span>
+        </Link>
+        <span aria-hidden className="h-6 w-px shrink-0 bg-line" />
+        <div className="flex min-w-0 items-center gap-1.5 overflow-hidden whitespace-nowrap rounded-full bg-page px-3 py-1.5 text-[13px]">
           {crumbs.map((c, i) => (
-            <span key={c} className="flex items-center gap-1.5">
+            <span key={c} className={`flex items-center gap-1.5 ${i === crumbs.length - 1 ? 'min-w-0' : 'shrink-0'}`}>
               {i > 0 && <span className="text-muted/50">/</span>}
-              <span className={i === crumbs.length - 1 ? 'text-ink' : 'text-muted'}>{c}</span>
+              <span className={i === crumbs.length - 1 ? 'truncate text-ink' : 'text-muted'}>{c}</span>
             </span>
           ))}
         </div>
       </div>
 
-      <div className="hidden min-w-0 max-w-sm flex-1 items-center gap-2 rounded-md border border-line bg-page px-3 py-[7px] lg:flex">
+      <button aria-label="Search" className="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-line bg-page text-muted 2xl:hidden">
+        <Search size={15} strokeWidth={2} />
+      </button>
+      <div className="hidden min-w-[240px] max-w-sm flex-1 items-center gap-2 rounded-md border border-line bg-page px-3 py-[7px] 2xl:flex">
         <Search size={14} className="shrink-0 text-muted" strokeWidth={2} />
         <input
           placeholder="Search deals, contracts and terms"

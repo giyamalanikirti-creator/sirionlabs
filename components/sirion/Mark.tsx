@@ -1,6 +1,6 @@
 /**
  * Our own mark — a ledger glyph, two short rules in a rounded square.
- * Deliberately not Sirion's logo or wordmark.
+ * The add-on's own mark; Sirion's mark is in SirionMark.tsx.
  */
 export function Mark({ size = 28, tone = 'light' }: { size?: number; tone?: 'light' | 'dark' }) {
   const bg = tone === 'light' ? '#FFFFFF' : '#0C5E69';
