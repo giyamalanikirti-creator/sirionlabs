@@ -279,10 +279,10 @@ function splitUnit(text: string): [string, string] {
 }
 
 const CASE_LINKS = [
-  { href: '/story#1-why-negotiation', label: 'Why negotiation' },
-  { href: '/story#2-stakeholder-map', label: 'Stakeholder map' },
-  { href: '/story#3-the-problem', label: 'The problem' },
-  { href: '/story#5-success-metrics', label: 'Success metrics' },
+  { href: '/story#1-why-start-with-negotiation', label: 'Why negotiation' },
+  { href: '/story#2-who-needs-to-stay-aligned', label: 'Stakeholder map' },
+  { href: '/story#3-where-terms-get-lost', label: 'The problem' },
+  { href: '/story#5-how-we-ll-know-it-works', label: 'Success metrics' },
   { href: '/today', label: 'Sirion today vs Deal Ledger' },
 ];
 

@@ -54,10 +54,10 @@ function useWindowWidth() {
 }
 
 const STORY_LINKS = [
-  { label: 'Why negotiation', href: '/story#1-why-negotiation' },
-  { label: 'Stakeholder map', href: '/story#2-stakeholder-map' },
-  { label: 'The problem', href: '/story#3-the-problem' },
-  { label: 'Success metrics', href: '/story#5-success-metrics' },
+  { label: 'Why negotiation', href: '/story#1-why-start-with-negotiation' },
+  { label: 'Stakeholder map', href: '/story#2-who-needs-to-stay-aligned' },
+  { label: 'The problem', href: '/story#3-where-terms-get-lost' },
+  { label: 'Success metrics', href: '/story#5-how-we-ll-know-it-works' },
 ];
 
 export function GuideRail() {

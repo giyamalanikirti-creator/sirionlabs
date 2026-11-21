@@ -1,30 +1,36 @@
 # Deal Ledger
 
-**Before you sign, check the supplier's final draft against what your team actually agreed in email.**
+**Sign the supplier deal you negotiated.**
 
-**The problem:** The promises made during a negotiation live in emails, side conversations and calls; the contract that gets signed lives in Word. A draft can pass the company's legal playbook and still lose a commercial term the supplier already conceded.
+A supplier agrees to better terms in email. The final Word draft still contains the old wording. The clause passes the company playbook, so the team signs it and the concession is lost.
 
-**The solution:** Deal Ledger adds an evidence-backed, deal-specific agreement check to Sirion's existing negotiation workflow. It reads permitted supplier conversations, records each position with its source and status, warns before someone gives away a term, compares the signing copy with the agreed positions, and carries the signed outcome into obligations and invoice checks. It never negotiates, sends or approves a concession on its own.
+Deal Ledger links supplier promises to the clauses they affect. It shows Procurement what was agreed, flags changes in Outlook and Word, and checks the exact signing copy. Each finding links to the original evidence so the deal owner can verify it and act.
 
-**The question this case answers:** Can Ananya Rao, Meridian Foods' procurement owner, sign CloudDesk's renewal knowing it contains what her team actually agreed?
+Follow **Ananya Rao, Procurement Lead at Meridian Foods**, as she closes a **₹1.8 crore** software renewal with CloudDesk.
 
-### The agency boundary
+**The journey:** 1 · Ananya in Outlook, 14 November → 2 · the side conversation, 16 November → 3 · Vikram's Send check, 18 November → 4 · the final Word review, 19 November → 5 · Sirion handover, 21 November. The invoice exception is the follow-through after signing.
 
-| Rung | Role in the prototype |
-| --- | --- |
-| **1. Watch** | Read only allowed supplier threads, checking headers before linking candidates. |
-| **2. Record** | Extract typed terms with verified exact quotations, confidence and human-correctable status. |
-| **3. Price** | Calculate ₹ exposure from invoices, renewals and uptime records using deterministic code. |
-| **4. Prepare** | Propose tracked Word edits and supplier-safe replies; a person must apply/send them. |
-| **5. Interrupt** | Warn at Send; require a reason and approver at the separate final Publish gate. |
+## 1. Why start with negotiation?
+
+The final review is the last chance to protect what the supplier already agreed to. CloudDesk offered **60-day payment terms if Meridian signed for three years**. The signing copy gives CloudDesk three years but keeps payment at **45 days**. Meridian’s playbook allows 45 days, so the clause can pass review. Deal Ledger connects both clauses to the original email and flags the lost 15 days before signature.
+
+### Why procurement?
+
+Procurement is accountable for capturing the terms it negotiates, even when the negotiation happens across several teams. IT discusses service levels, Finance approves the spend and Legal reviews the wording. Procurement has to bring those decisions together in the final contract. We start with supplier renewals because the terms are concrete, such as price increases, notice periods and service credits, and the team can use the prior contract, invoice history and service records to assess the impact. Suppliers can keep working in email and Word.
+
+### Why Sirion?
+
+Sirion’s data advantage is that it can connect what a supplier promised to what the buyer actually received. Sirion reports managing over 7 million contracts worth nearly $800 billion. Its platform already supports negotiation in Outlook and Word and checks invoices against signed terms. For a service credit, Deal Ledger could show what the supplier offered, which wording both sides signed and whether the credit appeared on the next eligible invoice. That history is hard to recreate from contract text alone. [Sirion press kit](https://info.sirion.ai/hubfs/Brand_Assets/Press%20Kit.pdf) · [Sirion Create](https://www.sirion.ai/platform/create/) · [Sirion Manage](https://www.sirion.ai/platform/manage/)
+
+Each completed renewal could make the next one more useful. Procurement could see which terms its suppliers accepted, which concessions repeatedly disappeared before signing and which clauses delivered measurable value. There is also a potential data network effect: if customers opt in to anonymised, aggregated benchmarks, each participant adds comparable outcomes that help other buyers judge which terms are worth pursuing. The supplier’s own words remain the evidence for what was agreed on each deal.
 
 ### Three product decisions
 
-| Decision | Choice | Why |
-| --- | --- | --- |
-| **Who we build for** | Procurement is the primary user; business owners are protected at Send; Finance and Legal receive traceable handovers. Suppliers are not users. | Procurement owns what gets signed, but many concessions happen in other people's inboxes. No solution should require 2,500 suppliers to install something. |
-| **How much the product does** | Watch → Record → Price → Prepare → Interrupt. It may file a version, propose a term, suggest a tracked change and warn at Send; it never sends, accepts, signs or grants an approval for a human. | The irreversibility of a signed term warrants human control and clear evidence. |
-| **Assumptions** | Meridian is an India-based company with 3,000 employees and ~2,500 suppliers. Microsoft 365 and Word are used for negotiations; Sirion is its CLM; connected invoice, renewal and uptime histories support estimates. | The product needs a live contract record, scoped mailbox access and enough historical evidence to estimate risk. |
+| Decision | What we chose |
+| --- | --- |
+| **First user and workflow** | Procurement leads supplier renewals in Outlook and Word. Business owners get a timely Send warning, and Finance and Legal receive evidence when they need to act. Suppliers stay in their existing tools. |
+| **How much the product can do** | Deal Ledger can capture evidence, estimate exposure, prepare edits and flag exceptions. People send replies, accept terms, approve exceptions and sign. |
+| **Demo assumptions** | Meridian is an India-based company with 3,000 employees and about 2,500 suppliers. It uses Microsoft 365 and Sirion. Estimates depend on scoped access to relevant correspondence, invoices, renewal history and service records. |
 
 <!-- collapse:Assumptions -->
 
@@ -32,120 +38,90 @@
 
 <!-- /collapse -->
 
-## 1. Why negotiation?
+### What Deal Ledger can do
 
-**Negotiation is the last point where a lost term can be corrected before signature.** Intake makes work visible, and a repository makes signed documents searchable. Neither answers whether a supplier's latest document reflects the agreement reached across an email thread and several Word rounds. A clause that quietly reverts to the supplier's wording may cause no policy violation and no error message, because the supplier's position can be within the company playbook while still being worse than the position negotiated for this deal.
+| Step | What it does |
+| --- | --- |
+| **1. Watch** | Find relevant threads within permitted supplier mailboxes. |
+| **2. Record** | Quote the source and capture the position, condition and status. |
+| **3. Price** | Estimate exposure using deal and historical inputs. |
+| **4. Prepare** | Draft a reply or tracked Word edit for a person to review. |
+| **5. Interrupt** | Warn at Send and require a resolution or authorised exception at Publish. |
 
-This is the difference between **policy compliance** and **deal fidelity**. Consider CloudDesk's signing copy: §9.3 provides payment in 45 days. Sirion's company playbook allows 45 days, so a playbook-only review can pass it. Yet Rohan agreed to 60 days on 10 November **if Meridian committed for three years**. The same draft's §3.1 gives CloudDesk a three-year term. The condition is met, but the buyer would pay 15 days earlier than agreed. Deal Ledger checks both clauses against the source email, shows the condition and proposes the specific correction.
+## 2. Who needs to stay aligned?
 
-The strongest objection is that much of the financial leakage happens *after* signature, during delivery, renewals and invoicing. That is precisely why the negotiation check matters: post-signature systems can enforce only the terms that survive into the executed document. If the wrong notice period, escalator or service-credit language is signed, a calendar or invoice checker cannot recover the email concession on its own. Deal Ledger therefore concentrates on negotiation, then shows a narrow, traceable handover to Sirion's existing post-signature workflows rather than trying to rebuild the entire lifecycle.
-
-**Where we start:** procurement-led supplier renewals negotiated by email and Word, especially where a business stakeholder speaks to the supplier in parallel and a previous contract or invoice history exists. CloudDesk is the end-to-end demonstration; BrightStaff tests inconsistent clauses and schedules; SwiftShip tests the next expansion case, a new deal arriving as a PDF quote.
-
-**Why Sirion:** Sirion already has contract records, version history, IssueDetection and Redline Agent in Word, playbooks, approvals and post-signature obligations. Deal Ledger extends that installed workflow with a new source of truth: **what this supplier agreed in this negotiation**, not another generic drafting assistant. Sirion describes its existing playbook-led negotiation and redlining on its [contract negotiation page](https://www.sirion.ai/platform/create/contract-negotiation/).
-
-## 2. Stakeholder map: whose incentives collide?
-
-| Stakeholder | What they want / how they are measured | Where the conflict occurs | What Deal Ledger gives them |
-| --- | --- | --- | --- |
-| **Ananya Rao · Procurement / deal owner** | Negotiated savings captured in the signed contract; on-time close; controlled renewals | She owns the deal but cannot see every supplier side thread or reread six Word versions | A priced, editable ledger; evidence-linked differences; one signing check |
-| **Vikram Shah · IT / business owner** | Go-live date, service uptime, no supplier friction | He may concede a commercial term to keep delivery moving without knowing the approval threshold | One timely warning at Send; an editable supplier-safe reply; a route to Ananya |
-| **Neha Kapoor · Finance / CFO approver** | Protected cash, valid approval for the ₹1.8 crore three-year commitment, invoices matching the contract | She approves conditions before signing but learns of drift only through exceptions | Approval dependency on the ledger, routed concessions and clause-backed invoice traceability |
-| **Arjun · Legal** | Defensible liability and notice language, few unnecessary escalations, quick turnaround | Legal checks compliance of a particular version, not a separate commercial promise in email | Playbook and deal-specific gaps side by side; Legal-owned exceptions routed to Legal |
-| **IT / Microsoft 365 and Sirion admin** | Limited permissions, predictable deployment, auditability and adoption | Wider mailbox visibility would improve recall but reduce employee trust | Scoped add-in deployment, narrow consent, header-first linking, transparent off-ramps |
-| **Rohan / Priya · CloudDesk supplier team** | Close this quarter, preserve flexibility, avoid repeated revisions | Rohan may concede in email while the final Word copy is prepared from Priya's template | No new supplier tool: clear ordinary emails, Word tracked changes and fewer ambiguous rounds |
+| Stakeholder | What they own | What Deal Ledger gives them |
+| --- | --- | --- |
+| **Ananya Rao · Procurement** | Negotiated terms, savings and a timely close | One record of agreed terms, open issues and signing exceptions. |
+| **Vikram Shah · IT** | Go-live, uptime and the supplier relationship | An Outlook warning when his reply could concede a commercial term, plus a route to Ananya. |
+| **Neha Kapoor · Finance** | Spend approval, cash terms and invoice accuracy | Approval conditions linked to clauses and a trace from invoice variances to the agreement. |
+| **Arjun · Legal** | Clause wording, legal risk and exceptions | Playbook findings and deal-specific discrepancies in the same Word review. |
+| **Microsoft 365 and Sirion admins** | Access, deployment and auditability | Scoped access, header-first matching and an audit trail for links and removals. |
+| **Rohan and Priya · CloudDesk** | Closing the renewal and keeping versions aligned | Clear supplier emails and ordinary Word tracked changes, with no new supplier account. |
 
 <!-- component:stakeholder-map -->
 
-**The relationship map:** Procurement owns the commercial position; the supplier talks to Procurement, the business owner, Finance and Legal. The **dashed direct line between Vikram and Rohan** is crucial: it shows why a concession can be made without reaching the deal owner. This is an incentive problem, not proof that either party acted in bad faith.
+*Procurement owns the deal. The dashed line shows how IT and the supplier can discuss a change directly, outside Procurement’s inbox.*
 
-**Five conflicts the experience must handle:**
+## 3. Where terms get lost
 
-1. **Speed versus protection.** Vikram needs the implementation unblocked; Ananya needs the original service-credit concession preserved. The Send check presents the cost and routes the issue without stopping his work by default.
-2. **Policy versus the actual deal.** Legal accepts 45-day payment; Procurement negotiated 60 days conditional on a three-year term. Word must flag the missing negotiated benefit even when the clause passes the playbook.
-3. **Authority versus conversation.** A business-owner email can sound like acceptance despite no commercial mandate. The ledger records who said it and which approval is still needed; copying Procurement is not treated as approval.
-4. **Visibility versus privacy.** Supplier conversations contain evidence, but broad mailbox surveillance is unacceptable. Read only opted-in, live-deal supplier threads in connected mailboxes, beginning with headers.
-5. **Signing versus downstream accountability.** Finance pays for a clause it may never have negotiated. Carry the signed clause, email source and approval into an invoice exception, not merely a generic alert.
-
-## 3. The problem: the signed document forgets the conversation
-
-**Problem statement:** What the company agrees and what the company signs can be two different things, and a standard playbook review does not prove they are the same.
-
-Three recurrent failures illustrate the gap:
-
-- **The quiet reversion.** Rohan's round-4 email says pricing will be fixed, while the file may still carry an annual revision. The attachment also quietly moves CloudDesk's renewal notice in §14.2 from 30 to 90 days, making Meridian's decision deadline 60 days earlier. The text of the email and the contents of the attachment require separate checks.
-- **The unrecorded side concession.** Vikram and Rohan discuss a 10% versus a 5% service credit. “Fine with that” could refer to either. It must remain **needs confirming**, not be guessed into “agreed.” A later reply from Rohan can become the actual source of agreement.
-- **The contract that contradicts itself.** BrightStaff's clause 6 says 8%, while the signed Schedule 2 rate card says 10%. The invoice follows the schedule. This is an internal signed-document conflict that needs an owner, not an automatic supplier accusation.
-
-**Why this is material, and what is evidence rather than an assumption.** WorldCC and Deloitte's 2023 research found average contract value erosion of **8.6%**, across the contract lifecycle: an industry-wide estimate, not a Meridian result. WorldCC's *Closing the Procurement Value Gap* research with Ironclad, published in **2026**, puts cumulative leakage at about **11%**, including missed negotiation savings, unrecorded changes and poor renewal planning. These are distinct studies and should not be added together. A {{keep:19 October 2026}} Harvey article also explicitly discusses emails and side promises not reaching the executed agreement. None of these publications proves that Deal Ledger's specific product will work; the prototype and the pilot must test that claim.
-
-**A falsifiable first-week diagnostic:** Audit 20 historical supplier contracts, reconstruct the supplier-side negotiated positions from available correspondence and compare them with executed documents. Count (a) positions missing despite passing the playbook, (b) renewals without documented review and (c) invoice exceptions traceable to such gaps. The hypothesis is **one to three omitted positions per contract**, with at least some carrying financial value; it is not an observed Meridian fact. If the count is close to zero, our proposed differentiation is weak.
-
-### The financial problem, on the live CloudDesk round
-
-CloudDesk is a **₹60 lakh annual / three-year / ₹1.8 crore committed** software renewal. At the live-round state shown on Home before Rohan's round-4 email, the prototype's annual expected exposure is **₹4.4 lakh if signed as is**: approximately **₹3.9 lakh** from possible annual price revision and **₹50,000** from the service-credit difference. These are *expected, modelled exposures on a specific draft and ledger state*, not realised losses, invoice overpayments or credits already due. A later version can have a different set of gaps and a different total; the amount is always recalculated and labelled by **version, scope and as-of time**.
-
-### The dashboard is part of the evidence
-
-The live dashboard on [Home](/#workspace) keeps its visuals and their distinct denominators:
-
-- **Signing-quality north-star trend:** **50% ({{keep:Jan to Mar 2026}}) → 58% (Apr to Jun) → 65% (Jul to Sep)**. The latest point is **13 of 20 audited contracts** signed with no agreed term missing; three newer contracts await audit. These are illustrative demo numbers, obtained by independent correspondence audit, not by the product grading itself.
-- **Where agreement actually happens:** **42% of 214 negotiated terms** in the last six months were agreed **outside the formal contract document** (supplier email, side threads and calls).
-- **Value at risk, open portfolio:** **₹20.3 lakh a year** across **12 open deals**, with **₹4.4 lakh** attributed to the live CloudDesk snapshot and **₹15.9 lakh** to the other 11, shown with the **“If signed as is, by open deal” top-eight bar chart**. This is an expected annual average, not a cash loss; a one-time renewal exposure is annualised over the contract term and its full one-time exposure is shown too.
-
-## 4. Working prototype: one deal, five connected moments, one downstream proof
-
-**Journey:** Ananya's Outlook → Ananya's side-thread review → Vikram's Outlook Send → Word signing-copy check → Sirion handover → Finance's invoice exception. Every time the state changes, the same ledger drives the deal page, the add-ins, the portfolio figures and AskSirion.
-
-| Cross-person handoff | What crosses the boundary |
+| What happens | What the prototype surfaces |
 | --- | --- |
-| Vikram's supplier side thread → Ananya | The exact statement, ambiguity flag and service-credit ledger row |
-| Vikram presses Send → Ananya | An edited reply, a procurement handoff or a logged unapproved concession |
-| Ananya's emails → Word | A verified agreed position becomes a proposed tracked change |
-| Reviewed Word version → Sirion | The actual executed terms become owner-linked obligations and invoice rules |
-| Signed clause → Neha in Finance | An invoice variance is explained through the precise clause and earlier evidence |
+| **The email and the attachment diverge.** CloudDesk’s email offers fixed pricing, while the draft may still allow annual increases. The same attachment moves the notice period in §14.2 from 30 to 90 days. | It checks the email and attachment separately. The draft would bring Meridian’s renewal decision forward by 60 days. |
+| **A side thread sounds like agreement.** Vikram and Rohan discuss a 10% or 5% service credit. “Fine with that” could refer to either. | The ledger marks the term **Needs confirmation** and drafts a targeted question. The supplier’s clarification becomes the source. |
+| **Signed documents conflict.** BrightStaff’s clause 6 says 8%, while Schedule 2 says 10%. The invoice follows the schedule. | Finance can see both clauses. The contract owner resolves the conflict before a supplier dispute is raised. |
 
-### A. Supplier round lands: Ananya, Outlook, 14 November
+### What’s at stake in the CloudDesk demo?
 
-Rohan emails CloudDesk MSA v4. Sirion's existing Outlook add-in identifies the contract and can sync the attachment as the next counterparty version. **New:** Deal Ledger separately reads the supplier email, proposes typed commercial terms with **exact quotations**, and checks every quotation against the permitted original message before using it. The round card distinguishes **“What the email says,” “What the attached document changed” and “What remains open.”** It flags the untracked §14.2 notice-period change and surfaces the apparent fixed-pricing commitment. Each position retains the sender, timestamp, quote, source, confidence and any condition.
+CloudDesk is a **₹60 lakh** annual renewal, or **₹1.8 crore** over three years. In the Home snapshot before the round-four email, signing as shown carries **₹4.4 lakh** in modelled annual exposure. About **₹3.9 lakh** comes from possible annual price increases and **₹50,000** from the service-credit gap. The estimate updates as the draft and agreed terms change.
 
-**Respond to round** prepares a reply and a tracked v5. The reply acknowledges resolved terms, specifies the changes requested and explicitly says the service credit remains open. A human reviews and sends it. A proposed edit is **not** recorded as supplier-accepted merely because it appears in Meridian's outgoing v5.
+### Home dashboard
 
-### B. Side thread appears: Ananya, Outlook, 16 November
+These visuals are on [Home](/#workspace), in this order.
 
-A supplier-domain thread involving Vikram may belong to the CloudDesk deal. Candidate matching uses **headers only**: sender/recipient domain, participants, subject/thread identifiers and the known deal. Where the live supplier round explicitly names the colleague and the supplier domain matches, the candidate can be linked **automatically with visible Undo**; otherwise the owner must confirm. Body text is not read before a thread is linked. Ananya can unlink it later, removing its derived quotations and logging the change.
+| Visual | What it shows |
+| --- | --- |
+| **Signing quality** | 50% → 58% → 65% across the first three quarters of 2026. In the latest demo period, 13 of 20 audited contracts preserved every agreed term. Three newer contracts await audit. |
+| **Where agreement happens** | In the demo, 42% of 214 negotiated terms over six months were agreed outside the formal contract document, across supplier email, side threads and calls. |
+| **Value at risk if signed as is** | The demo models ₹20.3 lakh in annual exposure across 12 open deals, including ₹4.4 lakh for CloudDesk and ₹15.9 lakh for the other 11. The bars show the eight largest exposures. Annualised and full one-time renewal exposures are shown separately. |
 
-Once linked, Deal Ledger displays the 10% and 5% service-credit positions side by side. It does not resolve the ambiguous phrase “fine with that” on its own. The term remains **needs confirming** and the product drafts one precise supplier question. The response, when received, becomes the auditable source.
+## 4. Walk through the CloudDesk renewal
 
-### C. A business-owner reply is checked: Vikram, Outlook, 18 November
+### 1 · Capture the supplier’s latest round · Ananya in Outlook, 14 November
 
-Vikram is replying directly to Rohan. He need not open Sirion or a separate dashboard. The Send check compares recipients, draft text and attachment names against the *current* ledger. It looks for a reply that reopens an agreed term, gives away an open term, settles something still needing confirmation, or attaches an obsolete version. Internal-only messages are **never checked**.
+Rohan sends MSA v4. Ananya links the attachment to CloudDesk’s Sirion record. Deal Ledger separates what the email says, what the attachment changed and what still needs agreement. Each proposed term includes a verified quote, sender, date and any condition. Ananya can prepare a reply and a tracked v5 for review. The ledger tracks Meridian’s edits as proposals until CloudDesk accepts them.
 
-One consolidated alert points to the exact sentence, a modelled annual cost and the approval at risk. Vikram can choose **Loop in Procurement**, **Edit reply** (insert a supplier-safe alternative for his review), or **Send anyway** with a reason. That last choice sends the email, records a reopened/conceded status and notifies Ananya; it **does not mean that Finance or Legal approved it**. A clean reply may show **“Checked against ledger ✓.”**
+### 2 · Resolve the side conversation · Ananya in Outlook, 16 November
 
-In a production Outlook add-in, the non-blocking warning is designed around the Smart Alerts **prompt-user** behaviour, where Send Anyway is possible; the demo uses deterministic rules. If the add-in is missing, the user is not signed in, or the check cannot finish within its short target (~3 seconds), the experience fails open and visibly says **“Not checked”** rather than implying protection. Actual client-timeout and send behaviour must follow Microsoft's platform constraints.
+A supplier thread with Vikram looks relevant. Deal Ledger checks the headers first. If the supplier domain matches and the live round explicitly names Vikram, it can link the thread with Undo. Weaker matches need Ananya’s confirmation. The body is read after linking. Ananya can unlink the conversation and remove the terms and quotes derived from it.
 
-### D. Check the signing copy: Ananya, Word, 19 November
+The 10% versus 5% service credit stays open until Rohan confirms which rate applies.
 
-The supplier returns a clean v6. Sirion for Word already checks against **company policy** with IssueDetection and Redline Agent. **Deal Ledger adds a second, deal-specific check** against the email ledger. The Word pane keeps the familiar **contract record → Review → Approve → Publish** structure and marks blocks **Today in Sirion** or **New · Deal Ledger**.
+### 3 · Catch a concession before Send · Vikram in Outlook, 18 November
 
-**One Review list** merges playbook issues and email-agreement discrepancies, prioritised by expected annual cost and approval criticality. Each finding card shows (1) the agreed term and its verified source quote, date and person; (2) the draft's clause and word-level change; (3) condition/dependency status; (4) expected **₹ per year if signed as is**, with confidence and two lines of calculation; (5) the playbook **preferred / fallback / walk-away** ladder; and (6) four actions: **Insert agreed wording**, **Ask supplier**, **Accept theirs** (routed for approval), or **Reading is wrong** (correct the ledger with an audit entry). Peer outcomes are an **internal reference only**, not the source of the monetary headline.
+Vikram gets one warning if his external reply could give away or reopen a term, settle an ambiguous point or attach an old draft. The warning shows the sentence, the estimated impact and the approval at stake. He can edit the reply, loop in Procurement or send anyway with a reason. Sending anyway logs the exception and alerts Ananya. Any required approval stays open.
 
-**The hero gap, payment clause §9.3:**
+### 4 · Check the signing copy · Ananya in Word, 19 November
 
-> **Company playbook:** 45 days is permitted. **Deal agreement:** Rohan agreed to **60 days**, conditional on a **three-year term**. **Draft:** §9.3 says **45 days**. **Condition check:** §3.1 does give three years. **Result:** The draft passes policy but loses 15 days of working capital. The illustrative model estimates approximately **₹25,000 a year**, subject to the configured financing rate.
+CloudDesk returns a clean v6. Alongside Sirion’s playbook findings, Deal Ledger shows the supplier-specific gaps, including the 45-day payment clause. Ananya can see Rohan’s 60-day commitment, the three-year condition in §3.1 and the mismatch in §9.3. The demo estimates the working-capital impact at roughly **₹25,000 a year**, using the configured financing rate.
 
-**Insert agreed wording** creates a visible tracked change, **45 → 60**, in Word with a supplier-safe comment. The state progresses in three distinct events: **proposed in Word → saved to Sirion as v7 → accepted by supplier**. Only an actual supplier acceptance closes the third step. A re-saved or stripped Word document can be matched by Sirion tag, then clause similarity with stored versions, then a manual contract selection. Saving in Word alone must not silently create a new Sirion version.
+Ananya can insert the agreed wording, ask the supplier, route the supplier’s wording for approval or correct the ledger. Inserting 60 days creates a tracked Word edit. The prototype distinguishes the proposed edit, the saved Sirion version and supplier acceptance. Before Publish, it checks the exact final file again. Each unresolved discrepancy needs a correction or a documented exception with a named approver.
 
-**Publish/signing gate:** Re-read the precise final file and compare it with every *agreed* term and approval dependency. A missing position cannot be published silently. The owner must fix it or record a reason and named approver, with the decision logged. A warning at Send is non-blocking; the **Publish gate is a separate, stronger control**. Never claim an unapproved waiver is approved.
+### 5 · Hand over the signed terms · Sirion, 21 November
 
-### E. Handover: Sirion, 21 November
+Sirion checks the signed copy against the reviewed version before activating it. Signed notice dates, pricing rules, payment terms and service credits feed the existing Calendar, obligations and invoice workflows. Each obligation has an owner, date, clause and evidence link. Where a working-day reminder differs from the contractual deadline, both dates appear. Legal confirms any ambiguous notice wording.
 
-Before activation, compare the signed copy with reviewed v7. Then take only **signed** commitments into Sirion's existing obligations, Calendar and invoice-rule workflows: notice period, actual expiry and renewal decision dates; signed prices/escalators; payment rules; service-level credit definitions. Every obligation has **an owner, a due date, a clause reference and a link to the negotiation evidence**. If the deadline falls on a weekend, display both the contractual date and the adjusted working-day reminder. A notices clause such as “received next working day” goes to Legal to confirm; Deal Ledger does not silently interpret it as a settled legal determination.
+### After signing · Trace the invoice variance
 
-### F. Prove the chain on an invoice: Neha, Finance
+In December 2027, Neha opens a **₹32,000** CloudDesk invoice variance and can trace it to the signed clause, source email and approval. The amount is a variance pending review. BrightStaff tests conflicting signed terms. SwiftShip shows a possible next use case: a new supplier deal that starts with a PDF quote.
 
-At the later December 2027 invoice event, the CloudDesk discrepancy of **₹32,000** is explained in one trace: **invoice line → signed clause → email position and approval trail**. It is not labelled an automatic financial recovery. BrightStaff provides a second path: **clause 6 = 8%**, **Schedule 2 = 10%**, and the invoice follows Schedule 2. Because two signed sections conflict, route it to the contract owner for interpretation before raising a supplier dispute. SwiftShip remains the next expansion flow (new email/PDF quote) rather than distracting from the CloudDesk renewal.
+| Handoff | What travels with it |
+| --- | --- |
+| **Vikram → Ananya** | Supplier quote, ambiguity flag and relevant ledger row |
+| **Outlook Send → Procurement** | Edited reply, request for help or logged exception |
+| **Outlook → Word** | Verified term and proposed tracked edit |
+| **Word → Sirion** | Reviewed and signed clauses, obligations and invoice rules |
+| **Signed contract → Finance** | Invoice variance, clause, source email and approval |
 
 <!-- collapse:How this works -->
 
@@ -212,34 +188,21 @@ Sirion could offer a **contributor-only, opt-in “give to get”** view of anon
 
 <!-- /collapse -->
 
-## 5. Success metrics: did the signed contract actually get better?
+## 5. How we’ll know it works
 
-### North star
+**North star:** the share of independently audited signed contracts that include every supplier term agreed during negotiation. Reviewers reconstruct the agreement from the original evidence, then check the executed copy. Report authorised exceptions separately.
 
-**Share of independently audited signed contracts in which *every supplier term truly agreed during negotiation is present in the executed copy*.** Report authorised waivers as a **separate** measure rather than counting them as a flawless signing outcome. An independent reviewer reconstructs the agreed positions from original source evidence, then checks the signed document. The illustrated **65% / 13 of 20** and its **50% → 58% → 65%** historical trend are on Home, tagged **demo data**.
+**Pilot.** Replay 20 historical supplier renewals with the same source access in both reviews: standard Sirion and Sirion with Deal Ledger. Have an independent reviewer establish which gaps were real and material before comparing the outputs. The key question is how many verified gaps passed the normal playbook review. Use live deals to measure review time and what users do with Send warnings.
 
-### The decisive differentiation test
+| Measure | What to track |
+| --- | --- |
+| **Evidence coverage** | Terms with verified sources by channel, plus inaccessible and unlinked conversations. |
+| **Review quality** | Material gaps caught beyond the playbook and incorrect Agreed labels. Pilot target for incorrect labels: below 2%. |
+| **Send warning outcomes** | Replies edited, routed to an owner or sent with a logged exception. |
+| **Speed** | Time added to Word review, time to clarify a term and days from final round to signature. |
+| **After signing** | Invoice variances traced to a clause within one working day. Track modelled exposure separately from verified savings or recoveries. |
 
-**Of all material discrepancies independently confirmed, what percentage passed Sirion's normal company playbook review yet contradicted a supplier-specific agreed position?** If few real catches fall in this category, Deal Ledger should become a smaller feature inside IssueDetection rather than a separate product.
-
-**Pilot:** Re-run the **same 20 already-signed historical deals** through (a) normal Sirion review and (b) Sirion + Deal Ledger. Have a reviewer blind to the tool's output adjudicate what is a material catch and what is noise. Use the same access scope and case mix. Separately measure time impact on live deals; a historical replay alone cannot establish behavioural benefit.
-
-### Supporting measures
-
-- **Coverage:** share of negotiated terms with verified source evidence, by email, side thread and call note. Count inaccessible/unlinked conversations separately; a low false-positive rate is meaningless if the tool reads little.
-- **Material findings:** confirmed meaningful missing positions per deal, especially those missed by existing playbook checks.
-- **At Send:** share of risky proposed replies edited or routed to an authorised owner, versus sent anyway with a logged exception; report warning usefulness.
-- **Speed:** minutes added to Word review; days from the last supplier round to signature; time to resolve an ambiguous term.
-- **After signature:** share of invoice variances traced to an exact signed clause and source within one working day.
-- **Money:** expected ₹ protected **with source assumptions**, separately from any later independently verified realised savings.
-
-### Guardrails and decisions to reverse course
-
-- **False “agreed” labels:** proposed target **below 2% of labelled terms**. A model that confidently invents agreement is unsafe even if it catches many deviations.
-- **Extra reviewer minutes:** compare against normal Sirion. Do not add time without extra independently confirmed material catches.
-- **Ambiguity at signing:** track unresolved or manually confirmed rows. Do not make uncertainty disappear into a fabricated agreement.
-- **Deployment coverage:** if fewer than half of relevant supplier mailboxes can be connected in the pilot, narrow the offer to the owner-selected-thread and final-signing-copy check.
-- **Decision rules:** rethink or fold into IssueDetection if almost all catches are already in the playbook; pause automation if false agreement exceeds 2%; stop expanding if review/signing time increases without meaningful gains; test meeting/transcript ingestion if email is not where deals are actually concluded.
+If normal playbook review catches almost all the same gaps, fold the check into IssueDetection. Pause automated agreement labelling if 2% or more of those labels are wrong. If fewer than half of relevant mailboxes can be connected, focus on owner-selected threads and the signing-copy check. Expand only if the pilot shows meaningful additional catches for the time required.
 
 <!-- collapse:Sources and scope of claims -->
 
