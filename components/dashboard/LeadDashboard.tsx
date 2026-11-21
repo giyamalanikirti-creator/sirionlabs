@@ -18,7 +18,7 @@ import { formatLakh, formatPct } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 
 export function LeadDashboard() {
-  const { rows, atRisk, allOpenAtRisk, counts, attention, signed, hydrated } = useLedger();
+  const { rows, atRisk, allOpenAtRisk, counts, attention, signed, hydrated, reconciliation, asOf } = useLedger();
 
   const roundReviewed = useDemo((state) => state.completedSteps.includes(1));
   const notices = useDemo((state) => state.notices);
@@ -91,6 +91,7 @@ export function LeadDashboard() {
             <>
               <dl className="space-y-1.5">
                 <SplitRow label="CloudDesk (live)" value={formatLakh(signed ? 0 : atRisk)} />
+                {!signed && <p className="text-[11.5px] leading-[16px] text-muted" suppressHydrationWarning>{reconciliation} · {asOf}</p>}
                 <SplitRow
                   label="11 other open deals"
                   value={formatLakh(allOpenAtRisk - (signed ? 0 : atRisk))}

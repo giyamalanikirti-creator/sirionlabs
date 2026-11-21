@@ -51,6 +51,8 @@ export function signingCheck(
     if (!docValue) continue;
 
     if (sameValue(docValue, row.position)) {
+      // Matching text on a term the supplier has not confirmed is not "matches what was agreed" (review fix A5).
+      if (row.state === 'needs_confirmation') continue;
       matches.push({
         rowId: row.id,
         termKey: row.termKey,

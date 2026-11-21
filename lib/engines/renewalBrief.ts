@@ -1,6 +1,6 @@
 /**
  * The renewal brief that fires with the notice-deadline reminder (Ironclad
- * Renewal Agent style): outages, service credits owed, usage, and the asks
+ * Renewal Agent style): outages, potential service credits, usage, and the asks
  * that give leverage. Pure; every number comes from seed data.
  */
 import type { LedgerRow } from '@/lib/types';
@@ -46,7 +46,7 @@ export function renewalBrief(contract: ContractRecord, rows: LedgerRow[], seats:
     unusedSeats,
     seats,
     asks: [
-      `Ask for the ${formatInr(creditsOwedInr)} of service credits owed to be paid before renewal, or taken off the first renewal invoice.`,
+      `Check eligibility under the signed SLA for up to ${formatInr(creditsOwedInr)} of service credits (${outages.length} month${outages.length === 1 ? '' : 's'} below ${target}%), and if eligible, ask for them before renewal.`,
       `Renew for ${seats - unusedSeats} seats, not ${seats}: unreviewed renewals carried ${formatPct(UNUSED_SHARE)} unused seats.`,
       `Keep ${price ? plainValue(price).toLowerCase() : 'the agreed price'} into the renewal year; ${outages.length} missed month${outages.length === 1 ? '' : 's'} weaken any case for a rise.`,
     ],

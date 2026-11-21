@@ -93,7 +93,7 @@ describe('dispute email', () => {
 });
 
 describe('renewal brief', () => {
-  it('counts outages and the credits owed from the uptime record', () => {
+  it('counts outages and the potential credits from the uptime record', () => {
     s().advanceTo(5);
     s().saveToSirion();
     const brief = renewalBrief(s().contract!, s().ledger, 500)!;

@@ -210,7 +210,8 @@ function serviceLeverage(deal: Deal): string | undefined {
     month: 'long',
     timeZone: 'Asia/Kolkata',
   });
-  return `CloudDesk missed 99.5% uptime in ${misses.length} of the last ${events.length} months, most recently ${month} (${latest.uptimePct}%), so service credits are already owed.`;
+  // A missed threshold is history, not money owed: eligibility depends on the signed SLA (A4).
+  return `${misses.length === 2 ? 'Two' : misses.length} of the last ${events.length} months fell below the 99.5% uptime threshold, most recently ${month} (${latest.uptimePct}%). Check eligibility under the signed SLA.`;
 }
 
 function agreedWhere(row: LedgerRow): string {

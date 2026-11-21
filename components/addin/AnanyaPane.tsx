@@ -32,7 +32,9 @@ import { priceChange } from '@/lib/engines/pricing';
 import { matchThread, toHeader, SIGNAL_WEIGHTS } from '@/lib/engines/matcher';
 import { messages as allMessages } from '@/lib/data';
 import { extractValue } from '@/lib/engines/diff';
-import { CLARIFY_DRAFT, RESPOND_ROUND_DRAFT } from '@/lib/engines/wording';
+import { CLARIFY_DRAFT } from '@/lib/engines/wording';
+import { roundReply } from '@/lib/engines/replyCopy';
+import { asOfLine, dealReconciliation, headlineLabel, latestVersionId } from '@/lib/engines/headline';
 import { signingCheck } from '@/lib/engines/signing';
 import { rowHeadlineShare } from '@/lib/engines/playbook';
 import { HEADLINE_SUFFIX } from '@/lib/format';
@@ -52,6 +54,8 @@ const CREDIT_5: TermValue = { kind: 'service_credit', pct: 5, uptimeTarget: 99.5
 export interface DraftOptions {
   kind?: 'clarify' | 'respond';
   attachVersionId?: string;
+  /** Shown above Send: what this version changes and what is still open (review fix A1). */
+  summary?: { changes: string[]; stillOpen: string[] };
   /** A new internal email rather than a reply (e.g. asking Vikram to copy deals@). */
   to?: string[];
   subject?: string;
@@ -70,6 +74,11 @@ export function AnanyaPane({
 }) {
   const s = usePaneStyles();
   const atRisk = dealAtRisk(rows, cloudDeskDeal);
+  const clock = useDemo((st) => st.clock);
+  const synced = useDemo((st) => st.syncedVersionIds);
+  const signedAt = useDemo((st) => st.signedAt);
+  const latest = latestVersionId({ clock, syncedVersionIds: synced, signedAt });
+  const recon = dealReconciliation(rows, cloudDeskDeal);
   const roundReviewed = useDemo((state) => Boolean(state.readerRuns.M8));
   const responded = useDemo((st) => st.respondedMessageIds.includes('M8'));
   const respond = useDemo((st) => st.respondToRound);
@@ -80,7 +89,12 @@ export function AnanyaPane({
 
   const respondToRound = () => {
     respond('M8');
-    onDraftReply(RESPOND_ROUND_DRAFT, { kind: 'respond', attachVersionId: 'v5' });
+    const reply = roundReply({ rows, prev: versionById('v4')!, attached: versionById('v5')!, roundMessageId: 'M8', deal: cloudDeskDeal, greeting: 'Rohan', signOff: 'Ananya' });
+    onDraftReply(reply.body, {
+      kind: 'respond',
+      attachVersionId: 'v5',
+      summary: { changes: reply.changes.map((c) => `§${c.clauseNo} ${c.label.toLowerCase()}: ${c.from} → ${c.to}`), stillOpen: reply.stillOpen.map((o) => o.label.toLowerCase()) },
+    });
     toast('Reply drafted, with v5 attached: clause 14.2 restored as a tracked change.');
   };
 
@@ -91,7 +105,7 @@ export function AnanyaPane({
 
       <section className={s.card} style={{ borderColor: tokens.colorBrandStroke1, boxShadow: `inset 3px 0 0 ${tokens.colorBrandBackground}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
-          <span className={s.sectionLabel} style={{ margin: 0 }}>If signed as is</span>
+          <span className={s.sectionLabel} style={{ margin: 0 }}>Across the deal</span>
           <OriginTag kind="new" />
         </div>
         <div style={{ marginTop: 4 }}>
@@ -100,6 +114,12 @@ export function AnanyaPane({
           </span>{' '}
           <span className={s.moneySuffix}>a year (expected)</span>
         </div>
+        {!(busy || openMessageId === 'M8' && !roundReviewed) && (
+          <div style={{ fontSize: 12, lineHeight: '17px', color: tokens.colorNeutralForeground2 }}>
+            <div>{headlineLabel('deal', atRisk, latest)}</div>
+            <div style={{ color: tokens.colorNeutralForeground3 }}>{recon.text} · {asOfLine(clock, latest)}</div>
+          </div>
+        )}
         {!busy && <PaneHeadlineExplainer rows={rows} />}
       </section>
 
@@ -332,7 +352,7 @@ function AutoLinkBar() {
         {personName('vikram')} ↔ {personName('rohan')} · {formatDateShort('2026-11-15T09:40:00+05:30')} · same supplier domain, and Rohan names Vikram
       </div>
       <details>
-        <summary style={{ fontSize: 11.5 }}>Match details · score {match.score.toFixed(1)}</summary>
+        <summary style={{ fontSize: 11.5 }}>Why it was matched</summary>
         {SIGNALS.map((sig) => (
           <div key={sig.label} className={s.signal}>
             {sig.on ? (
@@ -341,9 +361,6 @@ function AutoLinkBar() {
               <DismissRegular fontSize={14} color={tokens.colorNeutralForeground3} />
             )}
             <span style={{ color: sig.on ? undefined : tokens.colorNeutralForeground3 }}>{sig.label}</span>
-            <span style={{ marginLeft: 'auto', fontSize: 11, color: tokens.colorNeutralForeground3 }}>
-              {sig.on ? `+${sig.weight}` : '—'}
-            </span>
           </div>
         ))}
       </details>

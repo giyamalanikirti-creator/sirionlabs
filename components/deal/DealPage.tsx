@@ -8,7 +8,7 @@ import { MoneyPlain } from '@/components/sirion/MoneyFigure';
 import { useLedger } from '@/lib/useDeal';
 import { useDemo } from '@/lib/store';
 import { cloudDeskDeal, personName } from '@/lib/data';
-import { formatLakh, formatDateLong, HEADLINE_SUFFIX } from '@/lib/format';
+import { formatLakh, formatDateLong } from '@/lib/format';
 import { LedgerTab } from './LedgerTab';
 import { outlookHrefForDeal } from '@/lib/demo/rowEmail';
 import { HeadlineExplainer } from '@/components/sirion/HeadlineExplainer';
@@ -23,7 +23,7 @@ const TABS = ['ledger', 'rounds', 'threads', 'signing', 'activity'];
 
 export function DealPage({ initialRow, initialTab }: { initialRow?: string; initialTab?: string }) {
   const [tab, setTab] = useState(initialTab && TABS.includes(initialTab) ? initialTab : 'ledger');
-  const { rows, atRisk, counts, signed } = useLedger();
+  const { rows, atRisk, counts, signed, label, reconciliation, asOf } = useLedger();
   const contract = useDemo((s) => s.contract);
   const sentBackAt = useDemo((s) => s.signing.sentBackAt);
   const checkedAt = useDemo((s) => s.signing.checkedAt);
@@ -76,8 +76,15 @@ export function DealPage({ initialRow, initialTab }: { initialRow?: string; init
             <div className="text-right">
               <MoneyPlain lakh={signed ? 0 : atRisk} size="xl" suffix={null} tone={atRisk > 0 ? 'danger' : 'teal'} />
               <p className="mt-0.5 text-[12px] text-muted">
-                {signed ? 'at risk — signed and enforced' : HEADLINE_SUFFIX}
+                {signed ? 'at risk — signed and enforced' : 'a year (expected), across the deal'}
               </p>
+              {!signed && (
+                <p className="mt-1 max-w-[340px] text-[12px] leading-[17px] text-muted" suppressHydrationWarning>
+                  {label}
+                  <span className="block">{reconciliation}</span>
+                  <span className="block">{asOf}</span>
+                </p>
+              )}
             </div>
             <div className="flex gap-2">
               <Link href="/deals/D-CLOUDDESK/ledger">

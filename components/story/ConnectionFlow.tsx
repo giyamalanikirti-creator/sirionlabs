@@ -14,7 +14,7 @@ const STEPS = [
 
 const PROMPTS = [
   ['Track this negotiation?', 'The deal owner opens a supplier email that matches a record in Negotiating, not yet tracked', 'Deal owner', 'That supplier’s threads in connected mailboxes, from when the record opened'],
-  ['Link this thread?', 'A weak match (score 0.3–0.59), e.g. Rohan names Vikram', 'Deal owner', 'Headers only until linked; then that one thread'],
+  ['Link this thread?', 'A weak match, e.g. Rohan names Vikram', 'Deal owner', 'Headers only until linked; then that one thread'],
   ['This looks like the CloudDesk MSA', 'A contract file opens in Word without the Sirion tag', 'Whoever opens it', 'The file’s clause text, compared with versions Sirion holds'],
   ['Publish gate', 'Publish when an agreed term is missing from the copy', 'Deal owner', 'Nothing new: the copy against the ledger'],
 ];

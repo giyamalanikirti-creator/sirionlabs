@@ -271,7 +271,7 @@ export function SigningPane({
       <Accordion collapsible>
         <AccordionItem value="matches">
           <AccordionHeader size="small">
-            {result.matches.length} rows match this copy
+            {result.matches.length} terms agreed and in this copy
           </AccordionHeader>
           <AccordionPanel>
             {result.matches.map((m) => (

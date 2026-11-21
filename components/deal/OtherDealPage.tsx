@@ -9,12 +9,14 @@ import { useState } from 'react';
  * Every other deal opens a simple read-only ledger, so no click leads nowhere.
  */
 import Link from 'next/link';
-import { AlertTriangle, ArrowUpRight, FileText, Mail } from 'lucide-react';
+import { AlertTriangle, ArrowUpRight, Check, FileText, Mail } from 'lucide-react';
+import { Tag } from '@/components/ui/Tag';
+import { internalConflicts, precedenceClause } from '@/lib/engines/conflicts';
 import { Button, SirionCard, Table, Td, Th } from '@/components/sirion/ui';
 import { MoneyPlain } from '@/components/sirion/MoneyFigure';
 import { personName } from '@/lib/data';
 import { formatDateLong, formatDateShort, formatInr, formatLakh, formatLakhPerYear, HEADLINE_SUFFIX } from '@/lib/format';
-import { SCRIPTED_DEALS, scriptedAtRisk, type ScriptedDeal, type ScriptedRow } from '@/lib/demo/moreDeals';
+import { BRIGHTSTAFF, BRIGHTSTAFF_SIGNING_COPY, SCRIPTED_DEALS, scriptedAtRisk, type ScriptedDeal, type ScriptedRow } from '@/lib/demo/moreDeals';
 import { outlookHref, riskEmailForDeal, rowsForDeal } from '@/lib/demo/supplierInbox';
 import { useDemo } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
@@ -74,9 +76,6 @@ export function OtherDealPage({ deal }: { deal: Deal }) {
 function Scripted({ deal }: { deal: ScriptedDeal }) {
   const hydrated = useHydrated();
   const started = useDemo((s) => s.startedDealIds).includes(deal.dealId);
-  const [disputed, setDisputed] = useState(false);
-  const toast = useDemo((s) => s.toast);
-  const logEvent = useDemo((s) => s.logEvent);
   const emailById = (id?: string) => deal.emails.find((e) => e.id === id);
 
   return (
@@ -217,32 +216,7 @@ function Scripted({ deal }: { deal: ScriptedDeal }) {
           </ul>
         </SirionCard>
 
-      {deal.afterSigning && (
-        <SirionCard title="After signing" caption="Sirion invoice reconciliation, against the ledger">
-          <p className="text-[12.5px] font-medium text-ink">{deal.afterSigning.title}</p>
-          {deal.afterSigning.lines.map((l) => (
-            <p key={l} className="mt-1 text-[12.5px] leading-[19px] text-muted">{l}</p>
-          ))}
-          <p className="mt-2 text-[13px]">
-            <span className="font-semibold text-danger">{formatInr(deal.afterSigning.overbillInr)}</span>{' '}
-            <span className="text-muted">over the agreed markup, every month</span>
-          </p>
-          <div className="mt-3 flex items-center gap-3">
-            <Button
-              variant="danger"
-              disabled={disputed}
-              onClick={() => {
-                setDisputed(true);
-                logEvent(`${deal.supplier}: dispute raised on the January timesheet invoice, quoting the 8% markup agreed on 7 Nov.`);
-                toast(`Dispute sent to ${deal.supplier}, quoting the 8% markup agreed by email on 7 Nov.`);
-              }}
-            >
-              {disputed ? 'Dispute sent' : 'Raise a dispute'}
-            </Button>
-            {disputed && <span className="text-[12px] text-muted">Sent to Sunita Rao, quoting clause 6 and the HR head&apos;s email of 7 Nov.</span>}
-          </div>
-        </SirionCard>
-      )}
+      {deal.dealId === BRIGHTSTAFF.dealId && <BrightStaffConflict deal={deal} />}
     </div>
   );
 }
@@ -303,5 +277,113 @@ function ReadOnly({ deal }: { deal: Deal }) {
         </tbody>
       </Table>
     </SirionCard>
+  );
+}
+
+/**
+ * Review fix A2: the BrightStaff signing copy disagrees with itself. Before
+ * signature it blocks Publish like any gap; after signature it goes to the
+ * contract owner, because which rate applies is theirs to decide. No dispute.
+ */
+function BrightStaffConflict({ deal }: { deal: ScriptedDeal }) {
+  const doc = BRIGHTSTAFF_SIGNING_COPY;
+  const conflict = internalConflicts(doc.clauses)[0];
+  const [fixed, setFixed] = useState(false);
+  const [routed, setRouted] = useState(false);
+  const [showBoth, setShowBoth] = useState(false);
+  const toast = useDemo((s) => s.toast);
+  const logEvent = useDemo((s) => s.logEvent);
+  if (!conflict) return null;
+  const [body, schedule] = conflict.clauses;
+  const email = deal.emails.find((e) => e.id === 'B4')!;
+  const agreed = `${body.value}${body.unit}`;
+  const owner = personName(deal.ownerId);
+
+  return (
+    <>
+      <SirionCard
+        title={`Signing check · ${doc.fileName}`}
+        caption="Before signature: the copy is checked against itself as well as against what was agreed"
+        right={<Tag kind="new" />}
+      >
+        {fixed ? (
+          <p className="flex items-center gap-2 text-[13.5px] text-ink">
+            <Check size={15} className="text-[#107C10]" /> Schedule 2 corrected to {agreed} as a tracked change. Publish is unblocked once BrightStaff accepts it.
+          </p>
+        ) : (
+          <div className="rounded-lg border border-danger/40 bg-[#FDF3F4] p-4">
+            <p className="text-[15px] font-semibold text-ink">
+              {body.ref} and {schedule.ref.split(',')[0]} disagree
+            </p>
+            <p className="mt-1 text-[13.5px] leading-[20px] text-ink">
+              {body.ref}: <strong>{agreed}</strong> · {schedule.ref}: <strong>{schedule.value}{schedule.unit}</strong> · Agreed in email ({formatDateShort(email.at)}, {email.fromName}): <strong>{agreed}</strong>
+            </p>
+            <p className="mt-1 text-[13.5px] text-ink">Correct the rate card before signature.</p>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setFixed(true);
+                  logEvent(`${deal.supplier}: ${agreed} proposed in ${schedule.ref} as a tracked change (internal conflict with ${body.ref}).`);
+                  toast(`${agreed} proposed in ${schedule.ref}, as a tracked change.`);
+                }}
+              >
+                Insert {agreed} in Schedule 2
+              </Button>
+              <Link href={`/outlook/ananya?msg=B5`} className="text-[13px] font-medium text-teal-900 underline">View email</Link>
+              <span className="ml-auto inline-flex items-center gap-1.5 rounded-full border border-danger/40 bg-white px-2.5 py-[3px] text-[12px] font-semibold text-danger">
+                <AlertTriangle size={12} /> Publish blocked
+              </span>
+            </div>
+          </div>
+        )}
+      </SirionCard>
+
+      {deal.afterSigning && (
+        <SirionCard title="After signing · if signed as is" caption="The January timesheet invoice, checked against the signed contract" right={<Tag kind="new" />}>
+          <div className="mb-3 flex items-center gap-2 rounded-md border border-amber-fg/30 bg-amber-bg px-3 py-2 text-[13px] text-ink">
+            <AlertTriangle size={14} className="shrink-0 text-amber-fg" />
+            Signed copy differs in Schedule 2. Review before activating the billing rule.
+          </div>
+          <p className="text-[15px] font-semibold text-ink">
+            The invoice follows {schedule.ref.split(',')[0]} ({schedule.value}{schedule.unit}). {body.ref} states {agreed}.
+          </p>
+          <p className="mt-1 text-[13.5px] leading-[20px] text-ink">
+            The signed contract is inconsistent, so which rate applies is for the contract owner to decide.
+          </p>
+          <dl className="mt-3 grid gap-1.5 text-[13px] leading-[19px]">
+            <div><dt className="inline text-muted">Order of precedence · </dt><dd className="inline text-ink">{precedenceClause(doc)}</dd></div>
+            <div><dt className="inline text-muted">Supporting evidence · </dt><dd className="inline text-ink">email of {formatDateShort(email.at)} from {email.fromName} agreeing {agreed}: “{deal.rows.find((r) => r.id === 'B-markup')?.sourceQuote}”</dd></div>
+            <div><dt className="inline text-muted">Difference on this invoice · </dt><dd className="inline text-ink">{formatInr(deal.afterSigning.overbillInr)} on January&apos;s invoice <span className="text-muted">(invoice variance)</span></dd></div>
+          </dl>
+          {showBoth && (
+            <div className="mt-3 grid gap-2 md:grid-cols-2">
+              {conflict.clauses.map((c) => (
+                <div key={c.ref} className="rounded-md border border-line bg-page p-3 text-[13px]">
+                  <p className="font-semibold text-ink">{c.ref}</p>
+                  <p className="text-ink">“{c.text}”</p>
+                </div>
+              ))}
+            </div>
+          )}
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <Button
+              variant="primary"
+              disabled={routed}
+              onClick={() => {
+                setRouted(true);
+                logEvent(`${deal.supplier}: invoice INV-BS-0127 routed to ${owner} (contract owner): clause 6 and Schedule 2 disagree.`);
+                toast(`Routed to ${owner}, the contract owner, with both clauses and the 7 Nov email.`);
+              }}
+            >
+              {routed ? `Routed to ${owner}` : 'Route to contract owner'}
+            </Button>
+            <Button variant="outline" onClick={() => setShowBoth((v) => !v)}>
+              {showBoth ? 'Hide both clauses' : 'View both clauses'}
+            </Button>
+          </div>
+        </SirionCard>
+      )}
+    </>
   );
 }

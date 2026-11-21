@@ -18,6 +18,7 @@ import { askSupplierDraft, HOLDING_REPLY, isSupplierSafe } from '@/lib/engines/w
 import { listedAtRisk } from '@/lib/demo/moreDeals';
 import { roundsBy, ROUNDS } from '@/lib/demo/rounds';
 import { STEP_CLOCK } from '@/lib/demo/steps';
+import { latestVersionId as latestVersion } from '@/lib/engines/headline';
 import { formatDateLong, formatDateShort, formatDateTime, formatInr, formatLakh } from '@/lib/format';
 import { plainSentence, plainValue, sameValue, TERM_LABELS } from '@/lib/plain';
 import { CONTRACT_ID } from '@/lib/settings';
@@ -43,14 +44,7 @@ export const LEDGER_LINKS = {
 /* ------------------------------------------------------------------ */
 
 /** The latest copy of the CloudDesk contract at this point on the clock. */
-export function latestVersionId(s: AskState): string {
-  if (s.signedAt) return 'v7';
-  const ids = versions
-    .filter((v) => v.sentAt <= s.clock)
-    .filter((v) => v.id !== 'v5' || s.syncedVersionIds.includes('v5'))
-    .map((v) => v.id);
-  return ids.at(-1) ?? 'v1';
-}
+export const latestVersionId = (s: AskState): string => latestVersion(s);
 
 function versionValue(versionId: string, term: TermKey): TermValue | null {
   const v = versionById(versionId);

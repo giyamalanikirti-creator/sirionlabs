@@ -318,3 +318,47 @@ describe('AskSirion portfolio (portfolio_at_risk): the Deals list figures plus C
     expect(signed.totalLakh).toBeCloseTo(15.89407, 4);
   });
 });
+
+describe('headline labels and reconciliation (review fix A3)', async () => {
+  const h = await import('@/lib/engines/headline');
+  const { initialLedger: start, ledgerAtStep: atStep } = await import('@/lib/demo/steps');
+  const v6 = versionById('v6')!;
+  const sum = (r: { parts: { lakh: number }[] }) => r.parts.reduce((s, p) => s + p.lakh, 0);
+
+  it('14 Nov 10:00, v4, before Rohan’s pricing email: ₹4.4 lakh = price + service credit', () => {
+    const r = h.dealReconciliation(start(), deal);
+    expect(r.text).toBe('₹4.4 lakh = price ₹3.9 lakh + service credit ₹50,000');
+    expect(sum(r)).toBeCloseTo(dealAtRisk(start(), deal), 6);
+  });
+
+  it('14 Nov 10:05, after M8: ₹1.6 lakh = renewal notice + service credit', () => {
+    const rows = atStep(1);
+    const r = h.dealReconciliation(rows, deal);
+    expect(r.text).toBe('₹1.6 lakh = renewal notice ₹1.1 lakh + service credit ₹50,000');
+    expect(sum(r)).toBeCloseTo(dealAtRisk(rows, deal), 6);
+  });
+
+  it('19 Nov, v6, this copy: ₹5.3 lakh = price + renewal notice + payment', () => {
+    const rows = atStep(4);
+    const sc = signingCheck(rows, v6, deal);
+    const r = h.copyReconciliation(sc.gaps, deal);
+    expect(r.text).toBe('₹5.3 lakh = price ₹3.9 lakh + renewal notice ₹1.1 lakh + payment terms ₹25,000');
+    expect(sum(r)).toBeCloseTo(sc.totalAtRiskLakh, 6);
+  });
+
+  it('19 Nov, across the deal: this copy plus the open service credit = ₹5.8 lakh while it is unconfirmed', () => {
+    const rows = atStep(4);
+    const copy = h.copyReconciliation(signingCheck(rows, v6, deal).gaps, deal);
+    expect(h.dealWideReconciliation(copy, rows, deal).text).toBe('₹5.3 lakh = this copy; no other term is open');
+    const unconfirmed = rows.map((r) => (r.termKey === 'service_credit' ? atStep(0).find((x) => x.termKey === 'service_credit')! : r));
+    const wide = h.dealWideReconciliation(copy, unconfirmed, deal);
+    expect(wide.text).toBe('₹5.8 lakh = this copy ₹5.3 lakh + open service credit ₹50,000');
+    expect(sum(wide)).toBeCloseTo(wide.totalLakh, 6);
+  });
+
+  it('labels name the version and the scope', () => {
+    expect(h.headlineLabel('draft', 5.31, 'v6')).toBe('Expected ₹5.3 lakh a year if v6 is signed as is');
+    expect(h.headlineLabel('deal', 1.64, 'v4')).toBe('Expected ₹1.6 lakh a year across the deal, including terms still open');
+    expect(h.asOfLine('2026-11-14T10:05:00+05:30', 'v4')).toBe('As of 14 Nov, 10:05 · v4');
+  });
+});

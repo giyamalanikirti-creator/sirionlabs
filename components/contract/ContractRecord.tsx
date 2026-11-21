@@ -273,9 +273,9 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
               </p>
             </div>
             <div>
-              <p className="text-[10.5px] font-semibold uppercase tracking-wide text-muted">Credits owed</p>
-              <p className="mt-1 text-[18px] font-semibold text-teal-900">{formatInr(brief.creditsOwedInr)}</p>
-              <p className="text-muted">{brief.creditPct}% of the monthly fee for each missed month</p>
+              <p className="text-[10.5px] font-semibold uppercase tracking-wide text-muted">Potential credits · if eligible</p>
+              <p className="mt-1 text-[18px] font-semibold text-teal-900">Up to {formatInr(brief.creditsOwedInr)}</p>
+              <p className="text-muted">{brief.creditPct}% of the monthly fee for each month below the threshold. Check eligibility under the signed SLA.</p>
             </div>
             <div>
               <p className="text-[10.5px] font-semibold uppercase tracking-wide text-muted">Usage</p>
@@ -479,7 +479,8 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
       <div className="m-5 rounded-xl border border-danger/30 bg-danger/[0.04] p-5">
         <p className="flex items-center gap-2 text-[14px] font-semibold text-danger">
           <AlertTriangle size={16} />
-          December invoice is {formatInr(over.overInr!)} above the signed price.
+          Billing discrepancy · December invoice is {formatInr(over.overInr!)} above the signed price.
+          <span className="rounded-full border border-danger/30 bg-white px-2 py-[1px] text-[11px] font-medium text-danger">invoice variance</span>
         </p>
         <p className="mt-2 text-sm font-medium">Billed {formatInr(inv.amountInr)} · Agreed {formatInr(over.expectedInr!)}</p>
         <p className="mt-2 max-w-3xl text-[13px] leading-[20px] text-ink">

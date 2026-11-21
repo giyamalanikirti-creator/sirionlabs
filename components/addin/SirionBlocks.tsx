@@ -90,7 +90,7 @@ export function DealHeaderBlock({ message }: { message: EmailMessage }) {
   );
 }
 
-/** 2 · Attachment row: the supplier's file filed as the next version. Automatic, with Undo. */
+/** 2 · Attachment row: the supplier's file filed as the next version. Automatic, with Undo. Proposed: Sirion today offers Sync as a manual action (review fix A6). */
 export function AttachmentBlock({ message }: { message: EmailMessage }) {
   const s = usePaneStyles();
   const synced = useDemo((st) => st.syncedVersionIds);
@@ -99,7 +99,7 @@ export function AttachmentBlock({ message }: { message: EmailMessage }) {
   const files = message.attachments.filter((a) => a.versionId && versionById(a.versionId));
   if (!files.length) return null;
   return (
-    <Block title="Attachment" kind="today">
+    <Block title="Attachment · filed on arrival" kind="new">
       {files.map((file) => {
         const versionId = file.versionId!;
         const { round, turn } = roundOf(versionId);

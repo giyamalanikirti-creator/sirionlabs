@@ -65,6 +65,7 @@ export function Compose({
   attachments = [],
   chips,
   onRemoveAttachment,
+  summary,
 }: {
   to: string[];
   cc: string[];
@@ -78,11 +79,39 @@ export function Compose({
   attachments?: string[];
   chips?: ReactNode;
   onRemoveAttachment?: (name: string) => void;
+  /** Pre-send summary (review fix A1): recipient, attachment version, changes, still open. */
+  summary?: { changes: string[]; stillOpen: string[] };
 }) {
   const s = useStyles();
 
   return (
     <section className={s.pane}>
+      {summary && (
+        <div
+          role="note"
+          aria-label="Before you send"
+          style={{ margin: '10px 20px 0', padding: '10px 12px', border: `1px solid ${tokens.colorBrandStroke2}`, borderRadius: 6, background: tokens.colorBrandBackground2, fontSize: 13, lineHeight: '19px' }}
+        >
+          <div style={{ fontWeight: 600, marginBottom: 4 }}>Before you send</div>
+          <div>
+            <span style={{ color: tokens.colorNeutralForeground3 }}>To</span> {to.map((a) => personByEmail(a)?.name ?? a).join(', ')}
+            {attachments.length > 0 && (
+              <>
+                {' · '}
+                <span style={{ color: tokens.colorNeutralForeground3 }}>Attachment</span> {attachments.join(', ')}
+              </>
+            )}
+          </div>
+          {summary.changes.length > 0 && (
+            <div>
+              <span style={{ color: tokens.colorNeutralForeground3 }}>Changes in this version</span> {summary.changes.join(' · ')}
+            </div>
+          )}
+          <div>
+            <span style={{ color: tokens.colorNeutralForeground3 }}>Still open</span> {summary.stillOpen.length ? summary.stillOpen.join(', ') : 'nothing'}
+          </div>
+        </div>
+      )}
       <div className={s.top}>
         <Button
           appearance="primary"

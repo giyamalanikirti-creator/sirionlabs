@@ -10,10 +10,17 @@ export const TAG_TEXT: Record<TagKind, string> = {
   new: 'New · Deal Ledger',
 };
 
-export function Tag({ kind }: { kind: TagKind }) {
+/** Tooltips (review fix A6): say plainly what exists today and what is proposed. */
+export const TAG_TIP: Record<TagKind, string> = {
+  today: 'In Sirion today',
+  new: 'Proposed: Deal Ledger, not in Sirion today',
+};
+
+export function Tag({ kind, title }: { kind: TagKind; title?: string }) {
   const today = kind === 'today';
   return (
     <span
+      title={title ?? TAG_TIP[kind]}
       style={{
         display: 'inline-flex',
         alignItems: 'center',

@@ -17,6 +17,7 @@ import { extractClaims } from './sendGuard';
 import { sourceLine } from './ledgerView';
 import { plainValue, sameValue } from '@/lib/plain';
 import { formatLakh } from '@/lib/format';
+import { negotiationStatus } from './termStatus';
 
 export type LensStatus = 'matches' | 'differs' | 'pending' | 'unreadable';
 
@@ -209,5 +210,7 @@ export function reviewIssues(version: DocVersion, rows: LedgerRow[], deal: Deal)
     }
   }
   const issues = [...byClause.values()].sort((a, b) => (b.costLakhPerYr ?? -1) - (a.costLakhPerYr ?? -1));
-  return { issues, matches: lens.filter((l) => l.status === 'matches').length };
+  // "Matches what was agreed" = agreed AND matches: the same rule as selectTermCounts (review fix A5).
+  const agreedIds = new Set(rows.filter((r) => negotiationStatus(r) === 'agreed').map((r) => r.id));
+  return { issues, matches: lens.filter((l) => l.status === 'matches' && agreedIds.has(l.rowId)).length };
 }

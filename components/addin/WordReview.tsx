@@ -32,11 +32,13 @@ import { dealAtRisk } from '@/lib/engines/atRisk';
 import { approvalRoute } from '@/lib/engines/approvals';
 import { wordDiff } from '@/lib/engines/diff';
 import { COST_RULE } from '@/lib/engines/explain';
+import { draftLabel, draftMatch, negotiationLabel, negotiationStatus } from '@/lib/engines/termStatus';
+import { asOfLine, dealWideReconciliation, headlineLabel, reconcile, short as shortLabel } from '@/lib/engines/headline';
 import { PEER_MIN_COMPANIES, PEER_MIN_CONTRACTS } from '@/lib/engines/peers';
 import { PLAYBOOK } from '@/lib/engines/playbook';
 import { agreedWording, askSupplierDraft } from '@/lib/engines/wording';
 import type { ReviewIssue } from '@/lib/engines/wordLens';
-import { formatDateShort, formatLakh, formatPct, HEADLINE_SUFFIX } from '@/lib/format';
+import { formatDateShort, formatLakh, formatPct } from '@/lib/format';
 import { plainValue, sameValue } from '@/lib/plain';
 import { CONTRACT_ID } from '@/lib/settings';
 import type { DocVersion, LedgerRow, TermValue } from '@/lib/types';
@@ -101,8 +103,11 @@ export function WordHeader({
   const differs = issues.filter((i) => i.sources.includes('email') && i.costLakhPerYr !== null);
   const total = differs.reduce((sum, i) => sum + (i.costLakhPerYr ?? 0), 0);
   const playbookCount = issues.filter((i) => i.sources.includes('playbook')).length;
-  const deal = dealAtRisk(rows, cloudDeskDeal);
-  const sameAsDeal = Math.abs(deal - total) < 0.005;
+  const clock = useDemo((st) => st.clock);
+  const copy = reconcile(differs.map((i) => ({ label: shortLabel(i.label), lakh: i.costLakhPerYr ?? 0, termKey: i.lens?.termKey })));
+  const wide = dealWideReconciliation(copy, rows, cloudDeskDeal);
+  const deal = wide.totalLakh;
+  const sameAsDeal = Math.abs(deal - total) < 0.005 && Math.abs(dealAtRisk(rows, cloudDeskDeal) - total) < 0.005;
   const role = version.id === 'v6' ? 'Signing copy' : version.id === 'v7' ? 'Returned copy' : version.author === 'buyer' ? 'Our draft' : 'Supplier draft';
 
   return (
@@ -128,11 +133,16 @@ export function WordHeader({
 
       <section className={s.card} style={{ borderColor: tokens.colorBrandStroke1, boxShadow: `inset 3px 0 0 ${tokens.colorBrandBackground}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
-          <span className={s.sectionLabel} style={{ margin: 0 }}>If signed as is</span>
+          <span className={s.sectionLabel} style={{ margin: 0 }}>This draft</span>
           <OriginTag kind="new" />
         </div>
         <div style={{ marginTop: 4 }}>
           <span className={s.money}>{formatLakh(total)}</span> <span className={s.moneySuffix}>a year (expected)</span>
+        </div>
+        <div style={{ fontSize: 12, lineHeight: '17px', color: tokens.colorNeutralForeground2 }}>
+          <div>{headlineLabel('draft', total, version.id)}</div>
+          <div style={{ color: tokens.colorNeutralForeground3 }}>{copy.text} · {asOfLine(clock, version.id)}</div>
+          {!sameAsDeal && <div style={{ marginTop: 2 }}>{headlineLabel('deal', deal, version.id)}: {wide.text}</div>}
         </div>
         <div className={s.grey}>
           {differs.length} clause{differs.length === 1 ? '' : 's'} differ{differs.length === 1 ? 's' : ''} from what was agreed · playbook issues: {playbookCount} · {matches} match
@@ -157,7 +167,7 @@ export function WordHeader({
                 {differs.length === 0 && <p style={{ margin: '4px 0' }}>Every priced clause in this file matches what was agreed.</p>}
               </div>
             </details>
-            <PaneHeadlineExplainer rows={rows} label={`Whole deal, every open term: ${formatLakh(deal)} ${HEADLINE_SUFFIX} (as on the deal page and in Outlook)`} />
+            <PaneHeadlineExplainer rows={rows} label="How the deal-wide figure is worked out" />
           </>
         )}
       </section>
@@ -219,6 +229,11 @@ export function IssueCard({
         {issue.sources.map((k) => <SourceBadge key={k} kind={k} />)}
         {resolvedLabel && <Badge size="small" appearance="filled" color="informative">{resolvedLabel}</Badge>}
       </div>
+      {row && (
+        <div style={{ fontSize: 11.5, marginTop: 3, color: tokens.colorNeutralForeground2, fontWeight: 600 }}>
+          {draftLabel(draftMatch(row, version, cloudDeskDeal).draft)} · {negotiationLabel(negotiationStatus(row), cloudDeskDeal.supplier)}
+        </div>
+      )}
       {l ? (
         <div style={{ fontSize: 12, marginTop: 4, lineHeight: '17px' }}>
           <div>Agreed: {l.agreedPlain}</div>

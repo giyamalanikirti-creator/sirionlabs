@@ -54,7 +54,6 @@ export function ThreadsTab() {
             <Th align="center">Deal ID</Th>
             <Th align="center">Subject</Th>
             <Th align="center">deals@</Th>
-            <Th align="right">Score</Th>
             <Th>Strength</Th>
             <Th>Status</Th>
             <Th>Body read?</Th>
@@ -72,9 +71,6 @@ export function ThreadsTab() {
               <Signal on={m.signals.dealIdTag} />
               <Signal on={m.signals.subjectName} />
               <Signal on={m.signals.captureAddress} />
-              <Td align="right" className="font-medium">
-                {m.score.toFixed(1)}
-              </Td>
               <Td>
                 <StrengthPill strength={m.strength} />
               </Td>
@@ -106,7 +102,7 @@ export function ThreadsTab() {
       <p className="px-6 py-4 text-[11.5px] leading-[17px] text-muted">
         Matching sees sender, recipients, subject and attachment fingerprints — never a body. A
         body is read only when the thread is a strong match, or after the lead links a weak one.
-        That is why the offsite thread and the laptop quotes score zero and are never opened.
+        That is why the offsite thread and the laptop quotes match nothing and are never opened.
       </p>
     </SirionCard>
   );

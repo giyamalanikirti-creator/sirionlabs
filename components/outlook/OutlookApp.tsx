@@ -528,6 +528,7 @@ export function OutlookApp({ person }: { person: Person }) {
                   }}
                   sending={checking}
                   attachments={attachments.map((a) => a.fileName)}
+                  summary={draftOpts.summary}
                   onRemoveAttachment={(name) => setAttachments((list) => list.filter((a) => a.fileName !== name))}
                 />
               ) : (

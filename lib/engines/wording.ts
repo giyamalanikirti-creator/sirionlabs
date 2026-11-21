@@ -120,10 +120,6 @@ export const HOLDING_REPLY =
 export const RESTORE_NOTICE_DRAFT =
   "Rohan, v4 changes the renewal notice in 14.2 to 90 days. We agreed 30, so I've put it back in the attached. Ananya";
 
-/** Respond to round: the reply to Rohan that goes with v5 (supplier-safe). */
-export const RESPOND_ROUND_DRAFT =
-  "Hi Rohan, thanks for confirming fixed pricing for the full three years. One point on the v4 draft: clause 14.2 now says 90 days' notice, but we agreed 30 days in v3. I've restored that as a tracked change in the attached v5. Everything else in v4 matches what we agreed. Thanks, Ananya";
-
 /** The clarifying question, asked in the supplier thread (supplier-safe). */
 export const CLARIFY_DRAFT =
   'Hi Rohan, thanks. To make sure we record this correctly: on service credits, are you accepting 10% of the monthly fee for any month below 99.5% uptime, as proposed on 13 Nov? Thanks, Ananya';

@@ -13,6 +13,7 @@
  */
 import type { EmailMessage } from '@/lib/types';
 import { fuelSurchargeGap, markupGap } from '@/lib/engines/otherTerms';
+import type { ClauseValue } from '@/lib/engines/conflicts';
 
 export interface ScriptedEmail {
   id: string;
@@ -115,10 +116,23 @@ export const BRIGHTSTAFF: ScriptedDeal = {
     title: 'January timesheet invoice, if the rate card is signed as is',
     overbillInr: brightStaffGap.perMonthInr,
     lines: [
-      'Invoice INV-BS-0127 bills pass-through pay at the rate card markup of 10%.',
-      'The ledger records 8%, agreed by email on 7 Nov. Sirion’s invoice reconciliation flags the difference every month.',
+      'Invoice INV-BS-0127 bills pass-through pay at the Schedule 2 rate card markup of 10%.',
+      'Clause 6 of the same signed contract states 8%, and the HR head agreed 8% by email on 7 Nov.',
     ],
   },
+};
+
+/** BrightStaff's signing copy (v3), clause by clause, for the internal-conflict check (review fix A2). */
+export const BRIGHTSTAFF_SIGNING_COPY = {
+  versionId: 'v3',
+  fileName: 'BrightStaff_MSA_v3.docx',
+  sentAt: '2026-11-13T17:10:00+05:30',
+  clauses: [
+    { ref: 'Clause 6', termKey: 'markup', value: 8, unit: '%', text: 'Supplier’s markup shall not exceed 8% over pass-through pay.' },
+    { ref: 'Schedule 2, rate card', termKey: 'markup', value: 10, unit: '%', text: 'Markup on pay: 10%' },
+    { ref: 'Clause 4', termKey: 'payment', value: 30, unit: 'days', text: 'Customer shall pay within 30 days of timesheet approval.' },
+  ] satisfies ClauseValue[],
+  precedence: { ref: 'Clause 1.4', text: 'If the body of this Agreement conflicts with a Schedule, the body prevails.' },
 };
 
 /* ---------------- SwiftShip ---------------- */

@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import {
   HOLDING_REPLY,
   RESTORE_NOTICE_DRAFT,
-  RESPOND_ROUND_DRAFT,
   CLARIFY_DRAFT,
   agreedWording,
   isSupplierSafe,
@@ -44,7 +43,6 @@ describe('drafts we offer to send', () => {
 
   it('the restore-notice draft is supplier-safe', () => {
     expect(supplierSafetyReason(RESTORE_NOTICE_DRAFT)).toBeNull();
-    expect(supplierSafetyReason(RESPOND_ROUND_DRAFT)).toBeNull();
     expect(supplierSafetyReason(CLARIFY_DRAFT)).toBeNull();
   });
 });
