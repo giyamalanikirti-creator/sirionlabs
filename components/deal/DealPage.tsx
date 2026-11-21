@@ -19,8 +19,10 @@ import { ActivityTab } from './ActivityTab';
 
 const STAGES = ['Rounds', 'Signing', 'Signed', 'In Sirion'] as const;
 
-export function DealPage({ initialRow }: { initialRow?: string }) {
-  const [tab, setTab] = useState('ledger');
+const TABS = ['ledger', 'rounds', 'threads', 'signing', 'activity'];
+
+export function DealPage({ initialRow, initialTab }: { initialRow?: string; initialTab?: string }) {
+  const [tab, setTab] = useState(initialTab && TABS.includes(initialTab) ? initialTab : 'ledger');
   const { rows, atRisk, counts, signed } = useLedger();
   const contract = useDemo((s) => s.contract);
   const sentBackAt = useDemo((s) => s.signing.sentBackAt);

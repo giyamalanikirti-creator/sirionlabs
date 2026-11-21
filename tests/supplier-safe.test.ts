@@ -91,3 +91,35 @@ describe('Word comments built from the signing check', () => {
     expect(isSupplierSafe(result.gaps[0].note!)).toBe(false);
   });
 });
+
+describe('AskSirion: everything a supplier could see, for every question type in every step', async () => {
+  const { vi } = await import('vitest');
+  vi.stubGlobal('localStorage', { getItem: () => null, setItem: () => undefined, removeItem: () => undefined });
+  const { useDemo } = await import('@/lib/store');
+  const { toAskState } = await import('@/lib/ask/store');
+  const { buildAnswer } = await import('@/lib/ask/answer');
+  const { INTENTS } = await import('@/lib/ask/intents');
+  const { route } = await import('@/lib/ask/router');
+  const { scopeFor } = await import('@/lib/ask/scope');
+  const scopes = [scopeFor('/today', ''), scopeFor('/deals/D-CLOUDDESK', ''), scopeFor('/outlook/ananya', 'msg=M8'), scopeFor('/outlook/vikram', 'msg=M13', ['T2']), scopeFor('/word/v6', '')];
+
+  for (const step of [0, 1, 2, 3, 4, 5, 6] as const) {
+    it(`step ${step}: supplier-safe wording and Outlook drafts`, () => {
+      useDemo.getState().reset();
+      if (step) useDemo.getState().advanceTo(step);
+      const state = toAskState();
+      for (const def of INTENTS) {
+        for (const scope of scopes) {
+          for (const q of [def.suggestion, ...def.phrasings]) {
+            const a = buildAnswer(def.id, route(q, scope).slots, scope, state, q);
+            if (a.wording) expect(supplierSafetyReason(a.wording), `${def.id} · ${q}`).toBeNull();
+            for (const action of a.actions) {
+              const draft = action.href?.includes('draft=') ? decodeURIComponent(action.href.split('draft=')[1]) : undefined;
+              if (draft) expect(supplierSafetyReason(draft), `${def.id} draft · ${q}`).toBeNull();
+            }
+          }
+        }
+      }
+    });
+  }
+});

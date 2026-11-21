@@ -1,5 +1,5 @@
 /**
- * "Ask Deal Ledger": answers questions like "What should I put for renewal
+ * Term advice for AskSirion ("suggest_term"): answers questions like "What should I put for renewal
  * notice instead?" from the ledger, the playbook and the pricing engine.
  *
  * This is the rules answer. It always works (no key, no network). When a
@@ -7,12 +7,12 @@
  * any reply that contains a ₹ figure or percentage not in these facts.
  */
 import type { Deal, LedgerRow, TermKey } from '@/lib/types';
-import { playbookOptions, recommendedMove, rowHeadlineShare } from './playbook';
-import { worstThreat } from './atRisk';
-import { explainHeadline } from './explain';
-import { peerChange } from './peers';
-import { agreedWording } from './wording';
-import { sourceLine } from './ledgerView';
+import { playbookOptions, recommendedMove, rowHeadlineShare } from '@/lib/engines/playbook';
+import { worstThreat } from '@/lib/engines/atRisk';
+import { explainHeadline } from '@/lib/engines/explain';
+import { peerChange } from '@/lib/engines/peers';
+import { agreedWording } from '@/lib/engines/wording';
+import { sourceLine } from '@/lib/engines/ledgerView';
 import { formatLakh } from '@/lib/format';
 import { plainValue, TERM_LABELS } from '@/lib/plain';
 

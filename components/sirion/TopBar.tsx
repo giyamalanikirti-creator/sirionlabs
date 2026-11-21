@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import { usePathname } from 'next/navigation';
-import { Bell, Check, ChevronDown, CircleHelp, Search, Sparkles } from 'lucide-react';
-import { useGuideUi } from '@/lib/guideUi';
+import { Bell, Check, ChevronDown, CircleHelp, Search } from 'lucide-react';
 import { useDemo, type Role } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
 import { formatDateTime } from '@/lib/format';
@@ -25,6 +24,7 @@ const CRUMBS: Record<string, string> = {
   '/settings': 'Privacy and admin',
   '/today': 'Sirion today vs Deal Ledger',
   '/story': 'Story',
+  '/ask': 'AskSirion',
 };
 
 function breadcrumb(pathname: string): string[] {
@@ -40,7 +40,6 @@ function breadcrumb(pathname: string): string[] {
 
 export function TopBar() {
   const pathname = usePathname();
-  const setAskOpen = useGuideUi((s) => s.setAskOpen);
   const hydrated = useHydrated();
   const role = useDemo((s) => s.sirionRole);
   const setRole = useDemo((s) => s.setRole);
@@ -78,12 +77,6 @@ export function TopBar() {
         />
       </div>
 
-      <button
-        onClick={() => setAskOpen(true)}
-        className="flex shrink-0 items-center gap-1.5 rounded-md border border-teal-900/45 bg-white px-3 py-[6px] text-[12.5px] font-semibold text-teal-900 shadow-sm hover:bg-mint/40"
-      >
-        <Sparkles size={14} /> Ask Deal Ledger
-      </button>
 
       <div className="flex shrink-0 items-center gap-1">
         <div className="relative">

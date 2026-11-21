@@ -432,7 +432,6 @@ export function WordApp({ versionId }: { versionId: string }) {
             width={350}
             onClose={() => setPaneOpen(false)}
             footerHref="/deals/D-CLOUDDESK/ledger"
-            ask={connected ? { viewer: 'lead', termKey: review.issues.find((i) => i.clauseNo === expanded)?.lens?.termKey } : undefined}
           >
             {setupGap ? (
               <div style={{ fontSize: 13, lineHeight: '19px' }}>

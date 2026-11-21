@@ -118,6 +118,12 @@ export function CoachMark() {
         setPos(null);
         return;
       }
+      /* Something on top (the AskSirion panel, a drawer): no hint pointing at a hidden button. */
+      const onTop = document.elementFromPoint(r.left + r.width / 2, r.top + r.height / 2);
+      if (onTop && !el.contains(onTop) && !onTop.contains(el)) {
+        setPos(null);
+        return;
+      }
       const above = r.bottom + 10 + TIP_H > vh;
       const top = above ? r.top - 10 - TIP_H : r.bottom + 10;
       const centre = r.left + r.width / 2;

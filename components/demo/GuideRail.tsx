@@ -18,6 +18,7 @@ import { SCRIPT } from '@/lib/demo/script';
 import { GUIDE_STEPS, stepMeta, type GuideStep } from '@/lib/demo/guideState';
 import { useGuide } from './useGuide';
 import { StepCircle, StepItem, type StepStatus } from './StepItem';
+import { AFTER_SIGNING, GUIDE_STAGES } from '@/lib/demo/guide';
 import { ConfirmDialog } from './ConfirmDialog';
 
 const PREF_KEY = 'deal-ledger-rail';
@@ -234,6 +235,7 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
                 done={g.actionsDone(step)}
                 nextTitle={nextStep?.title}
                 stepComplete={g.actionsDone(step).every(Boolean)}
+                asks={(step === 6 ? AFTER_SIGNING : GUIDE_STAGES[step - 1]).ask?.slice(0, 1)}
                 onAction={(a) => {
                   setOverlay(false);
                   g.doAction(a);

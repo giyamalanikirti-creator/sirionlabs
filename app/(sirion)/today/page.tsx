@@ -3,6 +3,7 @@ import { Check, Plus } from 'lucide-react';
 import { PageHeader, SirionCard } from '@/components/sirion/ui';
 import { termsFound } from '@/lib/data';
 import { StepBadge, Tag } from '@/components/ui/Tag';
+import { TryAsk } from '@/components/ask/TryAsk';
 
 const OUTSIDE = termsFound.split.filter((x) => x.source !== 'Word versions').reduce((a, b) => a + b.pct, 0);
 
@@ -150,6 +151,37 @@ export default function TodayPage() {
             <Tag kind="new" />
           </div>
           <FeatureList items={WORD_NEW} tone="new" />
+        </section>
+      </div>
+
+      <h2 className="mb-3 mt-8 text-[17px] font-semibold text-ink">AskSirion and Deal Ledger</h2>
+      <div className="grid gap-5 lg:grid-cols-2">
+        <section className="rounded-xl border border-line bg-white p-5 shadow-card">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h3 className="text-[15px] font-semibold text-ink">AskSirion</h3>
+            <Tag kind="today" />
+          </div>
+          <p className="text-[14px] leading-[21px] text-[#3F4E52]">
+            Sirion&apos;s assistant answers questions about <span className="font-semibold text-ink">what was signed</span>: contracts, clauses and renewals in
+            the repository. You ask; it answers, with its sources. It is the round button in the bottom-right corner of every screen.
+          </p>
+          <div className="mt-4">
+            <TryAsk label="Try it" prompt="Show software contracts renewing this quarter" intent="repo_search" />
+          </div>
+        </section>
+        <section className="rounded-xl border border-teal-900/30 bg-white p-5 shadow-card">
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <h3 className="text-[15px] font-semibold text-teal-900">Deal Ledger</h3>
+            <Tag kind="new" />
+          </div>
+          <p className="text-[14px] leading-[21px] text-[#3F4E52]">
+            Deal Ledger tracks <span className="font-semibold text-ink">what was agreed</span> while the deal is still being negotiated, and comes to you at
+            the right moment: in the email, at Send, at signing. AskSirion can draw on it when you ask about a live negotiation, and always sends you
+            back to it.
+          </p>
+          <div className="mt-4">
+            <TryAsk label="Try it" prompt="What did CloudDesk agree on price?" intent="agreed_term" />
+          </div>
         </section>
       </div>
 

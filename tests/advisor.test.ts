@@ -1,13 +1,13 @@
-/** "Ask Deal Ledger": answers come from the engines; the model may only reword them. */
+/** AskSirion term advice (suggest_term): answers come from the engines. */
 import { describe, expect, it } from 'vitest';
-import { answer, detectIntent, detectTerm, numbersIn } from '@/lib/engines/advisor';
+import { answer, detectIntent, detectTerm, numbersIn } from '@/lib/ask/advisor';
 import { cloudDeskDeal as deal } from '@/lib/data';
 import { ledgerAtStep } from '@/lib/demo/steps';
 import { isSupplierSafe } from '@/lib/engines/wording';
 
 const rows = ledgerAtStep(1);
 
-describe('Ask Deal Ledger', () => {
+describe('AskSirion term advice', () => {
   it('reads the term and intent from a plain question', () => {
     expect(detectTerm('What should I put for renewal notice instead?')).toBe('renewal_notice');
     expect(detectIntent('What should I put for renewal notice instead?')).toBe('suggest');

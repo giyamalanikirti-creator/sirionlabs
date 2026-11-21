@@ -970,12 +970,15 @@ export const useDemo = create<DemoState>()(
       readNotices: () =>
         set((s) => ({ notices: s.notices.map((n) => ({ ...n, read: true })) })),
 
-      reset: () =>
+      reset: () => {
         set({
           ...BASE,
           ledger: initialLedger(),
           events: [{ at: STEP_CLOCK[0], text: 'Demo reset.' }],
-        }),
+        });
+        // Session-only state elsewhere (the AskSirion conversation) clears on this.
+        if (typeof window !== 'undefined') window.dispatchEvent(new Event('deal-ledger-reset'));
+      },
     }),
     {
       name: 'deal-ledger-demo',

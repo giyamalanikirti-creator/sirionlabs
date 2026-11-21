@@ -13,9 +13,7 @@ import { DismissRegular } from '@fluentui/react-icons';
 import Link from 'next/link';
 import { Mark } from '@/components/sirion/Mark';
 import { dealLedgerTheme } from '@/lib/fluentTheme';
-import type { AiSource, TermKey } from '@/lib/types';
-import type { Viewer } from '@/lib/engines/advisor';
-import { AskBox } from './AskBox';
+import type { AiSource } from '@/lib/types';
 
 const useStyles = makeStyles({
   pane: {
@@ -37,7 +35,8 @@ const useStyles = makeStyles({
     ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2),
   },
   name: { fontSize: '13.5px', fontWeight: tokens.fontWeightSemibold, flexGrow: 1 },
-  body: { flexGrow: 1, overflowY: 'auto', ...shorthands.padding('12px') },
+  /* 72 px at the bottom so the last card scrolls clear of the AskSirion launcher. */
+  body: { flexGrow: 1, overflowY: 'auto', ...shorthands.padding('12px', '12px', '72px') },
   footer: {
     display: 'flex',
     alignItems: 'center',
@@ -88,15 +87,12 @@ export function PaneFrame({
   onClose,
   children,
   footerHref = '/deals/D-CLOUDDESK/ledger',
-  ask,
 }: {
   width?: number;
   source?: AiSource;
   onClose?: () => void;
   children: React.ReactNode;
   footerHref?: string;
-  /** Show "Ask Deal Ledger" at the bottom of the pane. */
-  ask?: { viewer: Viewer; termKey?: TermKey };
 }) {
   const s = useStyles();
   return (
@@ -108,7 +104,6 @@ export function PaneFrame({
           {onClose && <Button size="small" appearance="subtle" icon={<DismissRegular />} onClick={onClose} aria-label="Close Deal Ledger" />}
         </header>
         <div className={s.body}>{children}</div>
-        {ask && <AskBox viewer={ask.viewer} termKey={ask.termKey} />}
         <footer className={s.footer}>
           <Link href={footerHref} className={s.link}>
             {footerHref === '/deals' ? 'Browse deals ↗' : 'Open full ledger in Sirion ↗'}

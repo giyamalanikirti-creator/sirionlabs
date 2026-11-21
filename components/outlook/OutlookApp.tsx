@@ -544,7 +544,7 @@ export function OutlookApp({ person }: { person: Person }) {
             </div>
 
             {paneOpen && (
-              <PaneFrame width={340} source={cloudDeskContext ? readerSource : undefined} footerHref={cloudDeskContext ? undefined : '/deals'} onClose={() => setPaneOpen(false)} ask={hydrated && !setupGap && !prequel ? { viewer: person === 'ananya' ? 'lead' : 'owner' } : undefined}>
+              <PaneFrame width={340} source={cloudDeskContext ? readerSource : undefined} footerHref={cloudDeskContext ? undefined : '/deals'} onClose={() => setPaneOpen(false)}>
                 {setupGap ? (
                   <SetupGapNotice gap={setupGap} />
                 ) : !mailboxOn ? (

@@ -2,7 +2,9 @@
 
 /** One step in the guide rail: a number circle on the connecting line, the title, the date and the app it happens in. */
 import { useState } from 'react';
-import { Check } from 'lucide-react';
+import { Check, MessageCircleQuestion } from 'lucide-react';
+import { useAsk } from '@/lib/ask/store';
+import type { GuideAsk } from '@/lib/demo/guide';
 import type { ScriptAction } from '@/lib/demo/script';
 import type { AppKey, GuideStep } from '@/lib/demo/guideState';
 import { AppChip } from './apps';
@@ -32,6 +34,7 @@ export function StepItem({
   done,
   nextTitle,
   stepComplete,
+  asks,
   onAction,
   onNext,
   onJump,
@@ -49,6 +52,8 @@ export function StepItem({
   done: boolean[];
   nextTitle?: string;
   stepComplete: boolean;
+  /** Optional AskSirion questions for this step: a quiet row, never a "Do this". */
+  asks?: ReadonlyArray<GuideAsk>;
   onAction: (a: ScriptAction) => void;
   onNext: () => void;
   onJump: () => void;
@@ -97,6 +102,23 @@ export function StepItem({
                 );
               })}
             </ul>
+            {asks && asks.length > 0 && (
+              <div className="mt-2 border-t border-guide-200 pt-2">
+                {asks.map((q) => (
+                  <button
+                    key={q.prompt}
+                    onClick={() => useAsk.getState().openWith(q.prompt, q.intent)}
+                    title="Optional: opens AskSirion with this question"
+                    className={`flex w-full items-start gap-1.5 rounded-md px-1.5 py-1 text-left text-[12px] leading-[17px] text-muted hover:bg-white hover:text-ink ${ring}`}
+                  >
+                    <MessageCircleQuestion size={13} className="mt-[2px] shrink-0" />
+                    <span>
+                      Try asking AskSirion: <span className="italic">“{q.prompt}”</span>
+                    </span>
+                  </button>
+                ))}
+              </div>
+            )}
             {nextTitle && (
               <div className="mt-3">
                 {stepComplete ? (

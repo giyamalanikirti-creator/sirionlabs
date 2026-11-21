@@ -273,3 +273,48 @@ describe('peer benchmarks (sample data; never in the headline)', () => {
     expect(dealAtRisk(initialLedger(), deal)).toBeCloseTo(4.42192, 4);
   });
 });
+
+describe('AskSirion portfolio (portfolio_at_risk): the Deals list figures plus CloudDesk live', async () => {
+  const { portfolio } = await import('@/lib/ask/answer');
+  const { initialLedger: start, ledgerAtStep: atStep } = await import('@/lib/demo/steps');
+  const state = (rows: ReturnType<typeof start>, signedAt?: string) => ({
+    clock: '2026-11-14T10:00:00+05:30',
+    ledger: rows,
+    linkedThreadIds: [],
+    mailboxes: {},
+    ownersSeeFallbacks: true,
+    syncedVersionIds: [],
+    signing: { inserted: [], waived: [] },
+    invoices: [],
+    invoiceFastForward: false,
+    signedAt,
+  });
+
+  it('12 live negotiations, ₹20.3 lakh a year at the start (matches the home page total)', () => {
+    const p = portfolio(state(start()));
+    expect(p.rows).toHaveLength(12);
+    expect(p.totalLakh).toBeCloseTo(20.31599, 4);
+    expect(formatLakh(p.totalLakh)).toBe('₹20.3 lakh');
+    expect(p.rows.map((r) => `${r.label} ${formatLakh(r.lakh)}`)).toEqual([
+      'CloudDesk MSA ₹4.4 lakh',
+      'CloudOps Suite ₹3.1 lakh',
+      'Nimbus HR Cloud ₹2.9 lakh',
+      'DataVault ₹2.4 lakh',
+      'PixelForge Agency ₹1.6 lakh',
+      'BrightStaff Services ₹1.6 lakh',
+      'TransitOne Fleet ₹1.1 lakh',
+      'CleanCo Facilities ₹90,000',
+      'HelpHub ₹80,000',
+      'SwiftShip Logistics ₹72,000',
+      'Kaveri Consulting ₹50,000',
+      'SecureGate Facilities ₹30,000',
+    ]);
+  });
+
+  it('after round 4: ₹17.5 lakh; after CloudDesk signs it leaves the chart', () => {
+    expect(formatLakh(portfolio(state(atStep(1))).totalLakh)).toBe('₹17.5 lakh');
+    const signed = portfolio(state(atStep(4), '2026-11-21T12:00:00+05:30'));
+    expect(signed.rows).toHaveLength(11);
+    expect(signed.totalLakh).toBeCloseTo(15.89407, 4);
+  });
+});

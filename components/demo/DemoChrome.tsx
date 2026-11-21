@@ -6,6 +6,8 @@ import { DemoStrip } from './DemoStrip';
 import { GuideRail } from './GuideRail';
 import { CoachMark } from './CoachMark';
 import { Toasts } from './Toasts';
+import { AskLauncher } from '@/components/ask/AskLauncher';
+import { SourceDrawer } from '@/components/sirion/SourceDrawer';
 
 /**
  * The honest wrapper outside every mock (BUILD_SPEC §4F):
@@ -40,8 +42,12 @@ export function DemoChrome({ children }: { children: React.ReactNode }) {
         </div>
         <main id="app-frame" className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
           {children}
+          <Suspense>
+            <AskLauncher />
+          </Suspense>
         </main>
       </div>
+      <SourceDrawer />
       <CoachMark />
       <Toasts />
     </div>
