@@ -14,11 +14,13 @@ import { SirionCard } from '@/components/sirion/ui';
 import { ArchitectureDiagram } from './ArchitectureDiagram';
 import { ConnectionFlow } from './ConnectionFlow';
 import { StakeholderMap } from './StakeholderMap';
+import { Assumptions } from './Assumptions';
 
 const COMPONENTS: Record<string, () => React.ReactElement> = {
   'stakeholder-map': StakeholderMap,
   architecture: ArchitectureDiagram,
   'connection-flow': ConnectionFlow,
+  assumptions: Assumptions,
 };
 
 type Node = { kind: 'md'; text: string } | { kind: 'component'; name: string } | { kind: 'collapse'; title: string; children: Node[] };

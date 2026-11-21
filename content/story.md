@@ -26,6 +26,12 @@
 | **How much the product does** | Watch → Record → Price → Prepare → Interrupt. It may file a version, propose a term, suggest a tracked change and warn at Send; it never sends, accepts, signs or grants an approval for a human. | The irreversibility of a signed term warrants human control and clear evidence. |
 | **Assumptions** | Meridian is an India-based company with 3,000 employees and ~2,500 suppliers. Microsoft 365 and Word are used for negotiations; Sirion is its CLM; connected invoice, renewal and uptime histories support estimates. | The product needs a live contract record, scoped mailbox access and enough historical evidence to estimate risk. |
 
+<!-- collapse:Assumptions -->
+
+<!-- component:assumptions -->
+
+<!-- /collapse -->
+
 ## 1. Why negotiation?
 
 **Negotiation is the last point where a lost term can be corrected before signature.** Intake makes work visible, and a repository makes signed documents searchable. Neither answers whether a supplier's latest document reflects the agreement reached across an email thread and several Word rounds. A clause that quietly reverts to the supplier's wording may cause no policy violation and no error message, because the supplier's position can be within the company playbook while still being worse than the position negotiated for this deal.

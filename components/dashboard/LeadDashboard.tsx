@@ -263,6 +263,7 @@ export { formatPct };
 
 /** The collapsible reference sections on /story; a link opens the section. */
 const MORE_LINKS = [
+  { href: '/story#assumptions', label: 'Assumptions' },
   { href: '/story#how-this-works', label: 'How this works' },
   { href: '/story#architecture-privacy', label: 'Architecture & privacy' },
   { href: '/story#financial-methodology', label: 'Financial methodology' },
