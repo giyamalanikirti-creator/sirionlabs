@@ -27,7 +27,8 @@ export function SirionCard({
   children: React.ReactNode;
   className?: string;
   bodyClassName?: string;
-  sample?: boolean;
+  /** true shows 'Demo data'; a string names the source instead. */
+  sample?: boolean | string;
   noDivider?: boolean;
 }) {
   return (
@@ -42,7 +43,7 @@ export function SirionCard({
           <div className="min-w-0">
             <div className="flex items-center gap-2">
               <h2 className="truncate text-[16px] text-teal-title">{title}</h2>
-              {sample && <SamplePill />}
+              {sample && <SamplePill label={typeof sample === 'string' ? sample : undefined} />}
             </div>
             {caption && <p className="mt-1 text-[12.5px] leading-[18px] text-muted">{caption}</p>}
           </div>
@@ -63,13 +64,16 @@ export function SirionCard({
   );
 }
 
-export function SamplePill() {
+export function SamplePill({ label }: { label?: string }) {
   return (
     <span
-      title="Illustrative demo numbers for the pilot dashboards. CloudDesk figures are live from the ledger."
-      className="shrink-0 rounded-full border border-line bg-page px-2 py-[1px] text-[10px] font-medium uppercase tracking-wide text-muted"
+      title={label ? undefined : 'Illustrative demo numbers for the pilot dashboards. CloudDesk figures are live from the ledger.'}
+      className={cn(
+        'shrink-0 rounded-full border border-line bg-page px-2 py-[1px] font-medium text-muted',
+        label ? 'text-[11.5px]' : 'text-[10px] uppercase tracking-wide',
+      )}
     >
-      Demo data
+      {label ?? 'Demo data'}
     </span>
   );
 }
@@ -81,12 +85,15 @@ export function SamplePill() {
 export function KpiTile({
   label,
   value,
+  unit,
   caption,
   foot,
   tone = 'teal',
 }: {
   label: string;
   value: React.ReactNode;
+  /** A smaller unit after the figure ("lakh"), so every tile's figure is one size and one line. */
+  unit?: React.ReactNode;
   caption?: string;
   foot?: React.ReactNode;
   tone?: 'teal' | 'danger';
@@ -96,12 +103,13 @@ export function KpiTile({
       <p className="text-[15px] font-medium leading-[21px] text-ink">{label}</p>
       <p
         className={cn(
-          'mt-2 font-light leading-none tracking-tight',
+          'mt-2 whitespace-nowrap font-light leading-none tracking-tight',
           'text-[44px] xl:text-[52px]',
           tone === 'danger' ? 'text-danger' : 'text-teal-900',
         )}
       >
         {value}
+        {unit && <span className="ml-1.5 text-[24px] font-normal tracking-normal xl:text-[26px]">{unit}</span>}
       </p>
       {caption && <p className="mt-2.5 text-[12px] leading-[18px] text-muted">{caption}</p>}
       {foot && <div className="mt-3 border-t border-line pt-2.5">{foot}</div>}

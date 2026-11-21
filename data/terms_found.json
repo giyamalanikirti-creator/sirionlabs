@@ -1,6 +1,7 @@
 {
   "windowMonths": 6,
   "totalTerms": 214,
+  "interviews": 14,
   "split": [
     {
       "source": "Word versions",

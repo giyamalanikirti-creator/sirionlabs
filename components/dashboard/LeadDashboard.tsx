@@ -69,7 +69,8 @@ export function LeadDashboard() {
         />
         <KpiTile
           label="₹ a year if signed as is, across open deals"
-          value={<span suppressHydrationWarning>{formatLakh(allOpenAtRisk)}</span>}
+          value={<span suppressHydrationWarning>{splitUnit(formatLakh(allOpenAtRisk))[0]}</span>}
+          unit={<span suppressHydrationWarning>{splitUnit(formatLakh(allOpenAtRisk))[1]}</span>}
           caption={`${openDeals.length} open deals · ${needsConfirming} row${
             needsConfirming === 1 ? '' : 's'
           } need${needsConfirming === 1 ? 's' : ''} confirming`}
@@ -90,7 +91,7 @@ export function LeadDashboard() {
             </>
           }
         />
-        <SirionCard title="Where agreed terms were found" className="lg:col-span-2" sample>
+        <SirionCard title="Where agreed terms were found" className="lg:col-span-2" sample={`From ${termsFound.interviews} primary interviews`}>
           <Donut
             data={termsFound.split.map((s) => ({ name: s.source, value: s.pct }))}
             height={212}
@@ -270,6 +271,12 @@ const MORE_LINKS = [
   { href: '/story#peer-benchmarks', label: 'Peer benchmarks' },
   { href: '/story#sources-and-scope-of-claims', label: 'Sources and scope of claims' },
 ];
+
+/** "₹20.3 lakh" → ["₹20.3", "lakh"]; "₹50,000" → ["₹50,000", ""]. */
+function splitUnit(text: string): [string, string] {
+  const m = text.match(/^(.*?)\s+(lakh|crore)$/);
+  return m ? [m[1], m[2]] : [text, ''];
+}
 
 const CASE_LINKS = [
   { href: '/story#1-why-negotiation', label: 'Why negotiation' },

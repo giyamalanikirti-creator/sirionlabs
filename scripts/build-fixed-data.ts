@@ -595,6 +595,8 @@ const kpiHistory = {
 const termsFound = {
   windowMonths: 6,
   totalTerms: 214,
+  /** The split comes from primary interviews with procurement teams. */
+  interviews: 14,
   split: [
     { source: 'Word versions', pct: 58 },
     { source: 'Supplier email text', pct: 27 },
