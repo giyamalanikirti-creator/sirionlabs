@@ -89,7 +89,7 @@ CloudDesk is a **₹60 lakh annual / three-year / ₹1.8 crore committed** softw
 
 The live dashboard on [Home](/#workspace) keeps its visuals and their distinct denominators:
 
-- **Signing-quality north-star trend:** **50% ({{keep:Jan–Mar 2026}}) → 58% (Apr–Jun) → 65% (Jul–Sep)**. The latest point is **13 of 20 audited contracts** signed with no agreed term missing; three newer contracts await audit. These are illustrative demo numbers, obtained by independent correspondence audit, not by the product grading itself.
+- **Signing-quality north-star trend:** **50% ({{keep:Jan to Mar 2026}}) → 58% (Apr to Jun) → 65% (Jul to Sep)**. The latest point is **13 of 20 audited contracts** signed with no agreed term missing; three newer contracts await audit. These are illustrative demo numbers, obtained by independent correspondence audit, not by the product grading itself.
 - **Where agreement actually happens:** **42% of 214 negotiated terms** in the last six months were agreed **outside the formal contract document** (supplier email, side threads and calls).
 - **Value at risk, open portfolio:** **₹20.3 lakh a year** across **12 open deals**, with **₹4.4 lakh** attributed to the live CloudDesk snapshot and **₹15.9 lakh** to the other 11, shown with the **“If signed as is, by open deal” top-eight bar chart**. This is an expected annual average, not a cash loss; a one-time renewal exposure is annualised over the contract term and its full one-time exposure is shown too.
 

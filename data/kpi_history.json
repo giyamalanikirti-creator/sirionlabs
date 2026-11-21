@@ -1,17 +1,17 @@
 {
   "northStar": [
     {
-      "quarter": "Jan–Mar 2026",
+      "quarter": "Jan to Mar 2026",
       "clean": 9,
       "audited": 18
     },
     {
-      "quarter": "Apr–Jun 2026",
+      "quarter": "Apr to Jun 2026",
       "clean": 11,
       "audited": 19
     },
     {
-      "quarter": "Jul–Sep 2026",
+      "quarter": "Jul to Sep 2026",
       "clean": 13,
       "audited": 20
     }

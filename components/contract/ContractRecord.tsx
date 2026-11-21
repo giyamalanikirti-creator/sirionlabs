@@ -149,7 +149,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
               </span>
               <span>·</span>
               <span>
-                {formatDateLong(contract.startDate)} – {formatDateLong(contract.endDate)}
+                {formatDateLong(contract.startDate)} to {formatDateLong(contract.endDate)}
               </span>
             </p>
           </div>
@@ -243,7 +243,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
               <tr key={r.id} className="transition-colors hover:bg-page/60">
                 <Td className="font-medium">{r.label}</Td>
                 <Td className="text-ink/85">{plainValue(r.position, cloudDeskDeal.termYears)}</Td>
-                <Td className="text-muted">{CLAUSE_FOR[r.termKey] ?? '–'}</Td>
+                <Td className="text-muted">{CLAUSE_FOR[r.termKey] ?? 'None'}</Td>
                 <Td>
                   <StatePill state={r.state} condition={r.condition?.text} />
                 </Td>
@@ -251,7 +251,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
                   <SourceChip source={r.source} />
                 </Td>
                 <Td className="text-[12px] text-muted">
-                  {r.termKey === 'price' ? (approverFor(rows, r.termKey) ? `${approverFor(rows, r.termKey)} · if pricing stays fixed` : '–') : r.approvedBy ? personName(r.approvedBy.personId) : '–'}
+                  {r.termKey === 'price' ? (approverFor(rows, r.termKey) ? `${approverFor(rows, r.termKey)} · if pricing stays fixed` : 'None') : r.approvedBy ? personName(r.approvedBy.personId) : 'None'}
                 </Td>
               </tr>
             ))}

@@ -80,8 +80,8 @@ export const BRIGHTSTAFF: ScriptedDeal = deepShift({
   patternDetail:
     'The 8% markup cap was agreed in email by the HR head, outside procurement. The signing copy keeps the clause text but the rate card table still says 10%.',
   emails: [
-    { id: 'B1', from: 'sunita.rao@brightstaff.example', fromName: 'Sunita Rao (BrightStaff)', to: 'Karan Malhotra', at: '2026-11-02T11:00:00+05:30', subject: 'BrightStaff contractor agreement 2026–28', body: 'Attached is our draft for the contractor agreement. Rate card in Schedule 2. Sunita', attachment: 'BrightStaff_MSA_v1.docx' },
-    { id: 'B2', from: 'karan.malhotra@meridian.example', fromName: 'Karan Malhotra', to: 'Sunita Rao', at: '2026-11-05T15:20:00+05:30', subject: 'RE: BrightStaff contractor agreement 2026–28', body: 'Thanks Sunita. We need the markup capped at 8% over pass-through pay. Revised draft attached. Karan', attachment: 'BrightStaff_MSA_v2.docx' },
+    { id: 'B1', from: 'sunita.rao@brightstaff.example', fromName: 'Sunita Rao (BrightStaff)', to: 'Karan Malhotra', at: '2026-11-02T11:00:00+05:30', subject: 'BrightStaff contractor agreement 2026-28', body: 'Attached is our draft for the contractor agreement. Rate card in Schedule 2. Sunita', attachment: 'BrightStaff_MSA_v1.docx' },
+    { id: 'B2', from: 'karan.malhotra@meridian.example', fromName: 'Karan Malhotra', to: 'Sunita Rao', at: '2026-11-05T15:20:00+05:30', subject: 'RE: BrightStaff contractor agreement 2026-28', body: 'Thanks Sunita. We need the markup capped at 8% over pass-through pay. Revised draft attached. Karan', attachment: 'BrightStaff_MSA_v2.docx' },
     { id: 'B3', from: 'sunita.rao@brightstaff.example', fromName: 'Sunita Rao (BrightStaff)', to: 'Deepa Menon (HR head)', at: '2026-11-07T10:15:00+05:30', subject: 'Contractor onboarding for January', body: 'Deepa, to start the January batch on time, can we close the markup at 9%? Sunita', side: true },
     { id: 'B4', from: 'deepa.menon@meridian.example', fromName: 'Deepa Menon (HR head)', to: 'Sunita Rao', at: '2026-11-07T12:40:00+05:30', subject: 'RE: Contractor onboarding for January', body: 'We can go with the 8% markup cap that Karan sent, and we will confirm the January batch this week. Deepa', side: true },
     { id: 'B5', from: 'sunita.rao@brightstaff.example', fromName: 'Sunita Rao (BrightStaff)', to: 'Karan Malhotra', at: '2026-11-13T17:10:00+05:30', subject: 'BrightStaff signing copy', body: 'Signing copy attached with the 8% cap in clause 6. Please sign by 30 Nov. Sunita', attachment: 'BrightStaff_MSA_v3.docx' },
@@ -139,7 +139,7 @@ export const BRIGHTSTAFF_SIGNING_COPY = deepShift({
 /* ---------------- SwiftShip ---------------- */
 
 const SWIFTSHIP_FREIGHT_INR = 3_600_000;
-/** Average retail diesel price, ₹ a litre, Jun–Nov 2026 (demo data). */
+/** Average retail diesel price, ₹ a litre, Jun to Nov 2026 (demo data). */
 export const DIESEL_BY_MONTH = [93.4, 94.1, 92.8, 93.6, 94.5, 95.0];
 export const swiftShipGap = fuelSurchargeGap(SWIFTSHIP_FREIGHT_INR, 0.5, 92, 88, DIESEL_BY_MONTH);
 
@@ -150,7 +150,7 @@ export const SWIFTSHIP_MESSAGES: EmailMessage[] = deepShift([
     from: 'imran.khan@swiftship.example',
     to: ['ananya.rao@meridian.example'],
     cc: [],
-    subject: 'SwiftShip: outbound freight for Meridian, 2027–28',
+    subject: 'SwiftShip: outbound freight for Meridian, 2027-28',
     sentAt: '2026-11-11T16:30:00+05:30',
     attachments: [],
     body: 'Hi Ananya, good speaking today. As discussed, the fuel surcharge would start only when diesel is above ₹92 a litre, at 0.5% of freight for each ₹1 above that. Formal quote to follow. Imran',
@@ -162,7 +162,7 @@ export const SWIFTSHIP_MESSAGES: EmailMessage[] = deepShift([
     from: 'imran.khan@swiftship.example',
     to: ['ananya.rao@meridian.example'],
     cc: [],
-    subject: 'RE: SwiftShip: outbound freight for Meridian, 2027–28',
+    subject: 'RE: SwiftShip: outbound freight for Meridian, 2027-28',
     sentAt: '2026-11-12T11:05:00+05:30',
     attachments: [{ fileName: 'SwiftShip_Quote_Meridian.pdf', sizeKb: 212, fingerprint: 'fp-ss-quote' }],
     body: 'Please find our quote attached: ₹36 lakh a year for outbound freight, two-year term, payment in 45 days. Imran',
@@ -181,7 +181,7 @@ export const SWIFTSHIP: ScriptedDeal = deepShift({
     { id: 'S1', from: 'imran.khan@swiftship.example', fromName: 'Imran Khan (SwiftShip)', to: 'Ananya Rao', at: '2026-11-11T16:30:00+05:30', subject: SWIFTSHIP_MESSAGES[0].subject, body: SWIFTSHIP_MESSAGES[0].body },
     { id: 'S2', from: 'imran.khan@swiftship.example', fromName: 'Imran Khan (SwiftShip)', to: 'Ananya Rao', at: '2026-11-12T11:05:00+05:30', subject: SWIFTSHIP_MESSAGES[1].subject, body: SWIFTSHIP_MESSAGES[1].body, attachment: 'SwiftShip_Quote_Meridian.pdf' },
     { id: 'S3', from: 'vikram.shah@meridian.example', fromName: 'Vikram Shah', to: 'Imran Khan', at: '2026-11-13T09:20:00+05:30', subject: 'Warehouse slots for January', body: 'Imran, the January volumes look fine. Whatever surcharge you and Ananya settle is OK with us. Vikram', side: true },
-    { id: 'S4', from: 'ananya.rao@meridian.example', fromName: 'Ananya Rao', to: 'Imran Khan', at: '2026-11-13T14:00:00+05:30', subject: 'RE: SwiftShip: outbound freight for Meridian, 2027–28', body: 'Thanks Imran. Your quote has the surcharge starting at ₹88 a litre; on the call and in your email of 11 Nov it was ₹92. Our draft with ₹92 is attached. Ananya', attachment: 'SwiftShip_Agreement_v2.docx' },
+    { id: 'S4', from: 'ananya.rao@meridian.example', fromName: 'Ananya Rao', to: 'Imran Khan', at: '2026-11-13T14:00:00+05:30', subject: 'RE: SwiftShip: outbound freight for Meridian, 2027-28', body: 'Thanks Imran. Your quote has the surcharge starting at ₹88 a litre; on the call and in your email of 11 Nov it was ₹92. Our draft with ₹92 is attached. Ananya', attachment: 'SwiftShip_Agreement_v2.docx' },
   ],
   turns: [
     { round: 1, side: 'theirs', file: 'SwiftShip_Quote_Meridian.pdf', format: 'PDF', at: '2026-11-12T11:05:00+05:30', emailId: 'S2', note: 'Read from the PDF: fuel surcharge above ₹88 a litre.' },

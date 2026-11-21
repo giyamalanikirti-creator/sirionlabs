@@ -453,7 +453,7 @@ export function IssueCard({
             <Badge size="small" appearance="tint" color={l.confidence === 'high' ? 'success' : l.confidence === 'formula' ? 'informative' : 'warning'}>
               {l.confidence === 'formula'
                 ? "Formula · Finance's cost of money"
-                : `Based on ${l.n ?? '–'} of your ${BASIS_NOUN[row.termKey] ?? 'records'} · ${l.confidence ?? 'low'}`}
+                : `Based on ${l.n ?? 'a few'} of your ${BASIS_NOUN[row.termKey] ?? 'records'} · ${l.confidence ?? 'low'}`}
             </Badge>
           </div>
 
@@ -501,7 +501,7 @@ export function IssueCard({
               <li>Shown only for cells with at least {PEER_MIN_COMPANIES} companies and {PEER_MIN_CONTRACTS} contracts.</li>
               <li>Aggregates only (median and middle half); no contract text, company or contract IDs.</li>
               <li>At least a quarter old; percentages rounded to 0.5 points.</li>
-              <li>Category level (software, India, 1–3 years, ₹25 lakh–₹1 crore a year). No supplier-named figures.</li>
+              <li>Category level (software, India, 1 to 3 years, ₹25 lakh to ₹1 crore a year). No supplier-named figures.</li>
               <li>Opt-in per company: contributors get access, others do not. The headline uses your own data only.</li>
             </ul>
           </details>

@@ -24,14 +24,14 @@ export function PastContractView({ contract }: { contract: PastContract }) {
         </p>
         <h1 className="mt-1 text-[20px] text-teal-title">{contract.name}</h1>
         <p className="mt-1.5 text-[12.5px] text-muted">
-          {contract.id} · {formatLakh(contract.annualFeeInr / 1e5)} a year · {formatDateLong(contract.startDate)} – {formatDateLong(contract.endDate)} · Owner {contract.owner}
+          {contract.id} · {formatLakh(contract.annualFeeInr / 1e5)} a year · {formatDateLong(contract.startDate)} to {formatDateLong(contract.endDate)} · Owner {contract.owner}
         </p>
       </SirionCard>
       <div className="grid gap-4 lg:grid-cols-2">
         <SirionCard title="Key terms" caption="Read-only in this demo. These contracts are the history the ₹ estimates are built from.">
           <dl className="space-y-2 text-[12.5px]">
-            <Line label="Price">{contract.priceWording ? PRICE[contract.priceWording] : '–'}</Line>
-            <Line label="Renewal notice">{contract.noticeDays ? `${contract.noticeDays} days` : '–'}</Line>
+            <Line label="Price">{contract.priceWording ? PRICE[contract.priceWording] : 'Not stated'}</Line>
+            <Line label="Renewal notice">{contract.noticeDays ? `${contract.noticeDays} days` : 'Not stated'}</Line>
             <Line label="Auto-renews">{contract.autoRenew ? 'Yes' : 'No'}</Line>
             <Line label="Status">{contract.status === 'expiring' ? 'Expiring' : contract.status === 'active' ? 'Active' : 'Expired'}</Line>
           </dl>

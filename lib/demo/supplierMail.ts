@@ -74,7 +74,7 @@ export const SUPPLIER_MAIL: DealMail[] = deepShift([
   {
     dealId: 'D-CLEANCO',
     emails: [
-      mail('C1', 'D-CLEANCO', 'operations@cleanco.example', '2026-11-11T10:30:00+05:30', 'CleanCo: confirmed terms for 2027–28',
+      mail('C1', 'D-CLEANCO', 'operations@cleanco.example', '2026-11-11T10:30:00+05:30', 'CleanCo: confirmed terms for 2027-28',
         'Thanks Karan. Confirming the monthly fee of ₹1,50,000, 22 staff across both sites, payment in 30 days and a 2-year term. Deep cleaning every quarter is included. We would like to discuss the penalty for missed shifts separately. Asha',
         { to: ['karan.malhotra@meridian.example'], cc: [A] }),
       mail('C2', 'D-CLEANCO', 'ap@meridian.example', '2026-11-13T16:12:00+05:30', 'Invoice approval pending: CleanCo Facilities',
@@ -162,12 +162,12 @@ export const SUPPLIER_MAIL: DealMail[] = deepShift([
   {
     dealId: 'D-TRANSITONE',
     emails: [
-      mail('TR1', 'D-TRANSITONE', 'sanjay.patil@transitone.example', '2026-11-13T09:40:00+05:30', 'TransitOne: Pune–Mumbai lane contract',
-        'Hi Meera, confirming 12 trucks on the Pune–Mumbai lane and a 2-year term. For the new contract we need a transit fee of ₹1,800 per trip to cover toll and permit changes, a fuel surcharge linked to diesel, and payment in 30 days. Sanjay',
+      mail('TR1', 'D-TRANSITONE', 'sanjay.patil@transitone.example', '2026-11-13T09:40:00+05:30', 'TransitOne: Pune-Mumbai lane contract',
+        'Hi Meera, confirming 12 trucks on the Pune-Mumbai lane and a 2-year term. For the new contract we need a transit fee of ₹1,800 per trip to cover toll and permit changes, a fuel surcharge linked to diesel, and payment in 30 days. Sanjay',
         { to: ['meera.pillai@meridian.example'], cc: [A] }),
     ],
     rows: [
-      { id: 'TR-fleet', label: 'Fleet', agreed: '12 trucks, Pune–Mumbai', state: 'agreed', emailId: 'TR1', quote: 'confirming 12 trucks on the Pune–Mumbai lane' },
+      { id: 'TR-fleet', label: 'Fleet', agreed: '12 trucks, Pune-Mumbai', state: 'agreed', emailId: 'TR1', quote: 'confirming 12 trucks on the Pune-Mumbai lane' },
       { id: 'TR-term', label: 'Term', agreed: '2 years', state: 'agreed', emailId: 'TR1', quote: 'a 2-year term' },
       { id: 'TR-transit', label: 'Transit fee', agreed: 'Not agreed yet', state: 'open', emailId: 'TR1', quote: 'a transit fee of ₹1,800 per trip to cover toll and permit changes', note: 'New ask from TransitOne' },
       { id: 'TR-fuel', label: 'Fuel surcharge', agreed: 'Not agreed yet', state: 'open', emailId: 'TR1', quote: 'a fuel surcharge linked to diesel' },

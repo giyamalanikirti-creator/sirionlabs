@@ -159,7 +159,7 @@ export function Compose({
               />
             ))
           ) : (
-            <span style={{ fontSize: 12.5, color: tokens.colorNeutralForeground4 }}>–</span>
+            <span style={{ fontSize: 12.5, color: tokens.colorNeutralForeground4 }}>None</span>
           )}
         </div>
         <div className={s.fieldRow}>

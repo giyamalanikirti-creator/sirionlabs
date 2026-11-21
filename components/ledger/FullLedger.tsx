@@ -72,7 +72,7 @@ export function FullLedger() {
           <div className="min-w-0">
             <p className="text-[11.5px] text-muted">
               <Link href="/deals" className="hover:underline">Deals</Link> /{' '}
-              <Link href="/deals/D-CLOUDDESK" className="hover:underline">CloudDesk renewal 2026–29</Link> / Ledger
+              <Link href="/deals/D-CLOUDDESK" className="hover:underline">CloudDesk renewal 2026-29</Link> / Ledger
             </p>
             <h1 className="mt-1 text-[20px] text-teal-title">CloudDesk ledger</h1>
             <p className="mt-1.5 max-w-2xl text-[12.5px] leading-[19px] text-muted">
@@ -172,7 +172,7 @@ export function FullLedger() {
                     </div>
                   </Td>
                   <Td className="text-[12px]">{agreedBy(row)}</Td>
-                  <Td className="max-w-[220px] text-[12px] text-muted">{approvalDependsOn(row, rows) ?? '–'}</Td>
+                  <Td className="max-w-[220px] text-[12px] text-muted">{approvalDependsOn(row, rows) ?? 'None'}</Td>
                   <Td className="text-[11.5px]">
                     {conf.pct !== undefined && (
                       <span className={`mr-1 font-semibold ${conf.low ? 'text-amber-fg' : 'text-teal-900'}`}>{conf.pct}%</span>
@@ -180,7 +180,7 @@ export function FullLedger() {
                     <span className={conf.low ? 'text-amber-fg' : 'text-muted'}>{conf.label}</span>
                   </Td>
                   <Td align="right">
-                    {share !== null ? <span className="font-semibold text-danger">{formatLakh(share)}</span> : <span className="text-muted">–</span>}
+                    {share !== null ? <span className="font-semibold text-danger">{formatLakh(share)}</span> : <span className="text-muted">None</span>}
                   </Td>
                   <Td align="right">
                     <div className="flex flex-col items-end gap-1">

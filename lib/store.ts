@@ -292,7 +292,7 @@ const BASE = {
   invoiceResolved: false,
   notices: [] as Notice[],
   completedSteps: [0] as Step[],
-  events: [{ at: STEP_CLOCK[0], text: 'Demo started. Ledger loaded from rounds 1–3.' }],
+  events: [{ at: STEP_CLOCK[0], text: 'Demo started. Ledger loaded from rounds 1 to 3.' }],
   lastToast: undefined,
 };
 

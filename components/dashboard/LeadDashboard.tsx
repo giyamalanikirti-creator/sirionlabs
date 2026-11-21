@@ -276,6 +276,7 @@ const CASE_LINKS = [
   { href: '/story#2-stakeholder-map', label: 'Stakeholder map' },
   { href: '/story#3-the-problem', label: 'The problem' },
   { href: '/story#5-success-metrics', label: 'Success metrics' },
+  { href: '/today', label: 'Sirion today vs Deal Ledger' },
 ];
 
 /** Review fix B3/C1: one primary action, the rest as text links, the case one click away. */

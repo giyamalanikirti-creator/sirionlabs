@@ -1,7 +1,7 @@
 [
   {
     "id": "T1",
-    "subject": "CloudDesk renewal 2026–29",
+    "subject": "CloudDesk renewal 2026-29",
     "dealId": "D-CLOUDDESK",
     "participants": [
       "ananya",
@@ -147,7 +147,7 @@
   },
   {
     "id": "TH-F-V1",
-    "subject": "Change window Saturday 02:00–05:00",
+    "subject": "Change window Saturday 02:00 to 05:00",
     "participants": [],
     "mailboxes": [
       "vikram"

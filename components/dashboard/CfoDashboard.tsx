@@ -103,7 +103,7 @@ export function CfoDashboard() {
                 <Td>
                   <StatePill state={r.state} condition={r.condition?.text} />
                 </Td>
-                <Td className="text-ink/80">{r.approvedBy?.condition ?? '–'}</Td>
+                <Td className="text-ink/80">{r.approvedBy?.condition ?? 'None'}</Td>
                 <Td>
                   <SourceChip source={r.approvedBy!.source} />
                 </Td>
@@ -117,7 +117,7 @@ export function CfoDashboard() {
                 <Td>
                   <StatePill state="agreed" />
                 </Td>
-                <Td>–</Td>
+                <Td>None</Td>
                 <Td className="text-[11.5px]">Email · {a.at} · demo data</Td>
               </tr>
             ))}

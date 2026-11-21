@@ -64,7 +64,7 @@ function Group({ title, rows, note }: { title: string; rows: Row[]; note?: strin
 
 const ladder = (key: TermKey) => {
   const e = PLAYBOOK[key];
-  if (!e) return '–';
+  if (!e) return 'Not set';
   const parts = [`Preferred: ${plainValue(e.preferred).toLowerCase()}`];
   if (e.fallback) parts.push(`fallback: ${plainValue(e.fallback.value as TermValue).toLowerCase()}`);
   if (e.walkAway) parts.push(`walk-away: ${plainValue(e.walkAway.value as TermValue).toLowerCase()}`);
@@ -137,7 +137,7 @@ export function Assumptions() {
         note="Expected annual averages to prioritise negotiation, not realised losses or legal entitlements."
         rows={[
           ['Price revision', `An open yearly revision is expected to raise prices ${formatPct(R_OPEN, 1)} a year, the average across ${R_OPEN_N} comparable contracts; a capped clause is expected to rise to ${formatPct(CAP_RATIO)} of its cap.`],
-          ['Renewal notice', `A renewal slips through unreviewed in ${formatPct(pSlip(30) ?? 0)} of renewals with 30 days or less notice (${short.unreviewed} of ${short.total}) and ${formatPct(pSlip(90) ?? 0)} with 60 days or more (${long.unreviewed} of ${long.total}), from ${RENEWALS_N} past renewals; 31–59 days has no history and is not priced.`],
+          ['Renewal notice', `A renewal slips through unreviewed in ${formatPct(pSlip(30) ?? 0)} of renewals with 30 days or less notice (${short.unreviewed} of ${short.total}) and ${formatPct(pSlip(90) ?? 0)} with 60 days or more (${long.unreviewed} of ${long.total}), from ${RENEWALS_N} past renewals; 31 to 59 days has no history and is not priced.`],
           ['Cost of a slipped renewal', `${formatPct(UNUSED_SHARE)} of seats are unused at an unreviewed renewal. The cost is counted once per renewal and spread over the term; the gross one-time exposure is shown beside it.`],
           ['Payment terms', `Paying earlier costs the cost of money, ${formatPct(COST_OF_MONEY)} a year, on the fee for the days brought forward.`],
           ['Service credits', `CloudDesk missed 99.5% uptime in ${missedMonths('C-017', 99.5)} of the last ${SERVICE_MONTHS_N} months; credits are a modelled difference, not money owed, until the signed SLA’s eligibility is checked.`],

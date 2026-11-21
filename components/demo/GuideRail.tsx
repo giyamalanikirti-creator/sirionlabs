@@ -309,7 +309,7 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
       <ConfirmDialog
         open={confirm === 'keys'}
         title="Keyboard shortcuts"
-        body="]  next step   ·   [  previous step   ·   g then 1–6  jump to a step   ·   Esc  hide the hint"
+        body="]  next step   ·   [  previous step   ·   g then 1 to 6  jump to a step   ·   Esc  hide the hint"
         confirmLabel="Got it"
         onCancel={() => setConfirm(null)}
         onConfirm={() => setConfirm(null)}

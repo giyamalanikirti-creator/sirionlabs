@@ -98,7 +98,7 @@ describe('other terms', () => {
     expect(formatLakhPerYear(t.costLakhPerYr)).toBe('₹50,000 a year');
   });
 
-  it('a 31–59 day notice window has no history, so no ₹ figure', () => {
+  it('a 31 to 59 day notice window has no history, so no ₹ figure', () => {
     const t = priceChange(
       deal,
       { kind: 'renewal_notice', days: 30 },
@@ -261,7 +261,7 @@ describe('peer benchmarks (sample data; never in the headline)', () => {
     const p = peerChange(deal, FIXED, OPEN)!;
     expect(p.lowLakh!).toBeCloseTo(2.7405, 3);
     expect(p.highLakh!).toBeCloseTo(5.562, 3);
-    expect(lakhRange(p.lowLakh!, p.highLakh!)).toBe('₹2.7–5.6 lakh');
+    expect(lakhRange(p.lowLakh!, p.highLakh!)).toBe('₹2.7 lakh to ₹5.6 lakh');
   });
 
   it('peer renewal notice 30 → 90 days', () => {

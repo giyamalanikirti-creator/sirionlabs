@@ -57,7 +57,7 @@ export const CLARIFY_REPLY: EmailMessage = deepShift({
   from: 'rohan.iyer@clouddesk.example',
   to: ['ananya.rao@meridian.example'],
   cc: ['priya.nair@clouddesk.example'],
-  subject: 'RE: CloudDesk renewal 2026–29',
+  subject: 'RE: CloudDesk renewal 2026-29',
   sentAt: '2026-11-16T18:20:00+05:30',
   attachments: [],
   body:

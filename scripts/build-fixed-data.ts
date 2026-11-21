@@ -39,7 +39,7 @@ const E = Object.fromEntries(people.map((p) => [p.id, p.email])) as Record<strin
 /* ================================================================== */
 
 const threads = [
-  { id: 'T1', subject: 'CloudDesk renewal 2026–29', dealId: 'D-CLOUDDESK', participants: ['ananya', 'rohan', 'priya'], mailboxes: ['ananya'] },
+  { id: 'T1', subject: 'CloudDesk renewal 2026-29', dealId: 'D-CLOUDDESK', participants: ['ananya', 'rohan', 'priya'], mailboxes: ['ananya'] },
   { id: 'T2', subject: 'CloudDesk uptime in October', participants: ['vikram', 'rohan'], mailboxes: ['vikram'] },
   { id: 'T3', subject: 'CloudDesk liability cap: Legal OK?', dealId: 'D-CLOUDDESK', participants: ['ananya', 'arjun'], mailboxes: ['ananya'] },
   { id: 'T4', subject: 'CloudDesk 3-year commitment: approval', dealId: 'D-CLOUDDESK', participants: ['ananya', 'neha'], mailboxes: ['ananya'] },
@@ -68,21 +68,21 @@ type Msg = {
 const scripted: Msg[] = [
   {
     id: 'M1', threadId: 'T1', from: E.rohan, to: [E.ananya], cc: [E.priya],
-    subject: 'CloudDesk renewal 2026–29', sentAt: '2026-11-01T11:20:00+05:30',
+    subject: 'CloudDesk renewal 2026-29', sentAt: '2026-11-01T11:20:00+05:30',
     attachments: att('CloudDesk_MSA_v1.docx', 84, 'v1', null),
     body: 'Hi Ananya, attached is our renewal draft for the next term. Pricing moves to our standard yearly revision and payment stays at 45 days. Happy to discuss. Rohan',
     mailboxes: ['ananya'],
   },
   {
     id: 'M2', threadId: 'T1', from: E.ananya, to: [E.rohan], cc: [E.priya],
-    subject: 'RE: CloudDesk renewal 2026–29', sentAt: '2026-11-03T16:05:00+05:30',
+    subject: 'RE: CloudDesk renewal 2026-29', sentAt: '2026-11-03T16:05:00+05:30',
     attachments: att('CloudDesk_MSA_v2.docx', 88, 'v2', TAG),
     body: "Thanks Rohan. Our markup is attached. We'd like the price fixed for the term, payment in 60 days and 10% service credits for any month below 99.5% uptime. We could look at a 3-year term if the price is fixed. Ananya",
     mailboxes: ['ananya'],
   },
   {
     id: 'M3', threadId: 'T1', from: E.rohan, to: [E.ananya], cc: [E.priya],
-    subject: 'RE: CloudDesk renewal 2026–29', sentAt: '2026-11-06T12:40:00+05:30',
+    subject: 'RE: CloudDesk renewal 2026-29', sentAt: '2026-11-06T12:40:00+05:30',
     attachments: att('CloudDesk_MSA_v3.docx', 89, 'v3', TAG),
     body: 'Revised draft attached. A yearly revision is standard for us, but we can look at 60 days if you commit to three years. Rohan',
     mailboxes: ['ananya'],
@@ -96,7 +96,7 @@ const scripted: Msg[] = [
   },
   {
     id: 'M5', threadId: 'T1', from: E.rohan, to: [E.ananya], cc: [E.priya],
-    subject: 'RE: CloudDesk renewal 2026–29', sentAt: '2026-11-10T09:15:00+05:30',
+    subject: 'RE: CloudDesk renewal 2026-29', sentAt: '2026-11-10T09:15:00+05:30',
     attachments: [],
     body: 'OK on 60 days if you sign for 3 years. And yes, 30 days of exit support at no charge works for us. Rohan',
     mailboxes: ['ananya'],
@@ -110,14 +110,14 @@ const scripted: Msg[] = [
   },
   {
     id: 'M7', threadId: 'T1', from: E.ananya, to: [E.rohan], cc: [E.priya],
-    subject: 'RE: CloudDesk renewal 2026–29', sentAt: '2026-11-13T10:10:00+05:30',
+    subject: 'RE: CloudDesk renewal 2026-29', sentAt: '2026-11-13T10:10:00+05:30',
     attachments: [],
     body: 'Great. On service credits, we need 10% of the monthly fee for any month below 99.5% uptime. Ananya',
     mailboxes: ['ananya'],
   },
   {
     id: 'M8', threadId: 'T1', from: E.rohan, to: [E.ananya], cc: [E.priya],
-    subject: 'RE: CloudDesk renewal 2026–29', sentAt: '2026-11-14T10:05:00+05:30',
+    subject: 'RE: CloudDesk renewal 2026-29', sentAt: '2026-11-14T10:05:00+05:30',
     attachments: att('CloudDesk_MSA_v4.docx', 91, 'v4', TAG),
     body: 'Good news: we can hold the price at ₹12,000 a seat for the full three years. Updated draft attached. Rohan',
     mailboxes: ['ananya'],
@@ -138,14 +138,14 @@ const scripted: Msg[] = [
   },
   {
     id: 'M11', threadId: 'T1', from: E.ananya, to: [E.rohan], cc: [E.priya],
-    subject: 'RE: CloudDesk renewal 2026–29', sentAt: '2026-11-15T15:30:00+05:30',
+    subject: 'RE: CloudDesk renewal 2026-29', sentAt: '2026-11-15T15:30:00+05:30',
     attachments: att('CloudDesk_MSA_v5.docx', 92, 'v5', TAG),
     body: "Rohan, v4 changes the renewal notice in 14.2 to 90 days. We agreed 30, so I've put it back in the attached. Ananya",
     mailboxes: ['ananya'],
   },
   {
     id: 'M12', threadId: 'T1', from: E.rohan, to: [E.ananya], cc: [E.priya, E.vikram],
-    subject: 'RE: CloudDesk renewal 2026–29', sentAt: '2026-11-16T17:45:00+05:30',
+    subject: 'RE: CloudDesk renewal 2026-29', sentAt: '2026-11-16T17:45:00+05:30',
     attachments: [],
     body: 'Spoke to Vikram yesterday. On service credits, fine with that. Clean signing copy to follow this week. Rohan',
     mailboxes: ['ananya', 'vikram'],
@@ -203,7 +203,7 @@ const fillerAnanya: [string, string, string, string][] = [
 ];
 
 const fillerVikram: [string, string, string, string][] = [
-  ['F-V1', 'Change window Saturday 02:00–05:00', 'noc@meridian.example', '2026-11-18T09:10:00+05:30'],
+  ['F-V1', 'Change window Saturday 02:00 to 05:00', 'noc@meridian.example', '2026-11-18T09:10:00+05:30'],
   ['F-V2', 'Ticket volumes last week', 'servicedesk@meridian.example', '2026-11-17T18:25:00+05:30'],
   ['F-V3', 'DataVault: scheduled maintenance notice', 'status@datavault.example', '2026-11-17T06:45:00+05:30'],
   ['F-V4', 'New starter kit: 6 joiners in December', 'people@meridian.example', '2026-11-16T14:35:00+05:30'],
@@ -222,7 +222,7 @@ const PREVIEWS: Record<string, string> = {
   'F-A7': 'The new winter menu starts Monday. Feedback form is at the bottom.',
   'F-V1': 'Core switches will be unavailable for roughly 40 minutes.',
   'F-V2': 'Volumes are down 8% week on week. Backlog is steady at 34 tickets.',
-  'F-V3': 'Maintenance on 22 November, 01:00–03:00 IST. No action needed.',
+  'F-V3': 'Maintenance on 22 November, 01:00 to 03:00 IST. No action needed.',
   'F-V4': 'Six joiners start on 1 December. Kit requests are in the sheet.',
   'F-V5': 'Phase 2 completed overnight with no rollbacks.',
   'F-V6': 'Uptime, incidents and spend for the week ending 13 November.',
@@ -583,9 +583,9 @@ const deals = [
 
 const kpiHistory = {
   northStar: [
-    { quarter: 'Jan–Mar 2026', clean: 9, audited: 18 },
-    { quarter: 'Apr–Jun 2026', clean: 11, audited: 19 },
-    { quarter: 'Jul–Sep 2026', clean: 13, audited: 20 },
+    { quarter: 'Jan to Mar 2026', clean: 9, audited: 18 },
+    { quarter: 'Apr to Jun 2026', clean: 11, audited: 19 },
+    { quarter: 'Jul to Sep 2026', clean: 13, audited: 20 },
   ],
   nextAudit: 'Jan 2027',
   signedSinceLastAudit: 3,
@@ -604,7 +604,7 @@ const termsFound = {
 };
 
 const signingGaps = {
-  window: 'Jun–Nov 2026',
+  window: 'Jun to Nov 2026',
   byTerm: [
     { term: 'Price', fixed: 6, waived: 1 },
     { term: 'Payment', fixed: 4, waived: 1 },
@@ -623,7 +623,7 @@ const sendWarnings = {
 const guardrails = {
   months: ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'],
   rowsNeedingConfirmationPerDeal: [1.6, 1.4, 1.3, 1.2, 1.2, 1.1],
-  quarters: ['Jan–Mar 2026', 'Apr–Jun 2026', 'Jul–Sep 2026'],
+  quarters: ['Jan to Mar 2026', 'Apr to Jun 2026', 'Jul to Sep 2026'],
   medianDaysFinalEmailToSignature: [9, 7, 6],
 };
 

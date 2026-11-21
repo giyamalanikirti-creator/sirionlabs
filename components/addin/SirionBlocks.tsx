@@ -117,7 +117,7 @@ export function DealHeaderBlock({ message }: { message: EmailMessage }) {
   return (
     <Block title="Matched deal" kind="today">
       <div style={{ fontSize: 13, fontWeight: 600 }}>
-        {cloudDeskDeal.supplier} renewal 2026–29
+        {cloudDeskDeal.supplier} renewal 2026-29
       </div>
       <div className={s.cardMeta} style={{ marginBottom: 4 }}>
         {cloudDeskDeal.dealIdTag} · {CONTRACT_ID} · {signedAt ? 'Signed' : cloudDeskDeal.stage === 'rounds' ? 'Negotiating' : 'Signing'} · current {current?.id ?? 'v1'}

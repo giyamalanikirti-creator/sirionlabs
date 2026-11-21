@@ -35,7 +35,7 @@ describe('Review list', () => {
 });
 
 describe('peer privacy thresholds', () => {
-  const base: PeerCell = { termKey: 'price', category: 'software', wording: 'x', companies: 5, contracts: 20, period: '2024–26', median: 0.05, sample: true };
+  const base: PeerCell = { termKey: 'price', category: 'software', wording: 'x', companies: 5, contracts: 20, period: '2024 to 2026', median: 0.05, sample: true };
   it(`shows a cell only with ≥ ${PEER_MIN_COMPANIES} companies and ≥ ${PEER_MIN_CONTRACTS} contracts`, () => {
     expect(cellShown(base)).toBe(true);
     expect(cellShown({ ...base, companies: 4 })).toBe(false);

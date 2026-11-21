@@ -9,7 +9,7 @@
     "cc": [
       "priya.nair@clouddesk.example"
     ],
-    "subject": "CloudDesk renewal 2026–29",
+    "subject": "CloudDesk renewal 2026-29",
     "sentAt": "2026-11-01T11:20:00+05:30",
     "attachments": [
       {
@@ -35,7 +35,7 @@
     "cc": [
       "priya.nair@clouddesk.example"
     ],
-    "subject": "RE: CloudDesk renewal 2026–29",
+    "subject": "RE: CloudDesk renewal 2026-29",
     "sentAt": "2026-11-03T16:05:00+05:30",
     "attachments": [
       {
@@ -61,7 +61,7 @@
     "cc": [
       "priya.nair@clouddesk.example"
     ],
-    "subject": "RE: CloudDesk renewal 2026–29",
+    "subject": "RE: CloudDesk renewal 2026-29",
     "sentAt": "2026-11-06T12:40:00+05:30",
     "attachments": [
       {
@@ -105,7 +105,7 @@
     "cc": [
       "priya.nair@clouddesk.example"
     ],
-    "subject": "RE: CloudDesk renewal 2026–29",
+    "subject": "RE: CloudDesk renewal 2026-29",
     "sentAt": "2026-11-10T09:15:00+05:30",
     "attachments": [],
     "body": "OK on 60 days if you sign for 3 years. And yes, 30 days of exit support at no charge works for us. Rohan",
@@ -205,7 +205,7 @@
     "cc": [
       "priya.nair@clouddesk.example"
     ],
-    "subject": "RE: CloudDesk renewal 2026–29",
+    "subject": "RE: CloudDesk renewal 2026-29",
     "sentAt": "2026-11-13T10:10:00+05:30",
     "attachments": [],
     "body": "Great. On service credits, we need 10% of the monthly fee for any month below 99.5% uptime. Ananya",
@@ -255,7 +255,7 @@
     "cc": [
       "priya.nair@clouddesk.example"
     ],
-    "subject": "RE: CloudDesk renewal 2026–29",
+    "subject": "RE: CloudDesk renewal 2026-29",
     "sentAt": "2026-11-14T10:05:00+05:30",
     "attachments": [
       {
@@ -329,7 +329,7 @@
     "cc": [
       "priya.nair@clouddesk.example"
     ],
-    "subject": "RE: CloudDesk renewal 2026–29",
+    "subject": "RE: CloudDesk renewal 2026-29",
     "sentAt": "2026-11-15T15:30:00+05:30",
     "attachments": [
       {
@@ -426,7 +426,7 @@
       "priya.nair@clouddesk.example",
       "vikram.shah@meridian.example"
     ],
-    "subject": "RE: CloudDesk renewal 2026–29",
+    "subject": "RE: CloudDesk renewal 2026-29",
     "sentAt": "2026-11-16T17:45:00+05:30",
     "attachments": [],
     "body": "Spoke to Vikram yesterday. On service credits, fine with that. Clean signing copy to follow this week. Rohan",
@@ -446,7 +446,7 @@
     "subject": "DataVault: scheduled maintenance notice",
     "sentAt": "2026-11-17T06:45:00+05:30",
     "attachments": [],
-    "body": "Maintenance on 22 November, 01:00–03:00 IST. No action needed.",
+    "body": "Maintenance on 22 November, 01:00 to 03:00 IST. No action needed.",
     "mailboxes": [
       "vikram"
     ]
@@ -545,7 +545,7 @@
       "vikram.shah@meridian.example"
     ],
     "cc": [],
-    "subject": "Change window Saturday 02:00–05:00",
+    "subject": "Change window Saturday 02:00 to 05:00",
     "sentAt": "2026-11-18T09:10:00+05:30",
     "attachments": [],
     "body": "Core switches will be unavailable for roughly 40 minutes.",

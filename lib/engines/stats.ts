@@ -49,7 +49,7 @@ export type NoticeGroup = 'short' | 'mid' | 'long';
 export function noticeGroup(days: number): NoticeGroup {
   if (days <= 30) return 'short';
   if (days >= 60) return 'long';
-  return 'mid'; // 31–59: we have no history
+  return 'mid'; // 31 to 59: we have no history
 }
 
 function groupStats(group: NoticeGroup) {
@@ -91,7 +91,7 @@ export const SERVICE_MONTHS_N = serviceEvents.filter((e) => e.contractId === 'C-
 export function groupLabel(days: number): string {
   const g = noticeGroup(days);
   if (g === 'short') return '30 days';
-  if (g === 'long') return "60–90 days'";
+  if (g === 'long') return "60 to 90 days'";
   return `${days} days`;
 }
 

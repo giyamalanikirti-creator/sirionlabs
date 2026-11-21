@@ -167,7 +167,7 @@ function quarterWindow(clock: string, which: 'this' | 'next'): [string, string, 
   }
   const start = new Date(Date.UTC(y, q * 3, 1));
   const end = new Date(Date.UTC(y, q * 3 + 3, 0));
-  const label = `${formatDateShort(start.toISOString())}–${formatDateLong(end.toISOString())}`;
+  const label = `${formatDateShort(start.toISOString())} to ${formatDateLong(end.toISOString())}`;
   return [start.toISOString().slice(0, 10), end.toISOString().slice(0, 10), label];
 }
 
@@ -365,7 +365,7 @@ function roundChanges(slots: Slots, scope: AskScope, s: AskState): AskAnswer {
     return withFacts(
       base('round_changes', {
         sources: dealChips(s, [emailChip(s)]),
-        text: [`Round ${round.no} hasn’t happened yet on the demo clock (${formatDateTime(round.at)}). The latest is round ${happened.at(-1)?.no ?? 0}.`],
+        text: [`Round ${round.no} hasn’t happened yet in the walkthrough (${formatDateTime(round.at)}). The latest is round ${happened.at(-1)?.no ?? 0}.`],
         actions: [openInLedger(LEDGER_LINKS.rounds)],
         followUps: [`What changed in round ${happened.at(-1)?.no ?? 1}?`],
       }),

@@ -88,7 +88,7 @@ export default function ContractsPage() {
                 <Td className="text-muted">Software</Td>
                 <Td align="right">{formatLakh(contract.annualFeeInr / 1e5)}</Td>
                 <Td className="text-muted">
-                  {formatDateLong(contract.startDate)} – {formatDateLong(contract.endDate)}
+                  {formatDateLong(contract.startDate)} to {formatDateLong(contract.endDate)}
                 </Td>
                 <Td>
                   <span className="rounded-full bg-mint px-2.5 py-[3px] text-[11px] font-medium text-teal-900">
@@ -110,7 +110,7 @@ export default function ContractsPage() {
                 <Td className="text-muted">{TYPE_LABEL[c.type] ?? c.type}</Td>
                 <Td align="right">{formatLakh(c.annualFeeInr / 1e5)}</Td>
                 <Td className="text-muted">
-                  {formatDateLong(c.startDate)} – {formatDateLong(c.endDate)}
+                  {formatDateLong(c.startDate)} to {formatDateLong(c.endDate)}
                 </Td>
                 <Td>
                   <StatusChip status={c.status} />

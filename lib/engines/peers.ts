@@ -53,11 +53,11 @@ export function cellShown(cell: PeerCell | undefined): cell is PeerCell {
   return Boolean(cell && cell.companies >= PEER_MIN_COMPANIES && cell.contracts >= PEER_MIN_CONTRACTS);
 }
 
-/** "₹2.7–5.6 lakh" when both ends are in lakh. */
+/** "₹2.7 lakh to ₹5.6 lakh" when both ends are in lakh. */
 export function lakhRange(low: number, high: number): string {
   const a = formatLakh(low);
   const b = formatLakh(high);
-  return a.endsWith(' lakh') && b.endsWith(' lakh') ? `${a.replace(' lakh', '')}–${b.replace('₹', '')}` : `${a}–${b.replace('₹', '₹')}`;
+  return a.endsWith(' lakh') && b.endsWith(' lakh') ? `${a} to ${b}` : `${a} to ${b}`;
 }
 
 const cell = (termKey: PeerCell['termKey'], wording: string) =>
@@ -98,7 +98,7 @@ export function peerChange(deal: Deal, from: TermValue, to: TermValue, own?: { n
       sample: true,
       text: [
         `${c.contracts} software contracts at ${c.companies} companies that accepted a yearly price revision rose a median ${formatPct(c.median, 1)} a year${
-          c.p25 !== undefined && c.p75 !== undefined ? ` (middle half ${formatPct(c.p25, 1)}–${formatPct(c.p75, 1)})` : ''
+          c.p25 !== undefined && c.p75 !== undefined ? ` (middle half ${formatPct(c.p25, 1)} to ${formatPct(c.p75, 1)})` : ''
         }.`,
         `On this deal: ${formatLakh(cost)} a year${low !== undefined && high !== undefined ? ` (${lakhRange(low, high)})` : ''}.`,
       ],
@@ -122,7 +122,7 @@ export function peerChange(deal: Deal, from: TermValue, to: TermValue, own?: { n
       disagrees: own?.costLakhPerYr ? Math.abs(perYear - own.costLakhPerYr) / own.costLakhPerYr > 0.5 : false,
       sample: true,
       text: [
-        `Across ${Math.min(a.companies, b.companies)} companies, ${formatPct(b.median)} of contracts with ${to.days >= 60 ? "60–90 days'" : `${to.days} days'`} notice renewed without a review, against ${formatPct(a.median)} with 30 days. Unreviewed renewals carried ${formatPct(unused)} unused seats.`,
+        `Across ${Math.min(a.companies, b.companies)} companies, ${formatPct(b.median)} of contracts with ${to.days >= 60 ? "60 to 90 days'" : `${to.days} days'`} notice renewed without a review, against ${formatPct(a.median)} with 30 days. Unreviewed renewals carried ${formatPct(unused)} unused seats.`,
         `On this deal: ${formatLakh(once)} at the next renewal (${formatLakh(perYear)} a year).`,
       ],
     };

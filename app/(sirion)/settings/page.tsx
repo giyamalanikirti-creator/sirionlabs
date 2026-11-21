@@ -143,7 +143,7 @@ export default function SettingsPage() {
           <div className="divide-y divide-line text-[12.5px]">
             <div className="flex flex-wrap items-center justify-between gap-3 py-2.5">
               <span>
-                <span className="font-medium text-ink">CloudDesk renewal 2026–29</span>{' '}
+                <span className="font-medium text-ink">CloudDesk renewal 2026-29</span>{' '}
                 <span className="text-muted">· clouddesk.example · {tracked ? 'email tracked' : 'not tracked'}</span>
               </span>
               {tracked ? (

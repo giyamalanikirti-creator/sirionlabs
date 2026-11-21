@@ -83,7 +83,7 @@ export function priceChange(deal: Deal, from: TermValue, to: TermValue): PriceTa
         `${R_OPEN_N} of your software contracts allow a yearly price revision. Their prices rose ${formatPct(
           R_OPEN,
           1,
-        )} a year on average (invoices, 2024–26).`,
+        )} a year on average (invoices, 2024 to 2026).`,
       );
     } else if (to.wording === 'capped') {
       proof.push(
@@ -154,7 +154,7 @@ export function priceChange(deal: Deal, from: TermValue, to: TermValue): PriceTa
       n: RENEWALS_N,
       basis: 'own_renewals',
       proof: [
-        `With ${noticeGroup(to.days) === 'long' ? '60–90' : to.days} days' notice, ${
+        `With ${noticeGroup(to.days) === 'long' ? '60 to 90' : to.days} days' notice, ${
           gTo.unreviewed
         } of your ${gTo.total} past renewals went through without a review. With ${
           from.days

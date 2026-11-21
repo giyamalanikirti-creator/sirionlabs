@@ -36,7 +36,7 @@ export function DealPage({ initialRow, initialTab }: { initialRow?: string; init
       <SirionCard className="mb-4" bodyClassName="px-6 py-5">
         <div className="flex flex-wrap items-start justify-between gap-6">
           <div className="min-w-0">
-            <h1 className="text-[20px] text-teal-title">CloudDesk renewal 2026–29</h1>
+            <h1 className="text-[20px] text-teal-title">CloudDesk renewal 2026-29</h1>
             <p className="mt-1.5 text-[12.5px] text-muted">
               {formatLakh(deal.annualFeeInr / 1e5)} a year · {deal.seats} seats · {deal.termYears}{' '}
               years from {formatDateLong(deal.termStart)}

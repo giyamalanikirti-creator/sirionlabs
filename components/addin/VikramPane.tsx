@@ -38,7 +38,7 @@ export function VikramPane({
     return (
       <div style={{ position: 'relative' }}>
         <div className={s.headline}>
-          <span className={s.headlineLabel}>CloudDesk renewal 2026–29</span>
+          <span className={s.headlineLabel}>CloudDesk renewal 2026-29</span>
         </div>
         <p className={s.note} style={{ marginTop: 0 }}>
           Procurement is leading the commercials. These are the terms already agreed, so you can see

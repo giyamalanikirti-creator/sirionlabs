@@ -99,12 +99,12 @@ export function LedgerTab({ rows, initialRow }: { rows: LedgerRow[]; initialRow?
                       </Link>
                     )}
                   </Td>
-                  <Td className="max-w-[220px] text-[12px] text-muted">{row.reason ?? '–'}</Td>
+                  <Td className="max-w-[220px] text-[12px] text-muted">{row.reason ?? 'None'}</Td>
                   <Td className="text-[12px]">
                     {row.approvedBy ? (
                       <span className="text-ink">{personName(row.approvedBy.personId)}</span>
                     ) : (
-                      <span className="text-muted">–</span>
+                      <span className="text-muted">None</span>
                     )}
                   </Td>
                 </tr>

@@ -170,7 +170,7 @@ OTHERS.forEach((o, i) => {
 });
 
 /* ------------------------------------------------------------------ */
-/* Invoices: 24 months (Nov 2024 – Oct 2026) per software contract      */
+/* Invoices: 24 months (Nov 2024 to Oct 2026) per software contract      */
 /* ------------------------------------------------------------------ */
 
 function monthsFrom(startYear: number, startMonth: number, count: number): string[] {
@@ -238,7 +238,7 @@ type Renewal = {
   unusedShare?: number;
 };
 
-// 12 renewals in the 60–90 day notice group, 5 of them unreviewed.
+// 12 renewals in the 60 to 90 day notice group, 5 of them unreviewed.
 // 10 renewals in the ≤ 30 day group, 1 of them unreviewed.
 // Unused share on the 6 unreviewed ones: mean 0.18.
 const LONG_NOTICE_UNREVIEWED_SHARES = [0.12, 0.15, 0.18, 0.21, 0.24];
@@ -282,7 +282,7 @@ for (let i = 0; i < 10; i++) {
 }
 
 /* ------------------------------------------------------------------ */
-/* Service events: CloudDesk uptime, Nov 2025 – Oct 2026                */
+/* Service events: CloudDesk uptime, Nov 2025 to Oct 2026                */
 /* ------------------------------------------------------------------ */
 
 const SERVICE_MONTHS = monthsFrom(2025, 11, 12);

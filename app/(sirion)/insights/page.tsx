@@ -132,7 +132,7 @@ export default function InsightsPage() {
         />
         <KpiTile
           label="Send anyway rate"
-          value={liveWarnings ? `${Math.round((liveSendAnyway / liveWarnings) * 100)}%` : '–'}
+          value={liveWarnings ? `${Math.round((liveSendAnyway / liveWarnings) * 100)}%` : 'No data yet'}
           caption={`This session · rethink above ${Math.round(SEND_ANYWAY_RETHINK * 100)}%`}
         />
       </div>
@@ -217,7 +217,7 @@ export default function InsightsPage() {
         </SirionCard>
 
         <SirionCard title="Warnings reviewers judged actionable" caption="Feedback is collected after reviewing the warning.">
-          <p className="text-2xl font-semibold text-teal-900">{ratedWarnings.length ? `${Math.round(actionableWarnings / ratedWarnings.length * 100)}%` : '–'}</p>
+          <p className="text-2xl font-semibold text-teal-900">{ratedWarnings.length ? `${Math.round(actionableWarnings / ratedWarnings.length * 100)}%` : 'No data yet'}</p>
           <p className="mt-1 text-sm text-muted">{ratedWarnings.length ? `${actionableWarnings} of ${ratedWarnings.length} rated warnings in this session` : 'No warnings rated in this session.'}</p>
         </SirionCard>
 

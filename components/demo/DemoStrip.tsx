@@ -2,33 +2,18 @@
 
 /**
  * The demo bar (52 px, ink): our mark and "Deal Ledger · prototype", the app
- * switcher in the centre, the demo clock and a small menu on the right.
+ * switcher in the centre and a small menu on the right.
  * Reset lives in the guide rail's footer, away from the switcher.
  */
 import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Clock, MoreHorizontal } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { MoreHorizontal } from 'lucide-react';
 import { Mark } from '@/components/sirion/Mark';
-import { useDemo } from '@/lib/store';
-import { useHydrated } from '@/lib/useHydrated';
-import { formatDateLong, formatTime } from '@/lib/format';
-import { STEP_CLOCK } from '@/lib/demo/steps';
 import { AppSwitcher } from './AppSwitcher';
-import { sh } from '@/lib/demo/timeShift';
-
-function clockLabel(iso: string) {
-  const weekday = new Intl.DateTimeFormat('en-IN', { weekday: 'short', timeZone: 'Asia/Kolkata' }).format(new Date(iso));
-  return `${weekday} ${formatDateLong(iso)}, ${formatTime(iso)}`;
-}
 
 export function DemoStrip() {
   const router = useRouter();
-  const search = useSearchParams();
-  const hydrated = useHydrated();
-  const clock = useDemo((s) => s.clock);
   const [menu, setMenu] = useState(false);
-  const prequel = search.get('prequel') === '1';
-  const shown = prequel ? sh('2026-11-01T11:30:00+05:30') : hydrated ? clock : STEP_CLOCK[0];
 
   return (
     <header className="ds-scope relative flex h-[52px] shrink-0 items-center gap-4 bg-ink px-4 text-white">
@@ -42,13 +27,6 @@ export function DemoStrip() {
         <AppSwitcher />
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <span
-          suppressHydrationWarning
-          title="The walkthrough moves through time. Each step sets the clock."
-          className="hidden items-center gap-1.5 whitespace-nowrap rounded-full border border-white/25 px-3 py-1 text-[13px] text-white/80 lg:flex"
-        >
-          <Clock size={13} /> <span className="hidden 2xl:inline">Demo clock ·</span> {clockLabel(shown)}
-        </span>
         <button
           onClick={() => setMenu((v) => !v)}
           aria-label="More"

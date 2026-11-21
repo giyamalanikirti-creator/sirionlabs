@@ -173,7 +173,7 @@ export function memoryPatterns(memory: MemoryEntry[], deal: Deal): string[] {
     const theirs = list.filter((m) => !m.askedBy.includes('our side') && !m.outcome.startsWith('We gave'));
     const held = theirs.filter((m) => m.outcome.startsWith('Held')).length;
     if (theirs.length >= 2) {
-      out.push(`${deal.supplier} raised ${label.toLowerCase()} ${theirs.length} times across rounds ${Math.min(...theirs.map((m) => m.round))}–${Math.max(...theirs.map((m) => m.round))}; we held ${held} of ${theirs.length}.`);
+      out.push(`${deal.supplier} raised ${label.toLowerCase()} ${theirs.length} times across rounds ${Math.min(...theirs.map((m) => m.round))} to ${Math.max(...theirs.map((m) => m.round))}; we held ${held} of ${theirs.length}.`);
     }
     if (list.some((m) => m.askedBy.includes('our side'))) {
       out.push(`${label}: our own side offered a different value in a side thread, the riskiest pattern on this deal.`);

@@ -280,7 +280,7 @@ export function TableFooter({ total, shown }: { total: number; shown?: number })
   return (
     <div className="flex items-center justify-end px-4 py-2.5 text-[11.5px] text-muted">
       <span>
-        Showing {total === 0 ? 0 : 1}–{shown ?? total} of {total}
+        Showing {total === 0 ? 0 : 1} to {shown ?? total} of {total}
       </span>
     </div>
   );
