@@ -15,7 +15,9 @@ import { checkInvoice } from '@/lib/engines/invoices';
 import { FAST_FORWARD_INVOICE } from '@/lib/engines/handover';
 import { matchAllThreads, toHeader } from '@/lib/engines/matcher';
 import { askSupplierDraft, HOLDING_REPLY, isSupplierSafe } from '@/lib/engines/wording';
-import { listedAtRisk } from '@/lib/demo/moreDeals';
+import { BRIGHTSTAFF, BRIGHTSTAFF_SIGNING_COPY, listedAtRisk } from '@/lib/demo/moreDeals';
+import { internalConflicts, precedenceClause } from '@/lib/engines/conflicts';
+import { nextActionFor } from '@/lib/demo/nextAction';
 import { roundsBy, ROUNDS } from '@/lib/demo/rounds';
 import { STEP_CLOCK } from '@/lib/demo/steps';
 import { latestVersionId as latestVersion } from '@/lib/engines/headline';
@@ -636,7 +638,7 @@ function portfolioAtRisk(s: AskState): AskAnswer {
       ],
       text: [`${top.label} would cost the most if signed today: ${formatLakh(top.lakh)} a year (expected).`, 'Each figure is the expected ₹ a year if that deal’s latest draft were signed as is.'],
       chart: {
-        rows: p.rows.map((r) => ({ label: r.label, lakh: r.lakh, valueText: formatLakh(r.lakh), highlight: r.highlight, href: `/deals/${r.id}` })),
+        rows: p.rows.map((r) => ({ label: r.label, lakh: r.lakh, valueText: formatLakh(r.lakh), highlight: r.highlight, href: `/deals/${r.id}`, action: nextActionFor(dealById(r.id)!, s) })),
         total: `Total if every latest draft were signed today: ${formatLakh(p.totalLakh)} a year`,
         footnote: p.cloudSigned ? 'CloudDesk MSA: signed · every agreed term in' : undefined,
       },
@@ -748,11 +750,39 @@ function suggestTerm(question: string, slots: Slots, scope: AskScope, s: AskStat
   );
 }
 
+/** Review fix C11: BrightStaff's signing copy disagrees with itself; answered from the internal_conflict finding. */
+function internalConflictAnswer(s: AskState): AskAnswer {
+  const conflict = internalConflicts(BRIGHTSTAFF_SIGNING_COPY.clauses)[0];
+  const [body, schedule] = conflict.clauses;
+  const email = BRIGHTSTAFF.emails.find((e) => e.id === 'B4')!;
+  void s;
+  return withFacts(
+    base('internal_conflict', {
+      sources: [
+        { kind: 'filter', label: 'Deal: BrightStaff Services' },
+        { kind: 'filter', label: `Version: ${BRIGHTSTAFF_SIGNING_COPY.versionId}` },
+        { kind: 'ledger', label: `Agreed in email: ${formatDateShort(email.at)}`, href: '/deals/D-BRIGHTSTAFF' },
+      ],
+      text: [
+        `${body.ref} says ${body.value}${body.unit}; the ${schedule.ref} says ${schedule.value}${schedule.unit}. The same signing copy states two different markups.`,
+        `${email.fromName} agreed ${body.value}${body.unit} by email on ${formatDateShort(email.at)}. Correct the rate card before signature; after signature, which rate applies is for the contract owner to decide.`,
+      ],
+      list: [
+        ...conflict.clauses.map((c) => ({ label: c.ref, detail: `“${c.text}”`, value: `${c.value}${c.unit}` })),
+        { label: 'Order of precedence', detail: precedenceClause(BRIGHTSTAFF_SIGNING_COPY) },
+      ],
+      actions: [{ label: 'Open in Deal Ledger', href: '/deals/D-BRIGHTSTAFF', primary: true, ledger: true }],
+      followUps: ['Which live negotiations would cost the most if signed today?'],
+    }),
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Entry point                                                         */
 /* ------------------------------------------------------------------ */
 
 export function buildAnswer(intent: IntentId, slots: Slots, scope: AskScope, s: AskState, question = '', suggestions: string[] = []): AskAnswer {
+  if (intent === 'internal_conflict') return internalConflictAnswer(s);
   // A ledger question about a deal other than CloudDesk: send it to that deal's page.
   const other = slots.dealId && slots.dealId !== deal.id ? dealById(slots.dealId) : undefined;
   if (other && INTENT_BY_ID[intent].source === 'deal-ledger' && intent !== 'portfolio_at_risk') {

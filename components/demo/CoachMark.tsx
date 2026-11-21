@@ -69,7 +69,9 @@ export function CoachMark() {
   const action = g.next?.action;
   // The quick path has its own card in the rail; the walkthrough's coach mark stays quiet meanwhile.
   const quickPath = useDemo((s) => s.quickPath);
-  const active = Boolean(g.hydrated && action && !hidden && !quickPath && dismissed !== action.id);
+  // Step 1 (review fix C2): after the first click in the step, hints go quiet; the rail keeps the step card.
+  const quietStep1 = g.current === 1 && g.actionsDone(1)[1];
+  const active = Boolean(g.hydrated && action && !hidden && !quickPath && !quietStep1 && dismissed !== action.id);
   const target = active ? action!.target : undefined;
 
   /* Count a press on any walkthrough element, so actions with no state of their own still tick. */

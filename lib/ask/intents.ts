@@ -204,6 +204,18 @@ export const INTENTS: IntentDef[] = [
       [/\b(fallback|walk-?away|counter|compromise|middle ground|suggest)\b/, 2.5],
     ],
   },
+  {
+    id: 'internal_conflict',
+    source: 'deal-ledger',
+    scopes: ['deal', 'all', 'doc'],
+    suggestion: 'Why do clause 6 and Schedule 2 disagree?',
+    phrasings: ['Is the BrightStaff contract inconsistent?', 'Which markup applies, the clause or the rate card?', 'Does the signing copy contradict itself?'],
+    patterns: [
+      [/\b(disagree\w*|conflict\w*|inconsistent|contradict\w*)\b/, 3],
+      [/\b(schedule 2|rate card|clause 6)\b/, 2.5],
+      [/\bmarkup\b/, 1.5],
+    ],
+  },
 ];
 
 export const INTENT_BY_ID = Object.fromEntries(INTENTS.map((i) => [i.id, i])) as Record<IntentId, IntentDef>;

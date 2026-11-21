@@ -1,5 +1,9 @@
 'use client';
 
+import { useSearchParams } from 'next/navigation';
+import { createContext, useContext, useState } from 'react';
+import { CLOUDDESK_AGREEMENTS, fileDecision } from '@/lib/engines/filing';
+
 /**
  * The Outlook pane is built the way Sirion's own Outlook plugin is (match the
  * deal, file the attachment as a version, AI review, send for review or
@@ -30,6 +34,21 @@ export function OriginTag({ kind }: { kind: 'today' | 'new' }) {
   return <Tag kind={kind} />;
 }
 
+/** Inside a BlockGroup the group carries the one origin tag, so cards do not repeat it (review fix C2). */
+const GroupTagged = createContext(false);
+
+export function BlockGroup({ kind, title, children }: { kind: 'today' | 'new'; title: string; children: React.ReactNode }) {
+  return (
+    <div style={{ marginBottom: 6 }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, margin: '6px 2px' }}>
+        <span style={{ fontSize: 12, fontWeight: 600, color: tokens.colorNeutralForeground2 }}>{title}</span>
+        <OriginTag kind={kind} />
+      </div>
+      <GroupTagged.Provider value>{children}</GroupTagged.Provider>
+    </div>
+  );
+}
+
 export function Block({
   title,
   kind,
@@ -42,6 +61,7 @@ export function Block({
   accent?: boolean;
 }) {
   const s = usePaneStyles();
+  const grouped = useContext(GroupTagged);
   return (
     <section
       className={s.card}
@@ -49,7 +69,7 @@ export function Block({
     >
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginBottom: 6 }}>
         <span className={s.sectionLabel} style={{ margin: 0 }}>{title}</span>
-        <OriginTag kind={kind} />
+        {!grouped && <OriginTag kind={kind} />}
       </div>
       {children}
     </section>
@@ -67,6 +87,9 @@ export function roundOf(versionId: string): { round: number; turn: 'counterparty
 /** 1 · Header: the matched deal and contract, and how the match was made. */
 export function DealHeaderBlock({ message }: { message: EmailMessage }) {
   const s = usePaneStyles();
+  const variant = useSearchParams().get('variant');
+  const [chosen, setChosen] = useState<string>();
+  const decision = fileDecision(message.from, variant === 'two-agreements' ? CLOUDDESK_AGREEMENTS : CLOUDDESK_AGREEMENTS.slice(0, 1));
   const synced = useDemo((st) => st.syncedVersionIds);
   const signedAt = useDemo((st) => st.signedAt);
   const current = [...versions]
@@ -74,6 +97,22 @@ export function DealHeaderBlock({ message }: { message: EmailMessage }) {
     .sort((a, b) => a.sentAt.localeCompare(b.sentAt))
     .pop();
   const file = message.attachments.find((a) => a.dealIdTag);
+  // Review fix C9: two open agreements on the same domain, and nothing in the file to tell them apart.
+  if (decision.kind === 'choose' && !chosen) {
+    return (
+      <Block title="Matched deal" kind="new" accent>
+        <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 6 }}>Two open CloudDesk agreements. Choose one.</div>
+        <div className={s.actions}>
+          {decision.options.map((o) => (
+            <Button key={o.contractId} size="small" appearance="outline" onClick={() => setChosen(o.contractId)}>
+              {o.title} · {o.contractId}
+            </Button>
+          ))}
+        </div>
+        <div className={s.grey}>Matched by sender domain only, so nothing is filed until you choose.</div>
+      </Block>
+    );
+  }
   return (
     <Block title="Matched deal" kind="today">
       <div style={{ fontSize: 13, fontWeight: 600 }}>

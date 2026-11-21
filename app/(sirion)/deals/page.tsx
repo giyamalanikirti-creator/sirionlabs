@@ -6,10 +6,12 @@ import { Filter, Search } from 'lucide-react';
 import { Button, PageHeader, SirionCard, Table, TableFooter, Td, Th } from '@/components/sirion/ui';
 import { MoneyPlain } from '@/components/sirion/MoneyFigure';
 import { useLedger } from '@/lib/useDeal';
+import { useDemo } from '@/lib/store';
 import { deals, personName } from '@/lib/data';
 import { formatLakh } from '@/lib/format';
 import type { Deal } from '@/lib/types';
 import { listedAtRisk } from '@/lib/demo/moreDeals';
+import { nextActionFor } from '@/lib/demo/nextAction';
 
 const VIEWS = [
   { id: 'mine', label: 'Waiting on me' },
@@ -31,10 +33,14 @@ export default function DealsPage() {
   const router = useRouter();
   const [view, setView] = useState<string>('open');
   const [query, setQuery] = useState('');
-  const { atRisk, counts, signed } = useLedger();
+  const { atRisk, counts, signed, rows } = useLedger();
 
   const rowsFor = (d: Deal) =>
     d.interactive ? counts : d.display!.rows;
+  const demoClock = useDemo((st) => st.clock);
+  const demoSignedAt = useDemo((st) => st.signedAt);
+  const demoSigning = useDemo((st) => st.signing);
+  const demo = { clock: demoClock, ledger: rows, signedAt: signed ? demoSignedAt : undefined, signing: demoSigning };
   const riskFor = (d: Deal) => (d.interactive ? (signed ? 0 : atRisk) : listedAtRisk(d));
   const stageFor = (d: Deal) => (d.interactive && signed ? 'signed' : d.stage);
   const roundFor = (d: Deal) => (d.interactive ? (signed ? 7 : 4) : d.display!.round);
@@ -120,6 +126,7 @@ export default function DealsPage() {
                   <Th align="right">₹ a year if signed as is</Th>
                   <Th>Stage</Th>
                   <Th>Owner</Th>
+                  <Th>Next action</Th>
                 </tr>
               </thead>
               <tbody>
@@ -166,6 +173,22 @@ export default function DealsPage() {
                         <StageChip stage={stageFor(d)} />
                       </Td>
                       <Td className="text-muted">{personName(d.ownerId)}</Td>
+                      <Td>
+                        {(() => {
+                          const a = nextActionFor(d, demo);
+                          return (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                router.push(a.href);
+                              }}
+                              className="whitespace-nowrap rounded-md border border-teal-900/45 bg-white px-2.5 py-1 text-[12.5px] font-semibold text-teal-900 hover:bg-mint/40"
+                            >
+                              {a.label}
+                            </button>
+                          );
+                        })()}
+                      </Td>
                     </tr>
                   );
                 })}

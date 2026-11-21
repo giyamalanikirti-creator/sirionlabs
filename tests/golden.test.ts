@@ -187,9 +187,12 @@ describe('handover and invoices', () => {
   it('sets the renewal deadline and reminder', () => {
     const ob = record.obligations.find((o) => o.clauseNo === '14.2')!;
     expect(ob.due).toBe('2029-10-31');
-    expect(ob.reminder).toBe('2029-09-16');
+    // Review fix C8: 45 days before is Sun 16 Sep 2029, so the reminder moves to the previous working day.
+    expect(ob.reminder).toBe('2029-09-14');
+    expect(ob.reminderNote).toBe('(moved from Sun 16 Sep)');
     expect(formatDateLong(ob.due!)).toBe('31 Oct 2029');
-    expect(formatDateLong(ob.reminder!)).toBe('16 Sep 2029');
+    expect(formatDateLong(ob.reminder!)).toBe('14 Sep 2029');
+    expect(ob.sendByNote).toContain('send by Tue 30 Oct 2029');
   });
 
   it('fixes the monthly invoice at ₹5,00,000', () => {
@@ -360,5 +363,19 @@ describe('headline labels and reconciliation (review fix A3)', async () => {
     expect(h.headlineLabel('draft', 5.31, 'v6')).toBe('Expected ₹5.3 lakh a year if v6 is signed as is');
     expect(h.headlineLabel('deal', 1.64, 'v4')).toBe('Expected ₹1.6 lakh a year across the deal, including terms still open');
     expect(h.asOfLine('2026-11-14T10:05:00+05:30', 'v4')).toBe('As of 14 Nov, 10:05 · v4');
+  });
+});
+
+describe('golden renewal dates (review fix C8)', async () => {
+  const { renewalDates, formatDay } = await import('@/lib/engines/dates');
+  const end = termEnd(deal);
+  it.each([
+    ['v4', 90, 'Fri 30 Nov 2029', 'Sat 1 Sep 2029', 'Wed 18 Jul 2029'],
+    ['v7', 30, 'Fri 30 Nov 2029', 'Wed 31 Oct 2029', 'Fri 14 Sep 2029'],
+  ])('%s: %i days', (_v, days, endText, deadline, reminder) => {
+    const d = renewalDates({ end, noticeDays: days as number });
+    expect(formatDay(d.end)).toBe(endText);
+    expect(formatDay(d.lastNoticeDay)).toBe(deadline);
+    expect(formatDay(d.reminder)).toBe(reminder);
   });
 });

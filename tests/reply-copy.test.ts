@@ -35,3 +35,12 @@ describe('Respond to round reply', () => {
     expect(supplierSafetyReason(reply().body)).toBeNull();
   });
 });
+
+describe('round summary (review fix C2)', async () => {
+  const { roundSummary } = await import('@/lib/engines/replyCopy');
+  it('one sentence for round 4', () => {
+    const r = roundSummary({ rows: ledgerAtStep(1), prev: versionById('v3')!, next: versionById('v4')!, roundMessageId: 'M8', from: 'Rohan', deal });
+    expect(r.text).toBe('Rohan confirmed fixed pricing. The attachment also changed renewal notice from 30 to 90 days.');
+    expect(r.changedClauses).toEqual(['14.2']);
+  });
+});

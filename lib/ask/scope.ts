@@ -2,7 +2,7 @@
  * Where AskSirion was opened from decides its default scope and persona
  * (brief §3.5), and which three questions it suggests (§8.3).
  */
-import { messageById, threadById } from '@/lib/data';
+import { dealById, messageById, threadById } from '@/lib/data';
 import { GUIDE_STAGES, AFTER_SIGNING } from '@/lib/demo/guide';
 import { INTENT_BY_ID } from './intents';
 import type { AskScope, IntentId } from './types';
@@ -30,6 +30,10 @@ export function scopeFor(pathname: string, search: string, linkedThreadIds: stri
   if (pathname.startsWith(`/deals/${DEAL}`) || pathname.startsWith('/contracts/C-2026-0417')) {
     return { kind: 'deal', surface, persona: 'ananya', dealId: DEAL, label: 'CloudDesk MSA' };
   }
+  // Any other deal page: that deal, not all contracts (review fix C11).
+  const other = pathname.match(/^\/deals\/([^/?]+)/)?.[1];
+  const deal = other ? dealById(decodeURIComponent(other)) : undefined;
+  if (deal) return { kind: 'deal', surface, persona: 'ananya', dealId: deal.id, label: deal.supplier };
   return { kind: 'all', surface, persona: 'ananya', label: 'All contracts' };
 }
 
@@ -60,6 +64,13 @@ export interface Suggestion {
 export function suggestionsFor(scope: AskScope, step?: number): Suggestion[] {
   const stage = step === 6 ? AFTER_SIGNING : step && step >= 1 && step <= 5 ? GUIDE_STAGES[step - 1] : undefined;
   const stepAsks = (stage && 'ask' in stage ? stage.ask ?? [] : []).filter((a) => INTENT_BY_ID[a.intent].scopes.includes(scope.kind)).map((a) => ({ prompt: a.prompt, intent: a.intent }));
+  if (scope.dealId === 'D-BRIGHTSTAFF') {
+    return [
+      { prompt: INTENT_BY_ID.internal_conflict.suggestion, intent: 'internal_conflict' },
+      { prompt: 'Which live negotiations would cost the most if signed today?', intent: 'portfolio_at_risk' },
+      { prompt: 'Show staffing contracts renewing this year', intent: 'repo_search' },
+    ];
+  }
   const key = scope.kind === 'thread' ? `thread:${scope.persona}` : scope.kind;
   const defaults = (DEFAULTS[key] ?? DEFAULTS.all).map((id) => ({ prompt: DEFAULT_PROMPTS[id] ?? INTENT_BY_ID[id].suggestion, intent: id }));
   const seen = new Set<string>();

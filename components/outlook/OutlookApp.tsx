@@ -97,6 +97,9 @@ export function OutlookApp({ person }: { person: Person }) {
   const [composing, setComposing] = useState(false);
   const [draft, setDraft] = useState('');
   const [ccAdded, setCcAdded] = useState(false);
+  /** Edit reply (review fix C5): the sentence to change; the check re-runs on every edit. */
+  const [editQuote, setEditQuote] = useState<{ quote: string; rewrite?: string } | null>(null);
+  const checkDown = useDemo((st) => Boolean(st.settings.sendCheckDown));
   const [checking, setChecking] = useState(false);
   const [draftOpts, setDraftOpts] = useState<DraftOptions>({});
   const [attachments, setAttachments] = useState<{ fileName: string; versionId: string }[]>([]);
@@ -186,6 +189,7 @@ export function OutlookApp({ person }: { person: Person }) {
     setComposing(false);
     setLoopIn(undefined);
     setCcAdded(false);
+    setEditQuote(null);
     const message = messageById(id);
     if (useDemo.getState().settings.mailboxes[person] === false) {
       setSelectedId(id);
@@ -278,6 +282,7 @@ export function OutlookApp({ person }: { person: Person }) {
     setDraft(body);
     setLoopIn(undefined);
     setCcAdded(false);
+    setEditQuote(null);
   };
 
   /** The check at Send: deterministic, against the live ledger. Warns, never blocks. */
@@ -288,6 +293,12 @@ export function OutlookApp({ person }: { person: Person }) {
     // Fail open: not connected, not deployed or not tracked means the email sends as usual.
     if (!mailboxOn || setupGap || !tracked) {
       finishSend(body, 'allow');
+      return;
+    }
+    // The check service is down (demo toggle): send normally, and say it was not checked.
+    if (checkDown) {
+      finishSend(body, 'allow');
+      toast('Sent. Deal check unavailable: this email was not checked.');
       return;
     }
     try {
@@ -365,6 +376,7 @@ export function OutlookApp({ person }: { person: Person }) {
     setSelectedId(message.id);
     setLoopIn(undefined);
     setCcAdded(false);
+    setEditQuote(null);
   };
 
   const topFinding = guard?.findings[0];
@@ -386,7 +398,9 @@ export function OutlookApp({ person }: { person: Person }) {
         approverName: undefined,
       });
     }
-    useDemo.getState().loopInLead({ fromPersonId: person, body: draft, subject: replySubject, to: replyTo }, topFinding.rowId);
+    const label = rows.find((r) => r.id === topFinding.rowId)?.label.toLowerCase() ?? 'a term';
+    useDemo.getState().loopInLead({ fromPersonId: person, body: draft, subject: replySubject, to: replyTo }, topFinding.rowId, `${owner.name.split(' ')[0]} needs a decision on ${label}`);
+    if (topFinding.termKey) useDemo.getState().setTermHold(topFinding.termKey, 'waiting_lead');
     recordSend({ at: clock, personId: person, termKey: topFinding.termKey, decision: 'warn', choice: 'loop_in', guardCase: topFinding.case });
     setPaneOpen(true);
     setGuard(null);
@@ -396,11 +410,20 @@ export function OutlookApp({ person }: { person: Person }) {
   /** Edit reply: put the supplier-safe wording in place of the offending sentence. */
   const onEdit = () => {
     if (!topFinding) return;
-    if (topFinding.quote && topFinding.rewrite) setDraft((d) => d.replace(topFinding.quote!, topFinding.rewrite!));
     recordSend({ at: clock, personId: person, termKey: topFinding.termKey, decision: 'warn', choice: 'edit', guardCase: topFinding.case });
     setGuard(null);
-    toast(topFinding.rewrite ? 'Suggested wording is in place. Press Send when ready.' : 'Back to your draft.');
+    if (topFinding.quote) setEditQuote({ quote: topFinding.quote, rewrite: topFinding.rewrite });
+    toast('Change or remove the highlighted sentence. The check re-runs as you edit.');
   };
+  /** Re-run the check on the edited draft: the warning clears only when no sentence concedes. */
+  const editStillConcedes = (() => {
+    if (!editQuote) return false;
+    try {
+      return sendGuard({ to: replyTo, cc, body: draft, attachments, rows, deal: cloudDeskDeal, currentVersionId: currentVersion, dealDomains: deals.map((d) => d.supplierDomain.toLowerCase()), at: clock }).findings.some((f) => f.case !== 'outdated_attachment');
+    } catch {
+      return false;
+    }
+  })();
 
   const onFixAttachment = () => {
     const att = topFinding?.attachment;
@@ -430,6 +453,11 @@ export function OutlookApp({ person }: { person: Person }) {
         });
         if (route.status === 'pending') approver = personName(route.approverId);
       }
+    }
+    if (person !== 'ananya' && topFinding.termKey) {
+      const label = rows.find((r) => r.id === topFinding.rowId)?.label.toLowerCase() ?? 'term';
+      useDemo.getState().logEvent(`Exception for review: ${owner.name.split(' ')[0]} sent a ${label} concession without the term owner's sign-off.`);
+      useDemo.getState().setTermHold(topFinding.termKey, 'conceded_pending');
     }
     finishSend(draft, 'warn', 'send_anyway', topFinding.case, reason);
     toast(`Sent. Marked reopened (${reason})${approver ? `; approval requested from ${approver}` : ''}${person === 'ananya' ? '' : '. Ananya has been told'}.`);
@@ -525,10 +553,33 @@ export function OutlookApp({ person }: { person: Person }) {
                     setDraft('');
                     setLoopIn(undefined);
                     setCcAdded(false);
+                    setEditQuote(null);
                   }}
                   sending={checking}
                   attachments={attachments.map((a) => a.fileName)}
                   summary={draftOpts.summary}
+                  notice={
+                    checkDown ? (
+                      <div role="status" style={{ padding: '6px 20px', background: '#FFF4CE', borderBottom: '1px solid #F2DF9C', fontSize: 12.5, color: '#3D2E00' }}>
+                        Deal check unavailable. This email was not checked.
+                      </div>
+                    ) : editQuote ? (
+                      <div role="status" style={{ padding: '8px 20px', background: editStillConcedes ? '#FFF4CE' : '#DFF6DD', borderBottom: '1px solid #E0E0E0', fontSize: 12.5, lineHeight: '18px' }}>
+                        {editStillConcedes ? (
+                          <>
+                            Change or remove: <mark style={{ background: '#FDE68A' }}>“{editQuote.quote}”</mark>
+                            {editQuote.rewrite && (
+                              <button onClick={() => setDraft((d) => d.replace(editQuote.quote, editQuote.rewrite!))} style={{ marginLeft: 8, border: 0, background: 'none', color: '#0F6CBD', textDecoration: 'underline', cursor: 'pointer', fontSize: 12.5 }}>
+                                Use suggested wording
+                              </button>
+                            )}
+                          </>
+                        ) : (
+                          <>No sentence concedes an agreed term now. Ready to send.</>
+                        )}
+                      </div>
+                    ) : undefined
+                  }
                   onRemoveAttachment={(name) => setAttachments((list) => list.filter((a) => a.fileName !== name))}
                 />
               ) : (
@@ -645,6 +696,7 @@ export function OutlookApp({ person }: { person: Person }) {
           onPrimary={topFinding.case === 'outdated_attachment' ? onFixAttachment : person !== 'ananya' ? onLoopIn : undefined}
           onEdit={onEdit}
           onSendAnyway={onSendAnyway}
+          note={person !== 'ananya' && ccAdded && !loopIn ? `${lead.name.split(' ')[0]} is copied, but hasn't approved this change.` : undefined}
           showWorkings={!isOwner || settings.ownersSeeWorkings}
           showFallback={!isOwner || settings.ownersSeeFallbacks}
           whyHref={isOwner ? '/story#how-it-connects' : undefined}

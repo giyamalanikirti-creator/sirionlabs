@@ -87,7 +87,7 @@ export function dealWideReconciliation(copy: Reconciled, rows: LedgerRow[], deal
   });
   const totalLakh = copy.totalLakh + open.reduce((s, p) => s + p.lakh, 0);
   const text = open.length
-    ? `${formatLakh(totalLakh)} = this copy ${formatLakh(copy.totalLakh)} + ${open.map((p) => `open ${p.label} ${formatLakh(p.lakh)}`).join(' + ')}`
+    ? `${formatLakh(totalLakh)} = this copy ${formatLakh(copy.totalLakh)} + ${open.map((p) => `${rows.find((r) => r.termKey === p.termKey)?.state === 'reopened' ? 'reopened' : 'open'} ${p.label} ${formatLakh(p.lakh)}`).join(' + ')}`
     : `${formatLakh(totalLakh)} = this copy; no other term is open`;
   return { totalLakh, parts: [...copy.parts, ...open], text };
 }

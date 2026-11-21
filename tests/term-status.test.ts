@@ -54,3 +54,19 @@ describe('term status', () => {
     expect(previewed).toEqual(jumped);
   });
 });
+
+describe('next action per negotiation (review fix C12)', async () => {
+  const { nextActionFor } = await import('@/lib/demo/nextAction');
+  const { STEP_CLOCK } = await import('@/lib/demo/steps');
+  const { dealById } = await import('@/lib/data');
+  const st = (step: 1 | 4) => ({ clock: STEP_CLOCK[step], ledger: ledgerAtStep(step), signing: { inserted: [], waived: [] } });
+  it('CloudDesk on round 4: confirm the open service credit', () => {
+    expect(nextActionFor(deal, st(1)).label).toBe('Confirm service credit');
+  });
+  it('CloudDesk on 19 Nov: review the signing copy, opened on §9.3', () => {
+    expect(nextActionFor(deal, st(4))).toEqual({ label: 'Review signing copy', href: '/word/v6?from=sirion&clause=9.3' });
+  });
+  it('BrightStaff: resolve the Schedule 2 conflict', () => {
+    expect(nextActionFor(dealById('D-BRIGHTSTAFF')!, st(1)).label).toBe('Resolve Schedule 2 conflict');
+  });
+});

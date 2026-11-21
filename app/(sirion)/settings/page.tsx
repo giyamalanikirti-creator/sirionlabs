@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import { AccessStates } from '@/components/sirion/AccessStates';
 import { Check, X } from 'lucide-react';
 import { PageHeader, SirionCard, Table, Td, Th } from '@/components/sirion/ui';
 import { useDemo } from '@/lib/store';
@@ -42,6 +43,10 @@ export default function SettingsPage() {
   return (
     <>
       <PageHeader title="Privacy and admin" caption="What Deal Ledger reads, what it keeps, and who can see what. Changes here apply to the demo straight away." />
+
+      <SirionCard title="Who is connected, and to what" caption="Three separate states. Being a member of a deal does not mean a mailbox is read." className="mb-4" bodyClassName="px-0 pb-0 pt-0">
+        <AccessStates />
+      </SirionCard>
 
       <div className="grid gap-4 lg:grid-cols-2">
         <SirionCard title="Connected mailboxes" caption="Only these mailboxes are read. Turn one off and its Outlook pane and Send check stop.">
@@ -122,6 +127,11 @@ export default function SettingsPage() {
               <tr><Td>The supplier</Td><Td>Only what is sent</Td><Td>Never</Td><Td>Never</Td><Td>Never</Td></tr>
             </tbody>
           </Table>
+        </SirionCard>
+
+        <SirionCard title="Demo only: send check" caption="Simulate the check service being down. Email then sends as usual, and the compose window says it was not checked.">
+          <Toggle label="Send check unavailable" on={Boolean(settings.sendCheckDown)} onChange={(v) => update({ sendCheckDown: v })} />
+          <p className="mt-2 text-[12.5px] leading-[18px] text-muted">The check runs only in connected mailboxes on tracked threads. It never implies that every email from every device was checked.</p>
         </SirionCard>
 
         <SirionCard

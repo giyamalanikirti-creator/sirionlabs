@@ -45,7 +45,7 @@ export const SCRIPT: Record<1 | 2 | 3 | 4 | 5 | 6, ScriptAction[]> = {
   ],
   2: [
     { id: '2a', label: 'Open “fine with that” (16 Nov)', target: 'msg-M12', href: '/outlook/ananya?msg=M12', done: (s) => s.readMessageIds.includes('M12') },
-    { id: '2b', label: 'Send clarification', target: 'send-clarification', href: '/outlook/ananya?msg=M12', done: (s) => s.tourClicks.includes('send-clarification') || Boolean(s.clarifySentAt) || creditAgreed(s) },
+    { id: '2b', label: 'Draft clarification', target: 'send-clarification', href: '/outlook/ananya?msg=M12', done: (s) => s.tourClicks.includes('send-clarification') || Boolean(s.clarifySentAt) || creditAgreed(s) },
     { id: '2c', label: 'Send it to Rohan', target: 'compose-send', href: '/outlook/ananya?msg=M12', done: (s) => Boolean(s.clarifySentAt) || creditAgreed(s) },
   ],
   3: [

@@ -5,10 +5,10 @@ import { rowForTerm } from './ledger';
 import { extractValue } from './diff';
 import type { TermKey } from '@/lib/types';
 import { formatInr } from '@/lib/format';
+import { renewalDates } from './dates';
 
 const DAY = 86400000;
 const iso = (d: Date) => d.toISOString().slice(0, 10);
-const minusDays = (date: string, days: number) => iso(new Date(new Date(date).getTime() - days * DAY));
 
 /** Last day of the term: termStart + termYears, less one day. */
 export function termEnd(deal: Deal): string {
@@ -54,7 +54,9 @@ export function handover(
   const uptimeTarget = credit?.kind === 'service_credit' ? credit.uptimeTarget : 99.5;
   const exitDays = exit?.kind === 'exit_support' ? exit.days : 30;
 
-  const noticeDeadline = minusDays(end, noticeDays);
+  const notices = signedVersion.clauses.find((c) => /^notices$/i.test(c.title));
+  const renewal = renewalDates({ end, noticeDays, noticesClause: notices });
+  const noticeDeadline = renewal.lastNoticeDay;
   const monthlyFee = Math.round(deal.annualFeeInr / 12);
 
   const obligations: Obligation[] = [
@@ -64,7 +66,10 @@ export function handover(
       title: 'Renewal notice deadline',
       detail: `Give ${noticeDays} days' written notice before the term ends if we do not want the contract to renew.`,
       due: noticeDeadline,
-      reminder: minusDays(noticeDeadline, 45),
+      reminder: renewal.reminder,
+      reminderNote: renewal.reminderNote,
+      sendByNote: renewal.sendByNote,
+      deadlineFlag: renewal.deadlineFlag,
       owner: 'Ananya Rao',
       clauseNo: '14.2',
       ledgerRowId: 'R-notice',

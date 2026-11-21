@@ -26,7 +26,8 @@ import { PaneFrame } from '@/components/addin/PaneFrame';
 import { SigningPane } from '@/components/addin/SigningPane';
 import { useDemo } from '@/lib/store';
 import { useHydrated } from '@/lib/useHydrated';
-import { versionById } from '@/lib/data';
+import { versionById, versions } from '@/lib/data';
+import { formatDateShort } from '@/lib/format';
 import { ledgerAtStep, STEP_CLOCK } from '@/lib/demo/steps';
 import { agreedWording } from '@/lib/engines/wording';
 import { diffVersions, extractValue } from '@/lib/engines/diff';
@@ -265,7 +266,15 @@ export function WordApp({ versionId }: { versionId: string }) {
     if (comment) setLocalComments((m) => ({ ...m, [no]: comment }));
   };
 
+  /* Review fix C6: a newer supplier copy has arrived since this one. */
+  const newer = version
+    ? versions.filter((v) => v.author === 'supplier' && v.sentAt > version.sentAt && v.sentAt <= clock).at(-1)
+    : undefined;
+  const [newerAcked, setNewerAcked] = useState(false);
+  const locked = Boolean(newer && !newerAcked && versionId !== 'v7');
+
   const issueActions: IssueActions = {
+    locked,
     onInsertAgreed: (issue) => {
       const row = rowOf(issue);
       const clause = version?.clauses.find((c) => c.no === issue.clauseNo);
@@ -407,6 +416,16 @@ export function WordApp({ versionId }: { versionId: string }) {
           </Button>
         </div>
       )}
+      {hydrated && newer && !newerAcked && versionId !== 'v7' && (
+        <div role="status" style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 16px', background: '#EBF3FC', fontSize: 13, borderBottom: '1px solid #B4D6FA' }}>
+          <strong>A newer supplier copy ({newer.id}, {formatDateShort(newer.sentAt)}) is available. Compare before applying this edit.</strong>
+          <span style={{ marginLeft: 'auto', display: 'flex', gap: 8 }}>
+            <Button size="small" appearance="primary" onClick={() => router.push(`/word/${newer.id}?from=sirion`)}>Open {newer.id}</Button>
+            <Button size="small" onClick={() => { setTab('compare'); setNewerAcked(true); }}>Compare {version.id} ↔ {newer.id}</Button>
+            <Button size="small" appearance="subtle" onClick={() => setNewerAcked(true)}>Continue on {version.id}</Button>
+          </span>
+        </div>
+      )}
       {versionId === 'v4' && hydrated && clock < STEP_CLOCK[4] && (
         <div style={{ padding: '6px 16px', background: '#FFF8E5', fontSize: 12.5, borderBottom: '1px solid #F2E2B3' }}>
           The signing copy arrives on 19 Nov (step 4). This is v4, the draft that came with Rohan&apos;s round-4 email.
@@ -453,6 +472,7 @@ export function WordApp({ versionId }: { versionId: string }) {
             width={350}
             onClose={() => setPaneOpen(false)}
             footerHref="/deals/D-CLOUDDESK/ledger"
+            tracking="Tracking this CloudDesk file"
           >
             {setupGap ? (
               <div style={{ fontSize: 13, lineHeight: '19px' }}>

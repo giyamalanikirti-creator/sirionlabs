@@ -205,6 +205,12 @@ export interface Obligation {
   detail?: string;
   due?: string;
   reminder?: string;
+  /** "(moved from Sun 16 Sep)" when the reminder fell on a weekend (review fix C8). */
+  reminderNote?: string;
+  /** The send-by date from the notices clause, for Legal to confirm. */
+  sendByNote?: string;
+  /** A weekend deadline is flagged, never moved. */
+  deadlineFlag?: string;
   recurring?: string;
   owner: string;
   clauseNo: string;

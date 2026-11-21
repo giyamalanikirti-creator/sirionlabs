@@ -34,6 +34,8 @@ import { wordDiff } from '@/lib/engines/diff';
 import { COST_RULE } from '@/lib/engines/explain';
 import { draftLabel, draftMatch, negotiationLabel, negotiationStatus } from '@/lib/engines/termStatus';
 import { conditionState } from '@/lib/engines/conditions';
+import { formatDay, renewalDates } from '@/lib/engines/dates';
+import { termEnd } from '@/lib/engines/handover';
 import { asOfLine, dealWideReconciliation, headlineLabel, reconcile, short as shortLabel } from '@/lib/engines/headline';
 import { PEER_MIN_COMPANIES, PEER_MIN_CONTRACTS } from '@/lib/engines/peers';
 import { PLAYBOOK, playbookReview } from '@/lib/engines/playbook';
@@ -108,7 +110,7 @@ function ConditionBlock({ issue, row, version, actions }: { issue: ReviewIssue; 
       {l.costLakhPerYr !== null && <div style={{ marginTop: 2 }}>Expected {formatLakh(l.costLakhPerYr)} a year</div>}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8, flexWrap: 'wrap' }}>
         {check.state === 'met' ? (
-          <Button size="small" appearance="primary" data-tour="propose-agreed" disabled={inserted} onClick={() => actions.onInsertAgreed(issue)}>
+          <Button size="small" appearance="primary" data-tour="propose-agreed" disabled={inserted || actions.locked} onClick={() => actions.onInsertAgreed(issue)}>
             {inserted ? `Proposed ${agreed} in Word` : `Propose ${agreed} in Word`}
           </Button>
         ) : (
@@ -119,6 +121,32 @@ function ConditionBlock({ issue, row, version, actions }: { issue: ReviewIssue; 
         <Link href={`/outlook/ananya?msg=${src.messageId}`} style={{ fontSize: 12 }}>View email</Link>
       </div>
     </div>
+  );
+}
+
+/** §14.2: what each copy means in dates (review fix C8). Computed from the clauses; no month grid. */
+function RenewalDatesCompare({ row, docValue, versionId }: { row: LedgerRow; docValue: TermValue | null; versionId: string }) {
+  if (row.termKey !== 'renewal_notice' || docValue?.kind !== 'renewal_notice' || row.position.kind !== 'renewal_notice') return null;
+  const end = termEnd(cloudDeskDeal);
+  const draft = renewalDates({ end, noticeDays: docValue.days });
+  const agreed = renewalDates({ end, noticeDays: row.position.days });
+  const cell = { padding: '3px 6px', borderTop: `1px solid ${tokens.colorNeutralStroke3}` } as const;
+  return (
+    <table style={{ width: '100%', marginTop: 6, fontSize: 11.5, borderCollapse: 'collapse' }} onClick={(e) => e.stopPropagation()}>
+      <thead>
+        <tr style={{ color: tokens.colorNeutralForeground3, textAlign: 'left' }}>
+          <th style={{ padding: '2px 6px' }} />
+          <th style={{ padding: '2px 6px', fontWeight: 600 }}>Draft {versionId}</th>
+          <th style={{ padding: '2px 6px', fontWeight: 600 }}>Agreed</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td style={cell}>Notice</td><td style={cell}>{draft.noticeDays} days</td><td style={cell}>{agreed.noticeDays} days</td></tr>
+        <tr><td style={cell}>Last day to give notice</td><td style={cell}>{formatDay(draft.lastNoticeDay)}{draft.deadlineFlag ? ' *' : ''}</td><td style={cell}>{formatDay(agreed.lastNoticeDay)}</td></tr>
+        <tr><td style={cell}>Decision reminder</td><td style={cell}>{formatDay(draft.reminder)}</td><td style={cell}>{formatDay(agreed.reminder)} {agreed.reminderNote ?? ''}</td></tr>
+        {draft.deadlineFlag && <tr><td colSpan={3} style={{ ...cell, color: tokens.colorPaletteMarigoldForeground2 }}>* {draft.deadlineFlag}</td></tr>}
+      </tbody>
+    </table>
   );
 }
 
@@ -194,6 +222,16 @@ export function WordHeader({
   const total = differs.reduce((sum, i) => sum + (i.costLakhPerYr ?? 0), 0);
   const playbookCount = issues.filter((i) => i.sources.includes('playbook')).length;
   const clock = useDemo((st) => st.clock);
+  const proposedCount = useDemo((st) => st.signing.inserted.length);
+  const savedAt = useDemo((st) => st.signing.sentBackAt);
+  // Review fix C6: distinct version states, never one "Done".
+  const versionState = signedAt || version.id === 'v7'
+    ? 'Accepted · signed copy v7'
+    : savedAt && version.id === 'v6'
+      ? 'Saved to Sirion as v7'
+      : proposedCount && version.id === 'v6'
+        ? `Proposed in Word · ${proposedCount} change${proposedCount === 1 ? '' : 's'}`
+        : `Reviewing ${version.author === 'supplier' ? 'supplier' : 'our'} ${version.id} · ${differs.length} difference${differs.length === 1 ? '' : 's'}`;
   const copy = reconcile(differs.map((i) => ({ label: shortLabel(i.label), lakh: i.costLakhPerYr ?? 0, termKey: i.lens?.termKey })));
   const wide = dealWideReconciliation(copy, rows, cloudDeskDeal);
   const deal = wide.totalLakh;
@@ -211,6 +249,9 @@ export function WordHeader({
         </div>
         <div className={s.grey}>
           {role} · {personName(cloudDeskDeal.ownerId)} · {signedAt ? 'Signed' : 'Negotiating'}
+        </div>
+        <div style={{ fontSize: 12.5, fontWeight: 600, marginTop: 3 }} aria-label="Version state">
+          {versionState}
         </div>
         <div style={{ fontSize: 11.5, marginTop: 4, color: tokens.colorPaletteGreenForeground1 }}>
           ● Connected · {cloudDeskDeal.supplier} MSA · {version.id} · Tracked negotiation
@@ -275,6 +316,8 @@ export interface IssueActions {
   onAccept: (issue: ReviewIssue, reason: string) => void;
   onNotRight: (issue: ReviewIssue) => void;
   onGoTo: (clauseNo: string) => void;
+  /** A newer supplier copy exists and has not been acknowledged: no edits on this one (review fix C6). */
+  locked?: boolean;
 }
 
 export function IssueCard({
@@ -321,6 +364,7 @@ export function IssueCard({
       </div>
       {issue.sources.includes('email') && <PolicyLine issue={issue} version={version} />}
       {row?.condition && <ConditionBlock issue={issue} row={row} version={version} actions={actions} />}
+      {row && <RenewalDatesCompare row={row} docValue={l?.docValue ?? null} versionId={version.id} />}
       {row && <StatusTrail row={row} />}
       {row && (
         <div style={{ fontSize: 11.5, marginTop: 3, color: tokens.colorNeutralForeground2, fontWeight: 600 }}>
@@ -485,7 +529,7 @@ export function IssueCard({
                   </span>
                 </span>
                 {!isAgreed && r.key !== 'preferred' && (
-                  <Button size="small" appearance="outline" onClick={() => actions.onUseRung(issue, r.value, r.key)}>
+                  <Button size="small" appearance="outline" disabled={actions.locked} onClick={() => actions.onUseRung(issue, r.value, r.key)}>
                     Use
                   </Button>
                 )}
@@ -498,7 +542,7 @@ export function IssueCard({
 
       {/* 8 · Actions */}
       <div className={s.actions}>
-        <Button size="small" appearance="primary" onClick={() => actions.onInsertAgreed(issue)}>Insert agreed wording</Button>
+        <Button size="small" appearance="primary" disabled={actions.locked} onClick={() => actions.onInsertAgreed(issue)}>Insert agreed wording</Button>
         <Link href={askHref}><Button size="small">Ask the supplier</Button></Link>
         <Button size="small" onClick={() => setAccepting(true)}>Accept this change</Button>
         <Button size="small" appearance="outline" onClick={() => actions.onNotRight(issue)}>Not right?</Button>

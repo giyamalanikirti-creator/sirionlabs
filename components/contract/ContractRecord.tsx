@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { AlertTriangle, Bell, Check, FileText, Repeat } from 'lucide-react';
 import {
@@ -27,6 +27,12 @@ import { renewalBrief } from '@/lib/engines/renewalBrief';
 import { approverFor } from '@/lib/engines/sendDialog';
 import { checkInvoice } from '@/lib/engines/invoices';
 import { formatDateLong, formatInr, formatLakh } from '@/lib/format';
+import { formatDay } from '@/lib/engines/dates';
+import { signingCheck } from '@/lib/engines/signing';
+import { Tag } from '@/components/ui/Tag';
+import { useSearchParams } from 'next/navigation';
+import type { Obligation } from '@/lib/types';
+import { CalendarPlus, FileCheck2, Receipt, X } from 'lucide-react';
 import { plainValue } from '@/lib/plain';
 import { CONTRACT_ID } from '@/lib/settings';
 
@@ -86,7 +92,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
                       <span className="block text-[11px] text-muted">
                         Clause {o.clauseNo}
                         {o.due ? ` · due ${formatDateLong(o.due)}` : ''}
-                        {o.recurring ? ` · ${o.recurring}` : ''} · from ledger row {o.ledgerRowId}
+                        {o.recurring ? ` · ${o.recurring}` : ''} · {o.owner}
                       </span>
                     </li>
                   ))}
@@ -289,50 +295,55 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
           <p className="mt-3 text-[11px] text-muted">Example built from the latest 12 months of uptime on record. In production it uses the contract&apos;s own last 12 months.</p>
         </SirionCard>
       )}
+      <SignedCopyCheck />
       <SirionCard
         title="Obligations"
-        caption="Created by the Obligations agent from the agreed terms."
+        caption="Created by the Obligations agent from the signed contract. Each line: owner · due date or trigger · signed clause."
         bodyClassName="px-0 pb-0 pt-0"
+        right={
+          <button
+            onClick={() => { useDemo.getState().fastForwardInvoice(); changeTab('invoices'); }}
+            className="text-[13px] font-semibold text-teal-900 underline underline-offset-2"
+          >
+            Preview invoice example
+          </button>
+        }
       >
         <div className="divide-y divide-line">
-          <div className="px-6 py-4 text-sm">Contract end · <strong>{formatDateLong(contract!.endDate)}</strong></div>
-          {contract!.obligations.map((o) => (
-            <div key={o.id} className="flex flex-wrap items-start gap-x-6 gap-y-3 px-6 py-4">
-              <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-page text-teal-900">
-                {o.recurring ? <Repeat size={15} /> : <Bell size={15} />}
-              </span>
-              <div className="min-w-[260px] flex-1">
-                <p className="text-[13.5px] font-medium text-ink">{o.title}</p>
-                {o.detail && (
-                  <p className="mt-0.5 text-[12.5px] leading-[18px] text-muted">{o.detail}</p>
-                )}
-                <p className="mt-1.5 text-[11px] text-muted">
-                  Created by the Obligations agent from ledger row:{' '}
-                  <Link
-                    href="/deals/D-CLOUDDESK"
-                    className="text-teal-900 underline-offset-2 hover:underline"
-                  >
-                    {o.ledgerRowId}
-                  </Link>{' '}
-                  · clause {o.clauseNo}
-                </p>
-              </div>
-              <div className="w-44 shrink-0">
-                {o.due && (
-                  <p className="text-[12.5px] text-ink">
-                    {o.reminder ? 'Last day to give notice' : 'Due'} <strong className="font-medium">{formatDateLong(o.due)}</strong>
+          <div className="px-6 py-4 text-sm">Contract end · <strong>{formatDay(contract!.endDate)}</strong></div>
+          {contract!.obligations.map((o) =>
+            o.clauseNo === '14.2' ? (
+              <RenewalLine key={o.id} o={o} />
+            ) : (
+              <div key={o.id} data-ledger-row={o.ledgerRowId} className="flex flex-wrap items-start gap-x-6 gap-y-3 px-6 py-4">
+                <KindIcon kind="obligation" recurring={Boolean(o.recurring)} />
+                <div className="min-w-[260px] flex-1">
+                  <KindLabel kind="obligation" />
+                  <p className="text-[14px] font-medium text-ink">{o.title}</p>
+                  {o.detail && <p className="mt-0.5 text-[13px] leading-[19px] text-muted">{o.detail}</p>}
+                  <p className="mt-1.5 text-[13px] text-ink">
+                    {o.owner} · {o.due ? `Due ${formatDay(o.due)}` : o.recurring ? `Every month (${o.recurring})` : 'On trigger'} · Source: <ClauseLink no={o.clauseNo} />
                   </p>
-                )}
-                {o.reminder && (
-                  <p className="mt-0.5 text-[12px] text-muted">
-                    Internal reminder · {formatDateLong(o.reminder)} · 45 days before notice is due
-                  </p>
-                )}
-                {o.recurring && <p className="text-[12.5px] capitalize text-ink">{o.recurring}</p>}
+                </div>
               </div>
-              <div className="w-36 shrink-0 text-[12.5px] text-muted">{o.owner}</div>
-            </div>
-          ))}
+            ),
+          )}
+          {signing.inserted.map((t) => {
+            const row = rows.find((r) => r.termKey === t);
+            if (!row) return null;
+            return (
+              <div key={t} data-ledger-row={row.id} className="flex flex-wrap items-start gap-x-6 gap-y-3 px-6 py-4">
+                <KindIcon kind="draft" />
+                <div className="min-w-[260px] flex-1">
+                  <KindLabel kind="draft" />
+                  <p className="text-[14px] font-medium text-ink">{row.label}: resolved before signature</p>
+                  <p className="mt-0.5 text-[13px] text-muted">
+                    The signing copy said otherwise; the agreed {plainValue(row.position, cloudDeskDeal.termYears).toLowerCase()} is in the signed copy. Source: <ClauseLink no={CLAUSE_FOR[t] ?? ''} />
+                  </p>
+                </div>
+              </div>
+            );
+          })}
         </div>
         <div className="px-6 py-4">
           <Button variant="primary" onClick={() => { useDemo.getState().fastForwardInvoice(); changeTab('invoices'); }}>Next · See December invoice</Button>
@@ -377,8 +388,8 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
                       </>
                     )}
                   </p>
-                  <p className="mt-1 text-[11px] text-muted">
-                    Clause {r.clauseNo} · ledger row {r.ledgerRowId}
+                  <p className="mt-1 text-[12px] text-muted" data-ledger-row={r.ledgerRowId}>
+                    Source: <ClauseLink no={r.clauseNo} />
                   </p>
                 </div>
               </div>
@@ -701,6 +712,133 @@ function DisputeComposer({
           </Button>
         </div>
       </div>
+    </div>
+  );
+}
+
+/* ---------------- handover building blocks (review fix C7, C8) ---------------- */
+
+type ItemKind = 'draft' | 'obligation' | 'billing';
+const KIND: Record<ItemKind, string> = { draft: 'Draft check', obligation: 'Obligation', billing: 'Billing exception' };
+
+function KindIcon({ kind, recurring }: { kind: ItemKind; recurring?: boolean }) {
+  const Icon = kind === 'draft' ? FileCheck2 : kind === 'billing' ? Receipt : recurring ? Repeat : Bell;
+  return (
+    <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${kind === 'draft' ? 'bg-mint text-teal-900' : kind === 'billing' ? 'bg-danger/10 text-danger' : 'bg-page text-teal-900'}`}>
+      <Icon size={15} />
+    </span>
+  );
+}
+
+function KindLabel({ kind }: { kind: ItemKind }) {
+  return <p className="mb-0.5 text-[11px] font-semibold uppercase tracking-[0.05em] text-muted">{KIND[kind]}</p>;
+}
+
+/** A readable link to the clause in the signed version; the ledger ID stays in a data attribute. */
+function ClauseLink({ no }: { no: string }) {
+  if (!no) return <span>signed v7</span>;
+  return (
+    <Link href={`/word/v7?clause=${no}`} className="text-teal-900 underline underline-offset-2">
+      signed v7, §{no}
+    </Link>
+  );
+}
+
+/** "Signed copy matches reviewed v7", or what differs, before any billing rule activates. */
+function SignedCopyCheck() {
+  const returned = useDemo((s) => s.signing.returnedCopy);
+  const submitted = useDemo((s) => s.signing.submittedCopy);
+  const { rows } = useLedger();
+  const copy = returned ?? submitted;
+  const gaps = copy ? signingCheck(rows, copy, cloudDeskDeal).gaps.filter((g) => !useDemo.getState().signing.waived.some((w) => w.termKey === g.termKey)) : [];
+  return (
+    <div className={`mb-4 flex items-center gap-2 rounded-xl border px-4 py-3 text-[14px] ${gaps.length ? 'border-amber-fg/30 bg-amber-bg text-ink' : 'border-[#9CCBC1] bg-[#EAF4F2] text-ink'}`}>
+      {gaps.length ? <AlertTriangle size={16} className="text-amber-fg" /> : <Check size={16} className="text-[#107C10]" />}
+      <span className="font-semibold">
+        {gaps.length ? `Signed copy differs in §${gaps[0].clauseNo}. Review before activating the billing rule.` : 'Signed copy matches reviewed v7.'}
+      </span>
+      <span className="ml-auto"><Tag kind="new" /></span>
+    </div>
+  );
+}
+
+/** The renewal line: owner · reminder · notice due · signed clause, the send-by date, and a personal Outlook reminder. */
+function RenewalLine({ o }: { o: Obligation }) {
+  const params = useSearchParams();
+  const focus = params.get('focus') === 'renewal';
+  const [dialog, setDialog] = useState(false);
+  const [added, setAdded] = useState(false);
+  const toast = useDemo((s) => s.toast);
+  useEffect(() => {
+    if (!focus) return;
+    useDemo.getState().markTour('handover-renewal');
+    requestAnimationFrame(() => document.getElementById('renewal-line')?.scrollIntoView({ block: 'center' }));
+  }, [focus]);
+  return (
+    <div
+      id="renewal-line"
+      data-tour="handover-renewal"
+      data-ledger-row={o.ledgerRowId}
+      onClick={() => useDemo.getState().markTour('handover-renewal')}
+      className={`flex flex-wrap items-start gap-x-6 gap-y-3 px-6 py-4 ${focus ? 'bg-[#F0F7F6]' : ''}`}
+    >
+      <KindIcon kind="obligation" />
+      <div className="min-w-[280px] flex-1">
+        <KindLabel kind="obligation" />
+        <p className="text-[14px] font-semibold text-ink">
+          Renewal decision · {o.owner} · Reminder {formatDay(o.reminder!)} {o.reminderNote ?? ''} · Notice due {formatDay(o.due!)} · Source: <ClauseLink no={o.clauseNo} />
+        </p>
+        {o.deadlineFlag && <p className="mt-1 text-[13px] text-amber-fg">{o.deadlineFlag}</p>}
+        {o.sendByNote && <p className="mt-1 text-[13px] leading-[19px] text-muted">{o.sendByNote}</p>}
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => setDialog(true)}
+            title="Proposed. Would use Microsoft Graph with Calendars.ReadWrite."
+            className="inline-flex items-center gap-1.5 rounded-md border border-teal-900/45 bg-white px-3 py-1.5 text-[13px] font-semibold text-teal-900 hover:bg-mint/40"
+          >
+            <CalendarPlus size={14} /> {added ? 'Reminder added to my Outlook calendar' : 'Add reminder to my Outlook calendar'}
+          </button>
+          <Tag kind="new" title="Proposed. Would use Microsoft Graph with Calendars.ReadWrite." />
+          <span className="text-[12px] text-muted">Contract deadline lives in Sirion Calendar (Organiser) <Tag kind="today" /></span>
+        </div>
+        {added && (
+          <p className="mt-1.5 text-[13px] text-ink">
+            Your Outlook reminder: {formatDay(o.reminder!)} · Contract deadline unchanged: {formatDay(o.due!)}
+          </p>
+        )}
+      </div>
+      {dialog && (
+        <div role="dialog" aria-modal="true" aria-label="New Outlook event" className="fixed inset-0 z-[130] grid place-items-center bg-ink/30 p-4">
+          <div className="w-[440px] max-w-full rounded-xl bg-white shadow-pop">
+            <div className="flex items-center justify-between border-b border-line px-4 py-3">
+              <p className="flex items-center gap-2 text-[14px] font-semibold text-ink">
+                New event <span className="rounded-full bg-page px-2 py-[1px] text-[10.5px] font-semibold text-muted">Outlook · Mock</span>
+              </p>
+              <button aria-label="Close" onClick={() => setDialog(false)} className="rounded p-1 text-muted hover:bg-page"><X size={15} /></button>
+            </div>
+            <div className="space-y-2 px-4 py-3 text-[13.5px]">
+              <p><span className="text-muted">Title</span> · CloudDesk MSA: decide on renewal</p>
+              <p><span className="text-muted">Date</span> · {formatDay(o.reminder!)}, all day</p>
+              <p className="leading-[19px]"><span className="text-muted">Body</span> · Notice is due {formatDay(o.due!)} under §{o.clauseNo} of the signed v7. Open the clause: /word/v7?clause={o.clauseNo}</p>
+              <p className="text-[12px] text-muted">Moving this reminder does not change the contract deadline in Sirion.</p>
+            </div>
+            <div className="flex justify-end gap-2 border-t border-line px-4 py-3">
+              <Button onClick={() => setDialog(false)}>Cancel</Button>
+              <Button
+                variant="primary"
+                onClick={() => {
+                  setAdded(true);
+                  setDialog(false);
+                  useDemo.getState().logEvent(`Personal Outlook reminder added for ${formatDay(o.reminder!)}; contract deadline unchanged (${formatDay(o.due!)}).`);
+                  toast('Reminder added to your Outlook calendar (mock).');
+                }}
+              >
+                Save
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

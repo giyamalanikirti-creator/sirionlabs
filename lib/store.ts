@@ -67,6 +67,8 @@ export interface AdminSettings {
   ownersSeeWorkings: boolean;
   /** Business owners see playbook fallbacks and walk-away positions. */
   ownersSeeFallbacks: boolean;
+  /** Demo only: simulate the send-time check service being down (review fix C5). */
+  sendCheckDown?: boolean;
 }
 
 export const DEFAULT_SETTINGS: AdminSettings = {
@@ -177,6 +179,9 @@ interface DemoState {
   /** The quick path is running (review fix B3): three actions on the §9.3 hero. */
   quickPath: boolean;
   setQuickPath: (on: boolean) => void;
+  /** What a business owner's choice at Send left on a term (review fix C5). */
+  termHolds: Partial<Record<TermKey, 'waiting_lead' | 'conceded_pending'>>;
+  setTermHold: (termKey: TermKey, hold?: 'waiting_lead' | 'conceded_pending') => void;
   setRole: (role: Role) => void;
   startStage: (step: 1 | 2 | 3 | 4 | 5, restart?: boolean) => void;
   previewStage: (step: 1 | 2 | 3 | 4 | 5) => void;
@@ -281,6 +286,7 @@ const BASE = {
   invoiceFastForward: false,
   trackChanges: true,
   quickPath: false,
+  termHolds: {} as Partial<Record<TermKey, 'waiting_lead' | 'conceded_pending'>>,
   disputeRaised: false,
   invoiceResolved: false,
   notices: [] as Notice[],
@@ -296,6 +302,13 @@ export const useDemo = create<DemoState>()(
 
       setClock: (iso) => set({ clock: iso }),
       setQuickPath: (quickPath) => set({ quickPath }),
+      setTermHold: (termKey, hold) =>
+        set((s) => {
+          const next = { ...s.termHolds };
+          if (hold) next[termKey] = hold;
+          else delete next[termKey];
+          return { termHolds: next };
+        }),
       setTrackChanges: (on) =>
         set((s) => ({
           trackChanges: on,

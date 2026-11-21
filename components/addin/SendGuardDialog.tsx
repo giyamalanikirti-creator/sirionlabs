@@ -37,7 +37,10 @@ export function SendGuardDialog({
   showWorkings = true,
   showFallback = true,
   whyHref,
+  note,
 }: {
+  /** e.g. "Ananya is copied, but hasn't approved this change." */
+  note?: string;
   finding: GuardFinding;
   others: GuardFinding[];
   /** "Loop in Ananya", "Attach v5 instead", or undefined when Edit reply is the main action. */
@@ -68,6 +71,9 @@ export function SendGuardDialog({
             </DialogTitle>
             <DialogContent>
               <div style={{ fontSize: 13.5, lineHeight: '20px' }}>
+                {note && (
+                  <p style={{ margin: '0 0 8px', padding: '6px 8px', borderRadius: 4, background: '#FFF4CE', color: '#3D2E00' }}>{note}</p>
+                )}
                 {finding.agreedText && (
                   <p style={{ margin: '0 0 8px' }}>
                     <strong>Agreed:</strong> {finding.agreedText}. <strong>Your reply:</strong> {finding.replyText}.

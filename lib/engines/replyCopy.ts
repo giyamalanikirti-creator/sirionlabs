@@ -109,3 +109,35 @@ export function roundReply(opts: {
   const body = `Hi ${opts.greeting},\n\n${sentences.join(' ')}\n\nThanks,\n${opts.signOff}`;
   return { body, confirmed, changes: changes.map((c) => ({ clauseNo: c.clauseNo, termKey: c.termKey, label: c.label, from: c.from, to: c.to, restored: c.restored })), stillOpen, allElseMatches };
 }
+
+/**
+ * One sentence for the top of the round card (review fix C2):
+ * "Rohan confirmed fixed pricing. The attachment also changed renewal notice from 30 to 90 days."
+ */
+export function roundSummary(opts: { rows: LedgerRow[]; prev: DocVersion; next: DocVersion; roundMessageId: string; from: string; deal: Deal }): { text: string; changedClauses: string[] } {
+  const { rows, prev, next, deal } = opts;
+  const confirmed = rows
+    .filter((r) => r.state === 'agreed' && r.source.kind === 'email' && r.source.messageId === opts.roundMessageId)
+    .map((r) => (r.position.kind === 'price' && r.position.wording === 'fixed' ? 'fixed pricing' : `${TERM_LABELS[r.termKey].toLowerCase()} at ${plainValue(r.position, deal.termYears).toLowerCase()}`));
+  const valueIn = (v: DocVersion, key: TermKey) => {
+    const c = v.clauses.find((x) => x.termKey === key);
+    return c ? extractValue(c) : null;
+  };
+  // Only changes that move away from what the ledger holds: an agreed change is already news in the email.
+  const changes = diffVersions(prev, next)
+    .filter((c) => c.termKey)
+    .filter((c) => {
+      const after = valueIn(next, c.termKey!);
+      const row = rows.find((r) => r.termKey === c.termKey);
+      return !row || !after || !sameValue(after, row.position);
+    })
+    .map((c) => ({ no: c.clauseNo, label: TERM_LABELS[c.termKey!].toLowerCase(), from: plainValue(valueIn(prev, c.termKey!), deal.termYears), to: plainValue(valueIn(next, c.termKey!), deal.termYears) }));
+  const strip = (x: string) => x.replace(/ days$/, '');
+  const parts: string[] = [];
+  if (confirmed.length) parts.push(`${opts.from} confirmed ${confirmed.join(' and ')}.`);
+  for (const c of changes) {
+    const sameUnit = / days$/.test(c.from) && / days$/.test(c.to);
+    parts.push(`The attachment ${confirmed.length ? 'also ' : ''}changed ${c.label} from ${sameUnit ? strip(c.from) : c.from.toLowerCase()} to ${c.to.toLowerCase()}.`);
+  }
+  return { text: parts.join(' ') || 'Nothing in this round moved an agreed term.', changedClauses: changes.map((c) => c.no) };
+}

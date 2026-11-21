@@ -87,7 +87,10 @@ export function PaneFrame({
   onClose,
   children,
   footerHref = '/deals/D-CLOUDDESK/ledger',
+  tracking = 'Tracking this CloudDesk thread',
 }: {
+  /** The context row under the header (review fix C10). */
+  tracking?: string;
   width?: number;
   source?: AiSource;
   onClose?: () => void;
@@ -103,6 +106,10 @@ export function PaneFrame({
           <span className={s.name}>Deal Ledger</span>
           {onClose && <Button size="small" appearance="subtle" icon={<DismissRegular />} onClick={onClose} aria-label="Close Deal Ledger" />}
         </header>
+        <div style={{ padding: '4px 12px', fontSize: 11.5, lineHeight: '16px', color: tokens.colorNeutralForeground3, borderBottom: `1px solid ${tokens.colorNeutralStroke3}` }}>
+          Connected through Meridian Foods · {tracking} ·{' '}
+          <Link href="/settings" className={s.link}>Manage access</Link>
+        </div>
         <div className={s.body}>{children}</div>
         <footer className={s.footer}>
           <Link href={footerHref} className={s.link}>

@@ -33,14 +33,17 @@ import { matchThread, toHeader, SIGNAL_WEIGHTS } from '@/lib/engines/matcher';
 import { messages as allMessages } from '@/lib/data';
 import { extractValue } from '@/lib/engines/diff';
 import { CLARIFY_DRAFT } from '@/lib/engines/wording';
-import { roundReply } from '@/lib/engines/replyCopy';
+import { roundReply, roundSummary } from '@/lib/engines/replyCopy';
+import { formatDay, renewalDates } from '@/lib/engines/dates';
+import { BasisTag } from '@/components/ui/Tag';
+import { termStatuses } from '@/lib/engines/termStatus';
 import { asOfLine, copyReconciliation, dealReconciliation, headlineLabel, latestVersionId } from '@/lib/engines/headline';
 import { signingCheck } from '@/lib/engines/signing';
 import { rowHeadlineShare } from '@/lib/engines/playbook';
 import { HEADLINE_SUFFIX } from '@/lib/format';
 import { NotConnectedCard, TrackedBanner, ASK_COPY_DRAFT } from './ConnectPanes';
-import { ActionRow, AiReviewBlock, AttachmentBlock, Block, DealHeaderBlock, MoveBox, OriginTag, PaneHeadlineExplainer } from './SirionBlocks';
-import { formatLakh, formatDateLong, formatDateShort } from '@/lib/format';
+import { ActionRow, AiReviewBlock, AttachmentBlock, Block, BlockGroup, DealHeaderBlock, MoveBox, OriginTag, PaneHeadlineExplainer } from './SirionBlocks';
+import { formatLakh, formatDateShort } from '@/lib/format';
 import { plainValue } from '@/lib/plain';
 import { useSourceDrawer } from '@/lib/drawer';
 import { SourceDrawerBody } from '@/components/sirion/SourceDrawer';
@@ -87,6 +90,9 @@ export function AnanyaPane({
   const message = openMessageId ? messageById(openMessageId) : undefined;
   const versionId = message?.attachments.find((a) => a.versionId)?.versionId;
 
+  const m8 = !busy && openMessageId === 'M8' && roundReviewed;
+  const unchangedCount = termStatuses(rows, versionById('v4')!, cloudDeskDeal).filter((t) => t.matchesAgreed).length;
+
   const respondToRound = () => {
     respond('M8');
     const reply = roundReply({ rows, prev: versionById('v4')!, attached: versionById('v5')!, roundMessageId: 'M8', deal: cloudDeskDeal, greeting: 'Rohan', signOff: 'Ananya' });
@@ -103,7 +109,10 @@ export function AnanyaPane({
       <TrackedBanner />
       {/* The ready-to-sign email leads with its one action (review fix B3). */}
       {!busy && openMessageId === 'M14' && <SigningCopyCard rows={rows} />}
-      {message && <DealHeaderBlock message={message} />}
+      {/* Round 4 (review fix C2): the sentence and Compare first, then Respond; filing and checks as a disclosure. */}
+      {m8 && <RoundFourCard rows={rows} />}
+      {m8 && <ActionRow versionId="v4" onRespond={respondToRound} responded={responded} />}
+      {message && !m8 && <DealHeaderBlock message={message} />}
 
       <section className={s.card} style={{ borderColor: tokens.colorBrandStroke1, boxShadow: `inset 3px 0 0 ${tokens.colorBrandBackground}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 6 }}>
@@ -135,8 +144,20 @@ export function AnanyaPane({
         </MessageBar>
       ))}
 
-      {message && <AttachmentBlock message={message} />}
-      {versionId && versionId !== 'v6' && <AiReviewBlock versionId={versionId} />}
+      {message && !m8 && <AttachmentBlock message={message} />}
+      {versionId && versionId !== 'v6' && !m8 && <AiReviewBlock versionId={versionId} />}
+      {m8 && message && (
+        <details className={s.card}>
+          <summary style={{ fontSize: 12.5, cursor: 'pointer' }}>
+            Filed to CloudDesk · v4 · {unchangedCount} terms unchanged
+          </summary>
+          <BlockGroup kind="today" title="Sirion for Outlook">
+            <DealHeaderBlock message={message} />
+            <AttachmentBlock message={message} />
+            {versionId && <AiReviewBlock versionId={versionId} />}
+          </BlockGroup>
+        </details>
+      )}
 
       {busy && (
         <div className={s.card} style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -145,11 +166,11 @@ export function AnanyaPane({
         </div>
       )}
 
-      {!busy && openMessageId === 'M8' && <RoundFourCard rows={rows} />}
+      {!busy && openMessageId === 'M8' && !m8 && <RoundFourCard rows={rows} />}
       {!busy && (openMessageId === 'M12' || openMessageId === 'M12R') && <SideThreadFlow rows={rows} onDraftReply={onDraftReply} />}
       {!busy && openMessageId === 'M13' && <NewAskCard rows={rows} />}
 
-      {!busy && openMessageId === 'M8' && (
+      {!busy && openMessageId === 'M8' && !m8 && (
         <ActionRow versionId="v4" onRespond={respondToRound} responded={responded} />
       )}
 
@@ -188,28 +209,40 @@ function RoundFourCard({ rows }: { rows: LedgerRow[] }) {
   const paymentUnchanged = payment && v4PaymentValue && plainValue(v4PaymentValue) === plainValue(payment.position);
 
   const [compare, setCompare] = useState(false);
-  const end = termEnd(cloudDeskDeal);
-  const beforeEnd = (days: number) =>
-    formatDateLong(new Date(Date.parse(end) - days * 86_400_000).toISOString());
+  const v4Notice = versionById('v4')?.clauses.find((c) => c.termKey === 'renewal_notice');
+  const v4NoticeValue = v4Notice ? extractValue(v4Notice) : null;
+  const v4Dates = renewalDates({ end: termEnd(cloudDeskDeal), noticeDays: v4NoticeValue?.kind === 'renewal_notice' ? v4NoticeValue.days : 30 });
+  const summary = roundSummary({ rows, prev: versionById('v3')!, next: versionById('v4')!, roundMessageId: 'M8', from: personName('rohan').split(' ')[0], deal: cloudDeskDeal });
   const oldClause = versions.find((v) => v.id === 'v3')?.clauses.find((c) => c.no === '14.2');
   const newClause = versions.find((v) => v.id === 'v4')?.clauses.find((c) => c.no === '14.2');
 
   return (
     <Block title="What was agreed in email · round 4" kind="new" accent>
       <div className={s.cardMeta}>14 Nov · {personName('rohan')}</div>
-      <div className={s.quote} style={{ marginBottom: 8 }}>
-        <div><strong>Email says:</strong> price fixed.</div>
-        {noticeThreat && (
-          <div><strong>File also changed:</strong> 14.2 now {plainValue(noticeThreat.value)} (not a tracked change).</div>
-        )}
-        {payment && (
-          <div>
-            <strong>Payment:</strong>{' '}
-            {paymentUnchanged ? `unchanged (${plainValue(payment.position)})` : `v4 says ${plainValue(v4PaymentValue)}`}.
-          </div>
-        )}
-      </div>
+      {/* Review fix C2: one sentence and one button first; the rest is disclosure. */}
+      <p style={{ fontSize: 13.5, lineHeight: '19px', fontWeight: 600, margin: '4px 0 8px' }}>{summary.text}</p>
+      {noticeThreat && (
+        <div className={s.actions} style={{ marginTop: 0 }}>
+          <Button size="small" appearance="primary" data-tour="compare-14.2" aria-expanded={compare} onClick={() => setCompare(!compare)}>
+            Compare §14.2
+          </Button>
+          <BasisTag basis="supplier" supplier={cloudDeskDeal.supplier} />
+        </div>
+      )}
+      {compare && noticeThreat && (
+        <div className={s.quote}>
+          <p>Agreed · {oldClause?.text.split('30').map((part, index) => index ? <span key={index}><mark>30</mark>{part}</span> : part)}</p>
+          <p>v4 · {newClause?.text.split('90').map((part, index) => index ? <span key={index}><mark>90</mark>{part}</span> : part)}</p>
+          <dl>
+            <dt>Contract end</dt><dd>{formatDay(v4Dates.end)}</dd>
+            <dt>Last day to give notice in v4</dt><dd>{formatDay(v4Dates.lastNoticeDay)}{v4Dates.deadlineFlag ? ` · ${v4Dates.deadlineFlag}` : ''}</dd>
+            <dt>Internal reminder in v4 · 45 days earlier</dt><dd>{formatDay(v4Dates.reminder)}</dd>
+          </dl>
+        </div>
+      )}
 
+      <details style={{ marginTop: 6 }}>
+        <summary style={{ fontSize: 12, cursor: 'pointer' }}>Term details{payment ? ` · payment ${paymentUnchanged ? 'unchanged' : `v4 says ${plainValue(v4PaymentValue)}`}` : ''}</summary>
       {price && (
         <div className={s.termRow}>
           <div className={s.termHead}>
@@ -244,26 +277,11 @@ function RoundFourCard({ rows }: { rows: LedgerRow[] }) {
             </Badge>
           </div>
           <RowMoney row={notice} />
-          <div className={s.actions}>
-            <Button size="small" data-tour="compare-14.2" aria-expanded={compare} onClick={() => setCompare(!compare)}>
-              Compare clause 14.2
-            </Button>
-          </div>
-          {compare && (
-            <div className={s.quote}>
-              <p>Agreed · {oldClause?.text.split('30').map((part, index) => index ? <span key={index}><mark>30</mark>{part}</span> : part)}</p>
-              <p>v4 · {newClause?.text.split('90').map((part, index) => index ? <span key={index}><mark>90</mark>{part}</span> : part)}</p>
-              <dl>
-                <dt>Contract end</dt><dd>{beforeEnd(0)}</dd>
-                <dt>Last day to give notice in v4</dt><dd>{beforeEnd(90)}</dd>
-                <dt>Internal reminder in v4 · 45 days earlier</dt><dd>{beforeEnd(135)}</dd>
-              </dl>
-            </div>
-          )}
           {noticeTag && <details><summary>How calculated</summary>{noticeTag.proof.map((line) => <p key={line}>{line}</p>)}</details>}
           <MoveBox row={notice} />
         </div>
       )}
+      </details>
     </Block>
   );
 }
@@ -321,6 +339,9 @@ function SideThreadFlow({ rows, onDraftReply }: { rows: LedgerRow[]; onDraftRepl
 /** The side thread is linked on its own (same supplier domain, Rohan named Vikram), with Undo. */
 function AutoLinkBar() {
   const s = usePaneStyles();
+  const openSource = useSourceDrawer((st) => st.open);
+  const confirmed = useDemo((st) => st.tourClicks.includes('confirm-link-T2'));
+  const markTour = useDemo((st) => st.markTour);
   const linked = useDemo((st) => st.linkedThreadIds).includes('T2');
   const undo = useDemo((st) => st.undoLink);
   const toast = useDemo((st) => st.toast);
@@ -344,16 +365,37 @@ function AutoLinkBar() {
     );
   }
 
+  const evidence = messageById('M9');
+  const quote = evidence?.body.split(/(?<=[.?!])\s/).find((x) => /credit|uptime|vikram/i.test(x)) ?? evidence?.body;
+
+  if (confirmed) {
+    return (
+      <div className={s.card} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12.5 }}>
+        <LinkRegular fontSize={14} /> <span style={{ flex: 1 }}>{thread?.subject} · linked to CloudDesk MSA</span>
+        <OriginTag kind="new" />
+        <Button size="small" appearance="subtle" icon={<ArrowUndoRegular />} onClick={() => { undo('T2'); toast('Link undone. The side thread is treated as not this deal.'); }}>
+          Undo
+        </Button>
+      </div>
+    );
+  }
+
+  // Review fix C4: evidence and a question, not a match score.
   return (
-    <Block title="Side thread" kind="new">
-      <div style={{ fontSize: 12.5, fontWeight: 600 }}>
-        <LinkRegular fontSize={14} /> Linked automatically: {thread?.subject}
+    <Block title="Side thread" kind="new" accent>
+      <div style={{ fontSize: 13.5, fontWeight: 600, lineHeight: '19px' }}>
+        Rohan mentions Vikram. Is this uptime thread part of CloudDesk?
       </div>
-      <div className={s.cardMeta} style={{ marginBottom: 4 }}>
-        {personName('vikram')} ↔ {personName('rohan')} · {formatDateShort('2026-11-15T09:40:00+05:30')} · same supplier domain, and Rohan names Vikram
-      </div>
+      {evidence && (
+        <p className={s.quote} style={{ marginTop: 6 }}>
+          Rohan to Vikram, {formatDateShort(evidence.sentAt)}: “{quote}”{' '}
+          <Button size="small" appearance="transparent" onClick={() => openSource({ kind: 'email', messageId: evidence.id, quote: quote ?? '', at: evidence.sentAt, byPersonId: 'rohan' }, true)}>
+            Source
+          </Button>
+        </p>
+      )}
       <details>
-        <summary style={{ fontSize: 11.5 }}>Why it was matched</summary>
+        <summary style={{ fontSize: 11.5 }}>Why it was suggested</summary>
         {SIGNALS.map((sig) => (
           <div key={sig.label} className={s.signal}>
             {sig.on ? (
@@ -366,16 +408,11 @@ function AutoLinkBar() {
         ))}
       </details>
       <div className={s.actions}>
-        <Button
-          size="small"
-          appearance="outline"
-          icon={<ArrowUndoRegular />}
-          onClick={() => {
-            undo('T2');
-            toast('Link undone. The side thread is treated as not this deal.');
-          }}
-        >
-          Undo · not this deal
+        <Button size="small" appearance="primary" onClick={() => { markTour('confirm-link-T2'); toast('Linked to CloudDesk MSA. Only this thread is read.'); }}>
+          Link to CloudDesk MSA
+        </Button>
+        <Button size="small" appearance="outline" onClick={() => { undo('T2'); toast('Marked not related. Its body is not read.'); }}>
+          Not related
         </Button>
       </div>
     </Block>
@@ -400,11 +437,14 @@ function ConfirmCreditCard({ row, onDraftReply }: { row: LedgerRow; onDraftReply
         <span className={s.termName}>{row.label}</span>
         <StateBadge state="needs_confirmation" />
       </div>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, marginTop: 6 }}>
+        <div className={s.quote} style={{ margin: 0 }}>Ananya asked for <strong>10%</strong> ({formatDateShort(ourOffer.sentAt)})</div>
+        <div className={s.quote} style={{ margin: 0 }}>Vikram offered <strong>5%</strong> ({formatDateShort(vikramOffer.sentAt)})</div>
+      </div>
       <p style={{ fontSize: 12.5, lineHeight: '18px', marginTop: 6 }}>
-        Rohan wrote “{row.pendingConfirmation?.quote}”. Two offers were open:
+        Rohan replied “{row.pendingConfirmation?.quote}” ({formatDateShort(row.pendingConfirmation?.messageId ? messageById(row.pendingConfirmation.messageId)?.sentAt ?? row.source.at : row.source.at)}). It isn&apos;t clear which offer he means.
       </p>
-      <p className={s.quote}><strong>10%</strong> · you, {formatDateShort(ourOffer.sentAt)} · “{ourOffer.body}”</p>
-      <p className={s.quote}><strong>5%</strong> · {personName('vikram')}, {formatDateShort(vikramOffer.sentAt)}, side thread · “{vikramOffer.body}”</p>
+      <p style={{ fontSize: 12.5, margin: '2px 0 0' }}>Status: <strong>Supplier response ambiguous</strong></p>
       <div style={{ marginTop: 8 }}>
         <span className={s.money}>{formatLakh(gap.costLakhPerYr)}</span>{' '}
         <span className={s.moneySuffix}>{HEADLINE_SUFFIX} if it is 5%</span>
@@ -418,13 +458,13 @@ function ConfirmCreditCard({ row, onDraftReply }: { row: LedgerRow; onDraftReply
           data-tour="send-clarification"
           onClick={() => onDraftReply(CLARIFY_DRAFT, { kind: 'clarify' })}
         >
-          Send clarification
+          Draft clarification
         </Button>
         <Button size="small" appearance="outline" onClick={() => setManual((v) => !v)}>
           I already confirmed it
         </Button>
       </div>
-      <p className={s.grey}>The question goes in the supplier thread, so Rohan’s answer becomes the source.</p>
+      <p className={s.grey}>Opens a draft in the supplier thread; you press Send. Rohan’s answer becomes the source.</p>
 
       {manual && (
         <div style={{ marginTop: 10 }}>

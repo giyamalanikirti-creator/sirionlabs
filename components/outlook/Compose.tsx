@@ -23,11 +23,13 @@ import {
 import { personByEmail } from '@/lib/data';
 
 const useStyles = makeStyles({
-  pane: { flexGrow: 1, minWidth: 0, display: 'flex', flexDirection: 'column', minHeight: 0 },
+  pane: { flexGrow: 1, minWidth: 0, display: 'flex', flexDirection: 'column', minHeight: 0, overflow: 'hidden' },
   top: {
     display: 'flex',
+    flexWrap: 'wrap',
     alignItems: 'center',
     columnGap: '8px',
+    rowGap: '6px',
     ...shorthands.padding('12px', '20px'),
     ...shorthands.borderBottom('1px', 'solid', tokens.colorNeutralStroke2),
   },
@@ -66,6 +68,7 @@ export function Compose({
   chips,
   onRemoveAttachment,
   summary,
+  notice,
 }: {
   to: string[];
   cc: string[];
@@ -81,6 +84,8 @@ export function Compose({
   onRemoveAttachment?: (name: string) => void;
   /** Pre-send summary (review fix A1): recipient, attachment version, changes, still open. */
   summary?: { changes: string[]; stillOpen: string[] };
+  /** A thin bar under the toolbar: check unavailable, or the sentence to edit (review fix C5). */
+  notice?: ReactNode;
 }) {
   const s = useStyles();
 
@@ -187,6 +192,7 @@ export function Compose({
         )}
       </div>
 
+      {notice}
       <div className={s.toolbar}>
         <TextBoldRegular fontSize={16} />
         <TextItalicRegular fontSize={16} />

@@ -165,6 +165,11 @@ export function AskAnswerCard({ answer, onAction, onFollowUp }: { answer: AskAns
                     </span>
                     <span className={`text-right ${r.highlight ? 'font-semibold text-teal-900' : 'text-ink'}`}>{r.valueText}</span>
                   </button>
+                  {r.action && (
+                    <button onClick={() => go(r.action!.href)} className="ml-[140px] text-[12px] font-semibold text-teal-900 hover:underline">
+                      {r.action.label} →
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

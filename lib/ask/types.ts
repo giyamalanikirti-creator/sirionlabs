@@ -37,7 +37,8 @@ export type IntentId =
   | 'portfolio_at_risk'
   | 'invoice_mismatch'
   | 'draft_reply'
-  | 'suggest_term';
+  | 'suggest_term'
+  | 'internal_conflict';
 
 export interface Slots {
   term?: TermKey;
@@ -104,6 +105,8 @@ export interface AskChartRow {
   valueText: string;
   highlight?: boolean;
   href?: string;
+  /** The deal's next action (review fix C12). */
+  action?: { label: string; href: string };
 }
 
 export interface AskAnswer {

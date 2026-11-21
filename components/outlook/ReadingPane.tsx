@@ -19,6 +19,23 @@ import {
 import type { EmailMessage } from '@/lib/types';
 import { personByEmail } from '@/lib/data';
 import { formatDateTime } from '@/lib/format';
+import { useDemo } from '@/lib/store';
+
+/** "Filed to CloudDesk · v4" (review fix C9). Opens the version in Sirion; re-opening never adds a version. */
+function FiledChip({ versionId, onOpen }: { versionId: string; onOpen: () => void }) {
+  return (
+    <button
+      onClick={(e) => {
+        e.stopPropagation();
+        onOpen();
+      }}
+      title="Filed in Sirion on arrival (proposed). Opens the version in Sirion."
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 4, marginTop: 4, padding: '1px 8px', borderRadius: 999, border: '1px solid #9CCBC1', background: '#E3F1EE', color: '#0C5E69', fontSize: 11.5, fontWeight: 600, cursor: 'pointer' }}
+    >
+      Filed to CloudDesk · {versionId}
+    </button>
+  );
+}
 
 const useStyles = makeStyles({
   pane: { flexGrow: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflowY: 'auto' },
@@ -90,6 +107,8 @@ export function ReadingPane({
 }) {
   const s = useStyles();
   const router = useRouter();
+  const synced = useDemo((st) => st.syncedVersionIds);
+  const filed = message?.attachments.filter((a) => a.versionId && synced.includes(a.versionId)) ?? [];
 
   if (!message) {
     return (
@@ -131,6 +150,11 @@ export function ReadingPane({
               <span className={s.date}>{formatDateTime(message.sentAt)}</span>
             </div>
             <div className={s.recipients}>To: {message.to.join('; ')}</div>
+            {filed.length > 0 && (
+              <div style={{ marginTop: 4 }}>
+                <FiledChip versionId={filed[0].versionId!} onOpen={() => router.push('/deals/D-CLOUDDESK?tab=rounds')} />
+              </div>
+            )}
             {message.cc.length > 0 && <div className={s.recipients}>Cc: {message.cc.join('; ')}</div>}
           </div>
         </div>
@@ -150,6 +174,7 @@ export function ReadingPane({
                 <div className={s.attachmentBody}>
                   <div className={s.attachmentName}>{a.fileName}</div>
                   <div className={s.attachmentSize}>{a.sizeKb} KB</div>
+                  {a.versionId && synced.includes(a.versionId) && <FiledChip versionId={a.versionId} onOpen={() => router.push('/deals/D-CLOUDDESK?tab=rounds')} />}
                 </div>
                 <ChevronRightRegular fontSize={14} color={tokens.colorNeutralForeground3} />
               </div>

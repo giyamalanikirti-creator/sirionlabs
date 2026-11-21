@@ -7,6 +7,7 @@ import { rowHeadlineShare } from '@/lib/engines/playbook';
 import { formatLakh } from '@/lib/format';
 import { plainValue, STATE_LABELS } from '@/lib/plain';
 import { usePaneStyles } from './paneStyles';
+import { useDemo } from '@/lib/store';
 
 const BADGE: Record<RowState, { color: 'success' | 'informative' | 'brand' | 'warning' | 'severe' | 'danger'; appearance: 'filled' | 'outline' }> = {
   agreed: { color: 'success', appearance: 'filled' },
@@ -27,8 +28,11 @@ export function StateBadge({ state, conditional }: { state: RowState; conditiona
 }
 
 /** The compact seven-row ledger that sits under the round card (§10.5). */
+const HOLD_LABEL = { waiting_lead: 'Waiting for Ananya', conceded_pending: 'Conceded by IT · pending review' } as const;
+
 export function LedgerList({ rows, compact = false }: { rows: LedgerRow[]; compact?: boolean }) {
   const s = usePaneStyles();
+  const holds = useDemo((st) => st.termHolds);
   return (
     <div>
       {rows.map((r) => {
@@ -46,6 +50,11 @@ export function LedgerList({ rows, compact = false }: { rows: LedgerRow[]; compa
                 </span>
               ) : null}
               <StateBadge state={r.state} conditional={Boolean(r.condition)} />
+              {holds[r.termKey] && (
+                <Badge appearance="outline" color={holds[r.termKey] === 'conceded_pending' ? 'danger' : 'warning'} size="small">
+                  {HOLD_LABEL[holds[r.termKey]!]}
+                </Badge>
+              )}
             </span>
           </div>
         );

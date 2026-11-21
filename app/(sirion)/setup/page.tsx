@@ -6,6 +6,7 @@
  * demo strip replays it.
  */
 import Link from 'next/link';
+import { AccessStates } from '@/components/sirion/AccessStates';
 import { Check, ExternalLink } from 'lucide-react';
 import { Button, PageHeader, SirionCard } from '@/components/sirion/ui';
 import { useDemo } from '@/lib/store';
@@ -107,7 +108,7 @@ export default function SetupPage() {
             <Row n={3} done={setup.group} title="Choose connected mailboxes" who="Sirion admin" caption="Deal Ledger can only read mailboxes in this group" tag="new">
               <div className="w-full rounded-lg border border-line p-3 text-[12px]">
                 <p className="font-medium text-ink">{CONNECTED_GROUP}</p>
-                <p className="mt-1 text-muted">Default members (Procurement, Legal, Finance): {defaults.map((p) => p.name).join(', ')}</p>
+                <p className="mt-1 text-muted">Default deal members (Procurement, Legal, Finance), who can be added to a deal: {defaults.map((p) => p.name).join(', ')}. Membership alone does not connect a mailbox; see the table below.</p>
                 <p className="mt-0.5 text-muted">
                   Business owners, added per deal by the deal owner: {owners.length ? owners.map((p) => `${p.name} (CloudDesk)`).join(', ') : 'none yet'}
                 </p>
@@ -136,6 +137,9 @@ export default function SetupPage() {
         </SirionCard>
 
         <div className="grid content-start gap-4">
+          <SirionCard title="Per person" caption="Add-in available · Mailbox connected · Negotiation tracked" bodyClassName="px-0 pb-0 pt-0">
+            <AccessStates />
+          </SirionCard>
           <SirionCard title="Rules" caption="The same rules as Privacy and admin">
             <ul className="space-y-2 text-[12.5px]">
               <li className="flex gap-2"><Check size={14} className="mt-0.5 shrink-0 text-teal-900" /> Read only threads with a live deal&apos;s supplier domain.</li>
