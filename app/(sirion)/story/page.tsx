@@ -8,6 +8,10 @@ export default function StoryPage() {
     path.join(process.cwd(), 'content', 'story.md'),
     'utf8',
   );
-  // The story runs on today's calendar: dates written in the case move with it.
-  return <StoryView markdown={shiftText(markdown)} />;
+  // The story runs on today's calendar: dates written in the case move with it,
+  // except dates marked {{keep:…}} (publication dates, past quarters).
+  const kept: string[] = [];
+  const guarded = markdown.replace(/\{\{keep:([^}]+)\}\}/g, (_, t: string) => `\u0000${kept.push(t) - 1}\u0000`);
+  const shifted = shiftText(guarded).replace(/\u0000(\d+)\u0000/g, (_, i: string) => kept[Number(i)]);
+  return <StoryView markdown={shifted} />;
 }

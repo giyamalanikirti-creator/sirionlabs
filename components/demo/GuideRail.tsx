@@ -55,9 +55,9 @@ function useWindowWidth() {
 
 const STORY_LINKS = [
   { label: 'Why negotiation', href: '/story#1-why-negotiation' },
-  { label: 'The problem', href: '/story#2-the-problem' },
-  { label: 'Stakeholder map', href: '/story#3-stakeholder-map' },
-  { label: 'Success measures', href: '/story#5-success-measures' },
+  { label: 'Stakeholder map', href: '/story#2-stakeholder-map' },
+  { label: 'The problem', href: '/story#3-the-problem' },
+  { label: 'Success metrics', href: '/story#5-success-metrics' },
 ];
 
 export function GuideRail() {

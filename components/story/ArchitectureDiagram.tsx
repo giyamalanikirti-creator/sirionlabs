@@ -73,7 +73,7 @@ export function ArchitectureDiagram() {
         <text x={10} y={334} fontSize={10.5} fontWeight={700} fill={MUTED} letterSpacing="0.06em">SIRION TODAY</text>
         <Box x={10} y={342} w={140} h={84} title="Repository" tone="mint" lines={['Contract record', 'and versions']} />
         <Box x={158} y={342} w={140} h={84} title="Approvals" tone="mint" lines={['Routed by value', '(CFO, Legal)']} />
-        <Box x={306} y={342} w={148} h={84} title="Obligations agent" tone="mint" lines={['Deadlines and', 'renewal brief']} />
+        <Box x={306} y={342} w={148} h={84} title="Calendar · obligations" tone="mint" lines={['Deadlines, owners', 'and renewal brief']} />
         <Box x={462} y={342} w={146} h={84} title="Invoice check" tone="mint" lines={['Reconciliation', 'against signed terms']} />
         <Box x={616} y={342} w={134} h={84} title="Counterparty" tone="mint" lines={['portal: share v7', 'for signature']} />
       </svg>

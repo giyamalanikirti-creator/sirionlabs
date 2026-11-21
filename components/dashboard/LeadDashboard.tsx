@@ -263,9 +263,9 @@ export { formatPct };
 
 const CASE_LINKS = [
   { href: '/story#1-why-negotiation', label: 'Why this stage' },
-  { href: '/story#2-the-problem', label: 'The problem' },
-  { href: '/story#3-stakeholder-map', label: 'Stakeholder map' },
-  { href: '/story#5-success-measures', label: 'Success measures' },
+  { href: '/story#2-stakeholder-map', label: 'Stakeholder map' },
+  { href: '/story#3-the-problem', label: 'The problem' },
+  { href: '/story#5-success-metrics', label: 'Success metrics' },
 ];
 
 /** Review fix B3/C1: one primary action, the rest as text links, the case one click away. */

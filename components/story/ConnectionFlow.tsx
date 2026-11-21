@@ -4,26 +4,28 @@ import { CAPTURE_ADDRESS, CONNECTED_GROUP } from '@/lib/settings';
 import { shiftText } from '@/lib/demo/timeShift';
 
 const STEPS = [
-  { title: 'Admin, once', lines: ['Consent: read connected', 'mailboxes; deploy add-ins'] },
-  { title: 'Track', lines: ['Owner says yes on the', 'first supplier email'] },
-  { title: 'Link', lines: ['Strong matches link', 'with Undo; weak ones ask'] },
-  { title: 'Check at Send', lines: ['Anyone replying to a', 'tracked supplier'] },
-  { title: 'Word', lines: ['Tagged file opens', 'connected, on Review'] },
-  { title: 'Publish', lines: ['Signing check first;', 'asks only on a gap'] },
-  { title: 'Handover', lines: ['Obligations and', 'invoice rules'] },
+  { title: 'Admin, once', lines: ['Deploy add-ins to a named', 'mailbox group; consent only', 'to permitted access'] },
+  { title: 'Track', lines: ['Ananya opts this live', 'negotiation in; or selects', 'threads, or copies deals@'] },
+  { title: 'Link', lines: ['Strong header-and-deal match', 'links with Undo; a weaker one', 'needs the owner; body read after'] },
+  { title: 'Check at Send', lines: ['Anyone connected emailing', 'the tracked supplier; no', 'supplier app, no internal mail'] },
+  { title: 'Review in Word', lines: ['A Sirion-tagged file attaches', 'to its record; otherwise the', 'user confirms a match'] },
+  { title: 'Publish', lines: ['Final-file gate asks for an', 'owner and approval only', 'when a gap remains'] },
+  { title: 'Handover', lines: ['Obligations, dates and invoice', 'rules from signed text, with', 'their source trail'] },
 ];
 
+
+/** Moments that require a person. */
 const PROMPTS = [
-  ['Track this negotiation?', 'The deal owner opens a supplier email that matches a record in Negotiating, not yet tracked', 'Deal owner', 'That supplier’s threads in connected mailboxes, from when the record opened'],
-  ['Link this thread?', 'A weak match, e.g. Rohan names Vikram', 'Deal owner', 'Headers only until linked; then that one thread'],
-  ['This looks like the CloudDesk MSA', 'A contract file opens in Word without the Sirion tag', 'Whoever opens it', 'The file’s clause text, compared with versions Sirion holds'],
-  ['Publish gate', 'Publish when an agreed term is missing from the copy', 'Deal owner', 'Nothing new: the copy against the ledger'],
+  ['Track this negotiation?', 'First supplier email corresponding to a live Sirion deal', 'Ananya / deal owner', 'Named supplier’s threads in connected mailboxes, from deal opening'],
+  ['Link this thread?', 'Weak candidate match', 'Ananya / deal owner', 'Headers first; that supplier thread’s body only after linking'],
+  ['This looks like the CloudDesk MSA', 'Untagged Word file opened', 'Word user', 'File text versus authorised versions in Sirion'],
+  ['Publish with a gap?', 'Final copy differs from an agreed position', 'Deal owner plus required approver', 'Final file, ledger row and approval context; no new mailbox scope'],
 ];
 
 export function ConnectionFlow() {
   return (
     <section className="my-10" id="how-it-connects">
-      <h2 className="text-[18px] text-teal-title">How it connects</h2>
+      <h3 className="text-[16px] font-semibold text-teal-title">How it connects: setup and permissions</h3>
       <p className="mt-1 text-[13px] text-muted">
         Admins set up once; nobody is onboarded. Three prompts in the whole flow, each at a moment of intent, plus the publish gate.
       </p>
@@ -76,8 +78,8 @@ export function ConnectionFlow() {
           {CAPTURE_ADDRESS} cover them, and they are told once when one of their threads is linked.
         </li>
         <li>
-          <strong>Fail open.</strong> If the add-in isn&apos;t deployed to someone, they aren&apos;t signed in, or the check at Send takes more than about
-          3 seconds, the email sends as usual. Word opens as usual, and the pane says what is missing.
+          <strong>Fail open, visibly.</strong> If the add-in isn&apos;t deployed to someone, they aren&apos;t signed in, or the check at Send takes more than about
+          3 seconds, the email sends as usual and says <strong>Not checked</strong>, rather than implying protection. Word opens as usual, and the pane says what is missing.
         </li>
         <li>
           <strong>Word recognises a file</strong> by the Sirion tag every stored version carries; if a supplier re-saved it, by comparing clause text with
