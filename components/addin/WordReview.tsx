@@ -110,7 +110,7 @@ function ConditionBlock({ issue, row, version, actions }: { issue: ReviewIssue; 
       {l.costLakhPerYr !== null && <div style={{ marginTop: 2 }}>Expected {formatLakh(l.costLakhPerYr)} a year</div>}
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8, flexWrap: 'wrap' }}>
         {check.state === 'met' ? (
-          <Button size="small" appearance="primary" data-tour="propose-agreed" disabled={inserted || actions.locked} onClick={() => actions.onInsertAgreed(issue)}>
+          <Button size="small" appearance="primary" data-tour="propose-agreed" data-ask-avoid disabled={inserted || actions.locked} onClick={() => actions.onInsertAgreed(issue)}>
             {inserted ? `Proposed ${agreed} in Word` : `Propose ${agreed} in Word`}
           </Button>
         ) : (

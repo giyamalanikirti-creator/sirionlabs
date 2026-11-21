@@ -42,6 +42,13 @@ export function LedgerList({ rows, compact = false }: { rows: LedgerRow[]; compa
             <span className={s.listName}>
               <span style={{ display: 'block', fontWeight: 600 }}>{r.label}</span>
               <span className={s.listValue}>{plainValue(r.position)}</span>
+              {holds[r.termKey] && (
+                <span style={{ display: 'block', marginTop: 2 }}>
+                  <Badge appearance="outline" color={holds[r.termKey] === 'conceded_pending' ? 'danger' : 'warning'} size="small">
+                    {HOLD_LABEL[holds[r.termKey]!]}
+                  </Badge>
+                </span>
+              )}
             </span>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
               {compact ? <span className={s.listValue}>{r.owner === 'legal' ? 'Legal' : personName(cloudDeskDeal.ownerId)}</span> : risk ? (
@@ -50,11 +57,6 @@ export function LedgerList({ rows, compact = false }: { rows: LedgerRow[]; compa
                 </span>
               ) : null}
               <StateBadge state={r.state} conditional={Boolean(r.condition)} />
-              {holds[r.termKey] && (
-                <Badge appearance="outline" color={holds[r.termKey] === 'conceded_pending' ? 'danger' : 'warning'} size="small">
-                  {HOLD_LABEL[holds[r.termKey]!]}
-                </Badge>
-              )}
             </span>
           </div>
         );

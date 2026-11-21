@@ -576,6 +576,11 @@ function SigningCopyCard({ rows }: { rows: LedgerRow[] }) {
             Checked on its own when the copy arrived: <strong>{gaps.length} gap{gaps.length === 1 ? '' : 's'}</strong>,{' '}
             {result.matches.length} terms match.
           </div>
+          <div className={s.actions}>
+            <Link href="/word/v6?from=sirion&clause=9.3" data-tour="quick-check" data-ask-avoid onClick={() => useDemo.getState().syncVersion('v6')}>
+              <Button size="small" appearance="primary">Check signing copy in Word</Button>
+            </Link>
+          </div>
           <div style={{ marginTop: 6 }}>
             <span className={s.money}>{formatLakh(copyReconciliation(gaps, cloudDeskDeal).totalLakh)}</span>{' '}
             <span className={s.moneySuffix}>a year (expected)</span>
@@ -594,11 +599,7 @@ function SigningCopyCard({ rows }: { rows: LedgerRow[] }) {
           {gaps.some((g) => g.termKey === 'payment') && (
             <p className={s.grey}>v6 reverted payment terms to the 45 days of v3. v4 and v5 said 60.</p>
           )}
-          <div className={s.actions}>
-            <Link href="/word/v6?from=sirion&clause=9.3" data-tour="quick-check" onClick={() => useDemo.getState().syncVersion('v6')}>
-              <Button size="small" appearance="primary">Check signing copy in Word</Button>
-            </Link>
-          </div>
+
         </>
       ) : (
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>

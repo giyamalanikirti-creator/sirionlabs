@@ -90,6 +90,11 @@ export function ConnectionFlow() {
           <strong>Gmail and Google Workspace</strong> follow the same flow with a Workspace add-on and the Gmail API; out of scope for this demo.
         </li>
       </ul>
+      <p className="mt-3 text-[13px] font-semibold text-ink">The pilot path</p>
+      <ul className="mt-1 list-disc space-y-1 pl-5 text-[13px] leading-[19px] text-ink">
+        <li>First release: the deal owner selects a thread explicitly, or the team copies a shared capture mailbox (deals@).</li>
+        <li>Later: background discovery across mailboxes, once the customer&apos;s admin configures access.</li>
+      </ul>
       <p className="mt-3 text-[12px]">
         <Link href="/setup" className="font-medium text-teal-900 underline">See how this was set up</Link> ·{' '}
         <Link href="/outlook/ananya?msg=M1&prequel=1" className="font-medium text-teal-900 underline">The first prompt, 1 Nov</Link>

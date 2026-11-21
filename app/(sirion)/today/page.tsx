@@ -28,6 +28,29 @@ const NEW = [
   { title: 'Handover with sources', body: 'Obligations and invoice rules each link back to the email line they came from.', step: 5 },
 ];
 
+/** Review fix D3: descriptive only, no claims about how Sirion works internally. */
+const EXISTING = [
+  'Word add-in redlining',
+  'Playbook review',
+  'Version comparison',
+  'Detecting untracked counterparty edits',
+  'Outlook: send for review or approval',
+  'Calendar and contract-linked reminders',
+  'Invoice-to-contract matching',
+];
+
+const PROPOSED = [
+  'Email evidence for each term',
+  'Conditional agreements',
+  'Filing on arrival',
+  'Side-thread linking',
+  'Send-time concession check',
+  'Signing copy against agreed terms',
+  'Signed copy against the reviewed version',
+  'Traceability from an invoice line to the signed clause to the negotiation evidence',
+  'Personal Outlook reminder',
+];
+
 const WORD_TODAY = [
   { title: 'Content Library', body: 'Insert approved clauses.' },
   { title: 'Review', body: 'Track changes, compare versions and flag risk with AI.' },
@@ -153,6 +176,34 @@ export default function TodayPage() {
           <FeatureList items={WORD_NEW} tone="new" />
         </section>
       </div>
+
+      <h2 className="mb-3 mt-8 text-[17px] font-semibold text-ink">Existing and proposed, side by side</h2>
+      <section className="overflow-hidden rounded-xl border border-line bg-white shadow-card">
+        <div className="grid md:grid-cols-2">
+          <div className="border-b border-line p-5 md:border-b-0 md:border-r">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h3 className="text-[15px] font-semibold text-ink">Sirion today</h3>
+              <Tag kind="today" />
+            </div>
+            <ul className="space-y-2 text-[14px] leading-[20px] text-ink">
+              {EXISTING.map((x) => (
+                <li key={x} className="flex gap-2"><Check size={15} className="mt-[2px] shrink-0 text-muted" />{x}</li>
+              ))}
+            </ul>
+          </div>
+          <div className="p-5">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h3 className="text-[15px] font-semibold text-teal-900">Proposed by Deal Ledger</h3>
+              <Tag kind="new" />
+            </div>
+            <ul className="space-y-2 text-[14px] leading-[20px] text-ink">
+              {PROPOSED.map((x) => (
+                <li key={x} className="flex gap-2"><Plus size={15} className="mt-[2px] shrink-0 text-teal-900" />{x}</li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </section>
 
       <h2 className="mb-3 mt-8 text-[17px] font-semibold text-ink">AskSirion and Deal Ledger</h2>
       <div className="grid gap-5 lg:grid-cols-2">

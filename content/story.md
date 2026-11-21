@@ -1,10 +1,16 @@
 # About this case
 
+**Before you sign, check the supplier’s final draft against what your team actually agreed in email.**
+
 Can Ananya sign CloudDesk’s renewal knowing it still contains the terms she agreed?
 
 ## 1. Why negotiation
 
 Price, payment, renewal notice and service credits are settled before a contract is signed. Once a term is missing from the signed copy, reminders and invoice checks can only enforce what the document says. A Sirion product lead we spoke to described negotiations moving between email and Word. Sirion describes the same workflow in its article on contract negotiation. [Sirion’s article on Word and email negotiations](https://www.sirion.ai/library/contract-insights/contract-negotiation-software-vs-email/)
+
+“AI reviews your contract in Word” is crowded. “Show me where we agreed this, whether it was conditional, and whether the exact file I’m about to sign keeps it” is the gap we’re going for. The hero example: the signing copy’s §9.3 says payment in 45 days, which company policy allows, while Rohan agreed 60 days on condition of a three-year term, and §3.1 gives three years.
+
+**Who we’d start with.** Procurement-led renewals where the supplier sends Word drafts by email, at least one business stakeholder negotiates outside the main thread, and the company can reach the previous contract and invoice history. CloudDesk fits all of these. BrightStaff tests whether the idea works in rate tables and schedules. SwiftShip (a new deal, PDF quote) is an expansion case.
 
 ## 2. The problem
 
@@ -30,13 +36,31 @@ WorldCC research estimates that businesses lose almost 9% of value through poor 
 4. **Verify the signing copy.** The check runs when the clean copy arrives. Each gap offers the agreed wording, the playbook fallback or the walk-away, each priced.
 5. **See the handover.** One screen turns signed terms into obligations and invoice checks. The December invoice is ₹32,000 above the signed price.
 
-Two more suppliers show other patterns: BrightStaff (a rate card table that disagrees with the email, then a timesheet invoice that overbills) and SwiftShip (a new deal started from an email, with the terms read from a PDF quote).
+Two more suppliers show other patterns: BrightStaff (clause 6 and the Schedule 2 rate card disagree inside the signing copy; after signing, the invoice follows the schedule and goes to the contract owner) and SwiftShip (an expansion case: a new deal started from an email, with the terms read from a PDF quote).
 
 ## 5. Success measures
 
 **North star:** The share of audited signed contracts with every agreed term reflected in the signed copy. Reviewers compare a sample with the original correspondence and report authorised waivers separately.
 
-Also track days from the final supplier email to signature and the share of rated warnings reviewers found useful. Revisit the workflow if signing takes longer, too many rows need human confirmation, or warnings rarely help people make a decision.
+**How we’ll know it works.**
+
+- **Differentiation metric:** of the material discrepancies reviewers confirmed, the share that passed the playbook but contradicted a deal-specific agreement.
+- **Pilot design:** replay the same historical deals through ordinary Sirion review and through review with Deal Ledger, then compare catches.
+- **Guardrails, tracked alongside catches:** false “agreed” labels (a term shown as agreed that wasn’t); extra reviewer minutes per deal; ambiguous items left unresolved at signature.
+- Also: days from the final supplier email to signature, and the share of rated warnings reviewers found useful.
+
+**What would make us rethink.**
+
+- Most confirmed catches turn out to be ones the playbook already finds.
+- False agreement labels go above a threshold the team sets (we assume 2% of terms).
+- Reviewer time goes up without more catches.
+- Signing takes longer, or too many rows need human confirmation.
+
+**What changed after review.**
+
+- **Honest labels.** Every ₹ headline names its version, scope and as-of time, with a reconciliation line; negotiation status and draft match are shown separately; proposed automation is tagged new; no claim that credits are owed before a signed SLA is checked; the reply with v5 says what is still open.
+- **The conditional-agreement hero.** §9.3 passes company policy but not what Rohan agreed (60 days if the term is three years); the check reads the condition against §3.1 in the same file, and Propose 60 days writes a visible tracked change.
+- **After-signature traceability.** The handover shows owner, date and signed clause for each line, checks the signed copy against the reviewed one, computes renewal dates with a weekend rule and a send-by date for Legal, and routes BrightStaff's internal conflict to the contract owner rather than disputing it.
 
 <!-- technical-appendix -->
 
@@ -52,7 +76,7 @@ The reader proposes terms with exact quotations. Deal Ledger checks those quotat
 
 **Privacy.** Only connected mailboxes are read, and only threads on a live deal's supplier domain. Internal-only email is never read or checked. Email bodies are not stored; only the quoted line is kept. Business owners see agreed terms and the ₹ figure in a warning, not the cost workings.
 
-**What is Sirion today and what is new.** Each block in the Outlook pane is marked. Sirion's plugin already matches the deal, files the attachment as the next version, shows an IssueDetection playbook summary, sends for review or approval and opens the draft in Word; its Word add-in shows Redline Agent suggestions with preferred, fallback and walk-away positions. Deal Ledger adds the email side: what was agreed in the text, the side threads, the check at Send, a ₹ figure on every gap and a recommended move with its leverage.
+**What is Sirion today and what is new.** Each block in the Outlook pane is marked. Sirion's plugin already matches the contract, lets users sync the attachment as the next version, shows an IssueDetection playbook summary, sends for review or approval and opens the draft in Word; its Word add-in shows Redline Agent suggestions with preferred, fallback and walk-away positions. Deal Ledger adds the email side: what was agreed in the text, the side threads, the check at Send, a ₹ figure on every gap and a recommended move with its leverage.
 
 **The check at Send warns, never blocks.** It runs for anyone at Meridian replying to a supplier with a live deal; internal-only email is never checked. It reads recipients, the body and attachment names, and compares them with the ledger: a reply that reopens an agreed term, gives away an open one, settles a term still being confirmed, or attaches an older version gets one alert with the cost, the approval at risk and the sentence in the draft. The choices are Loop in procurement, Edit reply (a supplier-safe rewrite goes in place) or Send anyway with a one-tap reason, which marks the term reopened and tells procurement. A reply that matches the ledger sends with “Checked against ledger ✓”. In production this is an Outlook Smart Alerts add-in in the mode that lets the user send anyway; if the user is not signed in or the check takes longer than about three seconds, the email sends as usual. The demo's check is deterministic rules, no model.
 

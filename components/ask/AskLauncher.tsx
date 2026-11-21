@@ -78,14 +78,20 @@ export function AskLauncher() {
   useEffect(() => {
     const check = () => {
       setModal(Boolean(document.querySelector('[aria-modal="true"]:not([data-asksirion]), [role="alertdialog"]')));
-      const target = document.querySelector('.tour-target');
+      // Coach-mark targets and key task buttons (data-ask-avoid): never under the launcher.
+      const targets = [...document.querySelectorAll('.tour-target, [data-ask-avoid]')];
       const frameEl = document.getElementById('app-frame');
-      if (!target || !frameEl) return setLift(0);
-      const t = target.getBoundingClientRect();
+      if (!targets.length || !frameEl) return setLift(0);
       const f = frameEl.getBoundingClientRect();
       const box = { left: f.right - right - size - 8, right: f.right - right + 8, top: f.bottom - bottomBase - size - 8, bottom: f.bottom - bottomBase + 8 };
-      const overlaps = t.right > box.left && t.left < box.right && t.bottom > box.top && t.top < box.bottom;
-      setLift(overlaps ? Math.round(box.bottom - t.top + 16) : 0);
+      let lift = 0;
+      for (const el of targets) {
+        const t = el.getBoundingClientRect();
+        if (!t.width || !t.height) continue;
+        const overlaps = t.right > box.left && t.left < box.right && t.bottom > box.top && t.top < box.bottom;
+        if (overlaps) lift = Math.max(lift, Math.round(box.bottom - t.top + 16));
+      }
+      setLift(lift);
     };
     check();
     const id = window.setInterval(check, 300);
