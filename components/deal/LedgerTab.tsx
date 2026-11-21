@@ -77,7 +77,7 @@ export function LedgerTab({ rows, initialRow }: { rows: LedgerRow[]; initialRow?
                   <Td className="text-ink/85">{plainValue(row.position, cloudDeskDeal.termYears)}</Td>
                   <Td>
                     <span className="flex flex-wrap items-center gap-1.5">
-                      <StatePill state={row.state} />
+                      <StatePill state={row.state} condition={row.condition?.text} />
                       {newAsk && <NewAskBadge />}
                       <SigningBadge signing={row.signing} />
                     </span>

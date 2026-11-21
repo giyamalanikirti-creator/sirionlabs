@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Button, MessageBar, MessageBarBody, Spinner, Tab, TabList, makeStyles } from '@fluentui/react-components';
 import { trackChangesOffConsequences, untrackedWarning } from '@/lib/engines/trackChanges';
+import { conditionalComment } from '@/lib/engines/conditions';
 import { CompareTab, DraftTab, STATUS_TEXT, withAgreedWording } from '@/components/addin/WordTabs';
-import { ApproveTab, IssueCard, WordHeader, type IssueActions } from '@/components/addin/WordReview';
+import { ApproveTab, IssueCard, policyAllowsButDiffers, WordHeader, type IssueActions } from '@/components/addin/WordReview';
 import { WordConnect, type WordConnection } from '@/components/addin/WordConnect';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { guardClauseEdit, lensForVersion, reviewIssues, type ClauseLens, type ReviewIssue } from '@/lib/engines/wordLens';
@@ -97,9 +98,6 @@ export function WordApp({ versionId }: { versionId: string }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hydrated, versionId, clock, checkedAt, connected]);
 
-  useEffect(() => {
-    if (versionId === 'v7') anchorRefs.current['9.1']?.scrollIntoView({ block: 'center' });
-  }, [versionId, version]);
 
   /* Tracked changes and comments come from the rows whose wording we inserted. */
   const { edits, comments } = useMemo(() => {
@@ -143,7 +141,7 @@ export function WordApp({ versionId }: { versionId: string }) {
         clauseNo: clause.no,
         author: 'Ananya Rao',
         initials: 'AR',
-        text: row.supplierNote,
+        text: conditionalComment(row, cloudDeskDeal) ?? row.supplierNote,
       });
     }
     // Edits typed in Word replace any earlier markup on that clause.
@@ -178,6 +176,29 @@ export function WordApp({ versionId }: { versionId: string }) {
     };
   }, [version, edits]);
   const review = useMemo(() => (working ? reviewIssues(working, rows, cloudDeskDeal) : { issues: [], matches: 0 }), [working, rows]);
+  /* Open on the clause that matters (review fix B4): ?clause=9.3, else the first card in the Review list, never Definitions. */
+  const clauseParam = params.get('clause');
+  const openedOn = useRef<string | null>(null);
+  useEffect(() => {
+    if (!hydrated || !version) return;
+    if (versionId === 'v6' && !checkedAt && !clauseParam) return;
+    const key = `${versionId}:${clauseParam ?? ''}`;
+    if (openedOn.current === key) return;
+    const target = clauseParam ?? (versionId === 'v7' ? '9.1' : review.issues[0]?.clauseNo);
+    if (!target) return;
+    openedOn.current = key;
+    requestAnimationFrame(() => {
+      setHighlightedClause(target);
+      anchorRefs.current[target]?.scrollIntoView({ block: 'center' });
+      if (clauseParam) {
+        useDemo.getState().markTour(`issue-${clauseParam}`);
+        setTab('review');
+        setExpanded(clauseParam);
+        requestAnimationFrame(() => document.getElementById(`issue-${clauseParam}`)?.scrollIntoView({ block: 'nearest' }));
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, versionId, version, checkedAt, clauseParam, review.issues.length]);
   const chips = Object.fromEntries(
     review.issues
       .filter((i) => i.costLakhPerYr !== null && i.costLakhPerYr > 0)
@@ -477,18 +498,28 @@ export function WordApp({ versionId }: { versionId: string }) {
                   <span style={{ fontSize: 13, fontWeight: 600 }}>{versionId === 'v6' ? 'Signing check' : 'Review'}</span>
                   <span style={{ display: 'flex', gap: 4 }}><OriginTag kind="today" /><OriginTag kind="new" /></span>
                 </div>
-                {review.issues.map((issue) => (
-                  <IssueCard
-                    key={issue.clauseNo}
-                    issue={issue}
-                    version={working ?? version}
-                    rows={rows}
-                    expanded={expanded === issue.clauseNo}
-                    onToggle={() => setExpanded((e) => (e === issue.clauseNo ? undefined : issue.clauseNo))}
-                    actions={issueActions}
-                    resolvedLabel={rowOf(issue)?.signing === 'waived' ? 'Accepted · waiver logged' : undefined}
-                  />
-                ))}
+                {[
+                  { key: 'policy-ok', title: 'Company policy allows these, but they differ from what was agreed', items: review.issues.filter(policyAllowsButDiffers) },
+                  { key: 'rest', title: undefined, items: review.issues.filter((i) => !policyAllowsButDiffers(i)) },
+                ].map((group) =>
+                  group.items.length ? (
+                    <div key={group.key} style={group.title ? { marginBottom: 10, padding: '8px 8px 2px', borderRadius: 6, background: '#F0F7F6', border: '1px solid #CFE4E0' } : undefined}>
+                      {group.title && <div style={{ fontSize: 12.5, fontWeight: 600, margin: '0 2px 6px', color: '#0C5E69' }}>{group.title}</div>}
+                      {group.items.map((issue) => (
+                        <IssueCard
+                          key={issue.clauseNo}
+                          issue={issue}
+                          version={working ?? version}
+                          rows={rows}
+                          expanded={expanded === issue.clauseNo}
+                          onToggle={() => setExpanded((e) => (e === issue.clauseNo ? undefined : issue.clauseNo))}
+                          actions={issueActions}
+                          resolvedLabel={rowOf(issue)?.signing === 'waived' ? 'Accepted · waiver logged' : undefined}
+                        />
+                      ))}
+                    </div>
+                  ) : null,
+                )}
                 <div style={{ fontSize: 12, color: '#707070', padding: '4px 2px 8px' }}>
                   {review.matches} clause{review.matches === 1 ? '' : 's'} match what was agreed
                 </div>

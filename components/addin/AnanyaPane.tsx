@@ -34,7 +34,7 @@ import { messages as allMessages } from '@/lib/data';
 import { extractValue } from '@/lib/engines/diff';
 import { CLARIFY_DRAFT } from '@/lib/engines/wording';
 import { roundReply } from '@/lib/engines/replyCopy';
-import { asOfLine, dealReconciliation, headlineLabel, latestVersionId } from '@/lib/engines/headline';
+import { asOfLine, copyReconciliation, dealReconciliation, headlineLabel, latestVersionId } from '@/lib/engines/headline';
 import { signingCheck } from '@/lib/engines/signing';
 import { rowHeadlineShare } from '@/lib/engines/playbook';
 import { HEADLINE_SUFFIX } from '@/lib/format';
@@ -101,6 +101,8 @@ export function AnanyaPane({
   return (
     <div style={{ position: 'relative' }}>
       <TrackedBanner />
+      {/* The ready-to-sign email leads with its one action (review fix B3). */}
+      {!busy && openMessageId === 'M14' && <SigningCopyCard rows={rows} />}
       {message && <DealHeaderBlock message={message} />}
 
       <section className={s.card} style={{ borderColor: tokens.colorBrandStroke1, boxShadow: `inset 3px 0 0 ${tokens.colorBrandBackground}` }}>
@@ -145,7 +147,6 @@ export function AnanyaPane({
 
       {!busy && openMessageId === 'M8' && <RoundFourCard rows={rows} />}
       {!busy && (openMessageId === 'M12' || openMessageId === 'M12R') && <SideThreadFlow rows={rows} onDraftReply={onDraftReply} />}
-      {!busy && openMessageId === 'M14' && <SigningCopyCard rows={rows} />}
       {!busy && openMessageId === 'M13' && <NewAskCard rows={rows} />}
 
       {!busy && openMessageId === 'M8' && (
@@ -536,8 +537,11 @@ function SigningCopyCard({ rows }: { rows: LedgerRow[] }) {
             {result.matches.length} terms match.
           </div>
           <div style={{ marginTop: 6 }}>
-            <span className={s.money}>{formatLakh(dealAtRisk(rows, cloudDeskDeal))}</span>{' '}
-            <span className={s.moneySuffix}>{HEADLINE_SUFFIX}</span>
+            <span className={s.money}>{formatLakh(copyReconciliation(gaps, cloudDeskDeal).totalLakh)}</span>{' '}
+            <span className={s.moneySuffix}>a year (expected)</span>
+          </div>
+          <div className={s.grey}>
+            {headlineLabel('draft', copyReconciliation(gaps, cloudDeskDeal).totalLakh, 'v6')} · {copyReconciliation(gaps, cloudDeskDeal).text}
           </div>
           {gaps.map((g) => (
             <div key={g.rowId} className={s.listRow}>
@@ -551,8 +555,8 @@ function SigningCopyCard({ rows }: { rows: LedgerRow[] }) {
             <p className={s.grey}>v6 reverted payment terms to the 45 days of v3. v4 and v5 said 60.</p>
           )}
           <div className={s.actions}>
-            <Link href="/word/v6?from=sirion" onClick={() => useDemo.getState().syncVersion('v6')}>
-              <Button size="small" appearance="primary">Open signing check in Word</Button>
+            <Link href="/word/v6?from=sirion&clause=9.3" data-tour="quick-check" onClick={() => useDemo.getState().syncVersion('v6')}>
+              <Button size="small" appearance="primary">Check signing copy in Word</Button>
             </Link>
           </div>
         </>

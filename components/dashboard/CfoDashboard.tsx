@@ -100,7 +100,7 @@ export function CfoDashboard() {
                 <Td>{r.label}</Td>
                 <Td className="text-ink/80">{plainValue(r.position)}</Td>
                 <Td>
-                  <StatePill state={r.state} />
+                  <StatePill state={r.state} condition={r.condition?.text} />
                 </Td>
                 <Td className="text-ink/80">{r.approvedBy?.condition ?? '—'}</Td>
                 <Td>

@@ -174,6 +174,9 @@ interface DemoState {
   /** Word's Track Changes switch (signing copy). */
   trackChanges: boolean;
   setTrackChanges: (on: boolean) => void;
+  /** The quick path is running (review fix B3): three actions on the §9.3 hero. */
+  quickPath: boolean;
+  setQuickPath: (on: boolean) => void;
   setRole: (role: Role) => void;
   startStage: (step: 1 | 2 | 3 | 4 | 5, restart?: boolean) => void;
   previewStage: (step: 1 | 2 | 3 | 4 | 5) => void;
@@ -277,6 +280,7 @@ const BASE = {
   invoices: [] as Invoice[],
   invoiceFastForward: false,
   trackChanges: true,
+  quickPath: false,
   disputeRaised: false,
   invoiceResolved: false,
   notices: [] as Notice[],
@@ -291,6 +295,7 @@ export const useDemo = create<DemoState>()(
       ...BASE,
 
       setClock: (iso) => set({ clock: iso }),
+      setQuickPath: (quickPath) => set({ quickPath }),
       setTrackChanges: (on) =>
         set((s) => ({
           trackChanges: on,
@@ -489,7 +494,7 @@ export const useDemo = create<DemoState>()(
         set((s) => ({
           ledger: rows,
           signing: markInserted(s, row.termKey),
-          events: [...s.events, { at: s.clock, text: `${row.label}: playbook ${label} inserted ${s.trackChanges ? 'as a tracked change' : 'with Track Changes off (no markup)'}.` }],
+          events: [...s.events, { at: s.clock, text: `Proposed in Word · ${row.label}: playbook ${label} ${s.trackChanges ? 'as a tracked change' : 'with Track Changes off (no markup)'}.` }],
         }));
         if (label === 'walk-away') {
           const agreedRow = ledgerAtStep(4).find((r) => r.id === rowId);
@@ -808,7 +813,7 @@ export const useDemo = create<DemoState>()(
           signing: markInserted(s, row.termKey),
           events: [
             ...s.events,
-            { at: s.clock, text: `${row.label}: agreed wording inserted ${s.trackChanges ? 'as a tracked change' : 'with Track Changes off (no markup)'}.` },
+            { at: s.clock, text: `Proposed in Word · ${row.label}: agreed wording ${s.trackChanges ? 'as a tracked change' : 'with Track Changes off (no markup)'}.` },
           ],
         }));
       },
@@ -884,7 +889,7 @@ export const useDemo = create<DemoState>()(
             ...s.events,
             {
               at,
-              text: `v7 sent back to CloudDesk ${via === 'portal' ? 'through the Sirion counterparty portal' : 'by email'} with ${count} tracked change${count === 1 ? '' : 's'}${untracked ? ` and ${untracked} untracked edit${untracked === 1 ? '' : 's'} CloudDesk will see with no markup` : ''}.`,
+              text: `Saved to Sirion as v7 · sent back to CloudDesk ${via === 'portal' ? 'through the Sirion counterparty portal' : 'by email'} with ${count} tracked change${count === 1 ? '' : 's'}${untracked ? ` and ${untracked} untracked edit${untracked === 1 ? '' : 's'} CloudDesk will see with no markup` : ''}.`,
             },
           ],
         }));
@@ -914,7 +919,11 @@ export const useDemo = create<DemoState>()(
           signedAt: at,
           clock: at,
           completedSteps: s.completedSteps.includes(5) ? s.completedSteps : [...s.completedSteps, 5],
-          events: [...s.events, { at, text: 'CloudDesk returned v7. The signed clauses were checked against the ledger.' }],
+          events: [
+            ...s.events,
+            { at, text: 'CloudDesk returned v7. The signed clauses were checked against the ledger.' },
+            ...s.signing.inserted.map((t) => ({ at, text: `Accepted by CloudDesk · ${s.ledger.find((r) => r.termKey === t)?.label ?? t}: in the signed copy.` })),
+          ],
         }));
       },
 

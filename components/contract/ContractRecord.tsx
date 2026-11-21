@@ -237,7 +237,7 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
                 <Td className="text-ink/85">{plainValue(r.position, cloudDeskDeal.termYears)}</Td>
                 <Td className="text-muted">{CLAUSE_FOR[r.termKey] ?? '—'}</Td>
                 <Td>
-                  <StatePill state={r.state} />
+                  <StatePill state={r.state} condition={r.condition?.text} />
                 </Td>
                 <Td>
                   <SourceChip source={r.source} />

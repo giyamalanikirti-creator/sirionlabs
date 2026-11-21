@@ -67,7 +67,9 @@ export function CoachMark() {
   const dismiss = useGuideUi((s) => s.dismissAction);
   const [pos, setPos] = useState<Pos | null>(null);
   const action = g.next?.action;
-  const active = Boolean(g.hydrated && action && !hidden && dismissed !== action.id);
+  // The quick path has its own card in the rail; the walkthrough's coach mark stays quiet meanwhile.
+  const quickPath = useDemo((s) => s.quickPath);
+  const active = Boolean(g.hydrated && action && !hidden && !quickPath && dismissed !== action.id);
   const target = active ? action!.target : undefined;
 
   /* Count a press on any walkthrough element, so actions with no state of their own still tick. */

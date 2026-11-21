@@ -64,3 +64,41 @@ export function StepBadge({ step }: { step: number }) {
     </span>
   );
 }
+
+/** Which question a finding answers (review fix B1). Same size and shape as Tag. */
+export type Basis = 'policy' | 'past' | 'supplier';
+
+export function basisLabel(basis: Basis, supplier = 'the supplier'): string {
+  return basis === 'policy' ? 'Company policy' : basis === 'past' ? 'Past agreements' : `Agreed with ${supplier}`;
+}
+
+const BASIS_TIP: Record<Basis, string> = {
+  policy: 'Checked against the company playbook (Sirion IssueDetection, today)',
+  past: 'Checked against what past contracts and history show',
+  supplier: 'Checked against what this supplier accepted in email (Deal Ledger, proposed)',
+};
+
+export function BasisTag({ basis, supplier }: { basis: Basis; supplier?: string }) {
+  const supplierBasis = basis === 'supplier';
+  return (
+    <span
+      title={BASIS_TIP[basis]}
+      style={{
+        display: 'inline-flex',
+        alignItems: 'center',
+        fontSize: 11,
+        lineHeight: '14px',
+        fontWeight: 600,
+        padding: '2px 8px',
+        borderRadius: 999,
+        whiteSpace: 'nowrap',
+        flexShrink: 0,
+        color: supplierBasis ? '#0C5E69' : '#3F4E52',
+        background: supplierBasis ? '#E3F1EE' : '#F1F4F4',
+        border: `1px solid ${supplierBasis ? '#9CCBC1' : '#D5DDDD'}`,
+      }}
+    >
+      {basisLabel(basis, supplier)}
+    </span>
+  );
+}

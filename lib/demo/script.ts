@@ -55,7 +55,7 @@ export const SCRIPT: Record<1 | 2 | 3 | 4 | 5 | 6, ScriptAction[]> = {
     { id: '3d', label: 'Loop in, edit or send anyway', target: 'guard-actions', href: '/outlook/vikram?msg=M13', done: (s) => s.completedSteps.includes(3) },
   ],
   4: [
-    { id: '4a', label: 'Open the price gap', target: 'issue-9.1', href: '/word/v6?from=sirion', done: (s) => s.tourClicks.includes('issue-9.1') || s.signing.inserted.length > 0 },
+    { id: '4a', label: 'Open the payment card (§9.3)', target: 'issue-9.3', href: '/word/v6?from=sirion&clause=9.3', done: (s) => s.tourClicks.includes('issue-9.3') || s.tourClicks.includes('issue-9.1') || s.signing.inserted.length > 0 },
     { id: '4b', label: 'Fix all with agreed wording', target: 'insert-all', href: '/word/v6?from=sirion', done: (s) => s.signing.inserted.length >= 3 || Boolean(s.signing.sentBackAt) },
     { id: '4c', label: 'Send back to CloudDesk', target: 'send-back', href: '/word/v6?from=sirion', done: (s) => Boolean(s.signing.sentBackAt) },
   ],

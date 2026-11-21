@@ -196,7 +196,21 @@
     ],
     "threats": [],
     "supplierNote": "Reflects the 60-day payment terms agreed in your email of 10 Nov.",
-    "owner": "commercial"
+    "owner": "commercial",
+    "condition": {
+      "text": "if Meridian signs for 3 years",
+      "dependsOn": {
+        "termKey": "term",
+        "required": "3 years"
+      },
+      "source": {
+        "kind": "email",
+        "messageId": "M5",
+        "quote": "OK on 60 days if you sign for 3 years",
+        "at": "2026-11-10T09:15:00+05:30",
+        "byPersonId": "rohan"
+      }
+    }
   },
   {
     "id": "R-credit",

@@ -119,6 +119,16 @@ export interface HistoryEntry {
   source: SourceRef;
 }
 
+/** An agreement that holds only if another term holds (review fix B2): "60 days if you sign for 3 years". */
+export interface TermCondition {
+  /** "if Meridian signs for 3 years" */
+  text: string;
+  dependsOn: { termKey: TermKey; required: string };
+  source: SourceRef;
+}
+
+export type ConditionState = 'met' | 'not_met' | 'unknown';
+
 export interface LedgerRow {
   id: string;
   dealId: string;
@@ -143,6 +153,8 @@ export interface LedgerRow {
   waiveReason?: string;
   /** Set when the lead offered a playbook fallback or walk-away at signing. */
   playbookPosition?: 'fallback' | 'walk-away';
+  /** Set when the supplier's acceptance was conditional on another term. */
+  condition?: TermCondition;
   /** The reader's confidence for the latest value it wrote (0–1). Absent when a person or a clause set it. */
   confidence?: number;
 }

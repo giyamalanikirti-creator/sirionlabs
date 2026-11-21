@@ -17,11 +17,11 @@ const BADGE: Record<RowState, { color: 'success' | 'informative' | 'brand' | 'wa
   missing_at_signing: { color: 'danger', appearance: 'filled' },
 };
 
-export function StateBadge({ state }: { state: RowState }) {
+export function StateBadge({ state, conditional }: { state: RowState; conditional?: boolean }) {
   const b = BADGE[state];
   return (
     <Badge appearance={b.appearance} color={b.color} size="small">
-      {STATE_LABELS[state]}
+      {state === 'agreed' && conditional ? 'Agreed, conditional' : STATE_LABELS[state]}
     </Badge>
   );
 }
@@ -45,7 +45,7 @@ export function LedgerList({ rows, compact = false }: { rows: LedgerRow[]; compa
                   {formatLakh(risk)} a year
                 </span>
               ) : null}
-              <StateBadge state={r.state} />
+              <StateBadge state={r.state} conditional={Boolean(r.condition)} />
             </span>
           </div>
         );

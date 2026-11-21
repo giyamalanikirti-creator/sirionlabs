@@ -1,5 +1,7 @@
 'use client';
 
+import { wordDiff } from '@/lib/engines/diff';
+
 /** The signing copy, rendered as A4 pages with tracked changes — §4C. */
 import { makeStyles, shorthands, tokens } from '@fluentui/react-components';
 import type { Clause, DocVersion } from '@/lib/types';
@@ -93,6 +95,9 @@ const useStyles = makeStyles({
   },
 });
 
+/** Tracked changes in this demo are made by the procurement lead. */
+const TRACK_AUTHOR = 'Ananya Rao';
+
 export interface TrackedEdit {
   clauseNo: string;
   /** Only the operative sentence is struck through. */
@@ -165,12 +170,31 @@ function ClauseBody({ clause, edit, highlighted }: { clause: Clause; edit?: Trac
 
   if (edit.plain) return <>{edit.after}{edit.tail ?? ''}</>;
 
-  // Only the operative sentence is struck through. The rest of the clause is
-  // untouched, which is what an amendment to one term actually looks like.
+  // Word-level, as Word shows a tracked change: only the words that changed
+  // are struck through and inserted (~~45~~ 60), and the rest of the clause
+  // reads as before (review fix B2).
+  const parts = wordDiff(edit.before, edit.after);
+  const changedShare = parts.filter((p) => p.added || p.removed).reduce((n, p) => n + p.value.length, 0) / Math.max(1, edit.before.length);
+  if (changedShare > 0.6) {
+    return (
+      <>
+        <span title={`${TRACK_AUTHOR} · deleted`} style={{ color: AUTHOR_COLOUR, textDecoration: 'line-through' }}>{edit.before}</span>{' '}
+        <span title={`${TRACK_AUTHOR} · inserted`} style={{ color: AUTHOR_COLOUR, textDecoration: 'underline' }}>{edit.after}</span>
+        {edit.tail ? <span>{edit.tail}</span> : null}
+      </>
+    );
+  }
   return (
     <>
-      <span style={{ color: AUTHOR_COLOUR, textDecoration: 'line-through' }}>{edit.before}</span>{' '}
-      <span style={{ color: AUTHOR_COLOUR, textDecoration: 'underline' }}>{edit.after}</span>
+      {parts.map((p, i) =>
+        p.removed ? (
+          <span key={i} title={`${TRACK_AUTHOR} · deleted`} style={{ color: AUTHOR_COLOUR, textDecoration: 'line-through' }}>{p.value}</span>
+        ) : p.added ? (
+          <span key={i} title={`${TRACK_AUTHOR} · inserted`} style={{ color: AUTHOR_COLOUR, textDecoration: 'underline', background: 'rgba(197, 15, 31, 0.06)' }}>{p.value}</span>
+        ) : (
+          <span key={i}>{p.value}</span>
+        ),
+      )}
       {edit.tail ? <span>{edit.tail}</span> : null}
     </>
   );

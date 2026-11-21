@@ -12,17 +12,20 @@ const STYLES: Record<RowState, { label: string; className: string }> = {
   missing_at_signing: { label: 'Missing at signing', className: 'bg-danger text-white' },
 };
 
-export function StatePill({ state, className }: { state: RowState; className?: string }) {
+/** An agreement with a condition is never shown as plain "Agreed" (review fix B2). */
+export function StatePill({ state, className, condition }: { state: RowState; className?: string; condition?: string }) {
   const s = STYLES[state];
+  const conditional = state === 'agreed' && condition;
   return (
     <span
+      title={conditional ? `Agreed ${condition}` : undefined}
       className={cn(
         'inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-[3px] text-[11px] font-medium',
         s.className,
         className,
       )}
     >
-      {s.label}
+      {conditional ? 'Agreed, conditional' : s.label}
     </span>
   );
 }

@@ -113,7 +113,7 @@ export function SigningTab({ rows }: { rows: LedgerRow[] }) {
                 <div className="w-40 shrink-0">
                   <p className="text-[13px] font-medium text-ink">{item.label}</p>
                   <div className="mt-1">
-                    <StatePill state={row.state} />
+                    <StatePill state={row.state} condition={row.condition?.text} />
                   </div>
                 </div>
                 <div className="min-w-[220px] flex-1">

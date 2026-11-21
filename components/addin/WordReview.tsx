@@ -33,9 +33,11 @@ import { approvalRoute } from '@/lib/engines/approvals';
 import { wordDiff } from '@/lib/engines/diff';
 import { COST_RULE } from '@/lib/engines/explain';
 import { draftLabel, draftMatch, negotiationLabel, negotiationStatus } from '@/lib/engines/termStatus';
+import { conditionState } from '@/lib/engines/conditions';
 import { asOfLine, dealWideReconciliation, headlineLabel, reconcile, short as shortLabel } from '@/lib/engines/headline';
 import { PEER_MIN_COMPANIES, PEER_MIN_CONTRACTS } from '@/lib/engines/peers';
-import { PLAYBOOK } from '@/lib/engines/playbook';
+import { PLAYBOOK, playbookReview } from '@/lib/engines/playbook';
+import { BasisTag } from '@/components/ui/Tag';
 import { agreedWording, askSupplierDraft } from '@/lib/engines/wording';
 import type { ReviewIssue } from '@/lib/engines/wordLens';
 import { formatDateShort, formatLakh, formatPct } from '@/lib/format';
@@ -53,11 +55,99 @@ const BASIS_NOUN: Record<string, string> = {
 };
 
 function SourceBadge({ kind }: { kind: 'playbook' | 'email' }) {
-  return kind === 'playbook' ? (
-    <Badge size="small" appearance="outline" color="informative" title="Sirion IssueDetection, against the playbook (today)">Playbook</Badge>
-  ) : (
-    <Badge size="small" appearance="filled" color="brand" title="Deal Ledger, against what was agreed in email (new)">Agreed in email</Badge>
+  return <BasisTag basis={kind === 'playbook' ? 'policy' : 'supplier'} supplier={cloudDeskDeal.supplier} />;
+}
+
+/** On every "Agreed with CloudDesk" card: what the playbook says about the same clause. */
+function PolicyLine({ issue, version }: { issue: ReviewIssue; version: DocVersion }) {
+  const line = playbookReview(version).find((l) => l.clauseNo === issue.clauseNo);
+  if (!line) return null;
+  return (
+    <div style={{ fontSize: 11.5, marginTop: 2, color: tokens.colorNeutralForeground3 }}>
+      Company policy: {line.within ? `OK${issue.lens ? ` (${issue.lens.docPlain.toLowerCase()} is within policy)` : ''}` : 'also flagged'}
+    </div>
   );
+}
+
+/** "Payment is 15 days earlier than agreed": the plain headline for a conditional card. */
+function differenceHeadline(row: LedgerRow, docValue: TermValue | null): string | null {
+  if (row.position.kind === 'payment' && docValue?.kind === 'payment' && docValue.days < row.position.days) {
+    return `Payment is ${row.position.days - docValue.days} days earlier than agreed`;
+  }
+  return null;
+}
+
+/** The conditional-agreement block (review fix B2): the quote, the condition checked in this file, the ₹, the action. */
+function ConditionBlock({ issue, row, version, actions }: { issue: ReviewIssue; row: LedgerRow; version: DocVersion; actions: IssueActions }) {
+  const openSource = useSourceDrawer((st) => st.open);
+  const toast = useDemo((st) => st.toast);
+  const inserted = useDemo((st) => st.signing.inserted.includes(row.termKey));
+  const check = conditionState(row, version, cloudDeskDeal);
+  const l = issue.lens;
+  if (!check || !l || !row.condition) return null;
+  const clause = version.clauses.find((c) => c.no === issue.clauseNo);
+  const agreed = l.agreedPlain.toLowerCase();
+  const src = row.condition.source;
+  return (
+    <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: '18px' }} onClick={(e) => e.stopPropagation()}>
+      <div>
+        Signing copy {version.id}, §{issue.clauseNo}: {clause ? `${clause.title} within ` : ''}<strong>{l.docPlain.toLowerCase()}</strong>.
+      </div>
+      <div style={{ marginTop: 2 }}>
+        {personName(src.byPersonId).split(' ')[0]}, {formatDateShort(src.at)}: “{src.quote}.”{' '}
+        <button onClick={() => openSource(src, true)} style={{ cursor: 'pointer', fontSize: 11, padding: '1px 8px', borderRadius: 999, border: `1px solid ${tokens.colorNeutralStroke1}`, background: tokens.colorNeutralBackground1 }}>Source</button>
+      </div>
+      <div style={{ marginTop: 2, color: check.state === 'met' ? tokens.colorPaletteGreenForeground1 : tokens.colorPaletteRedForeground1, fontWeight: 600 }}>
+        {check.sentence}{' '}
+        {check.clauseNo && (
+          <button onClick={() => actions.onGoTo(check.clauseNo!)} style={{ border: 0, background: 'none', padding: 0, color: tokens.colorBrandForeground1, textDecoration: 'underline', cursor: 'pointer', fontSize: 12 }}>
+            Jump to §{check.clauseNo}
+          </button>
+        )}
+      </div>
+      {l.costLakhPerYr !== null && <div style={{ marginTop: 2 }}>Expected {formatLakh(l.costLakhPerYr)} a year</div>}
+      <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 8, flexWrap: 'wrap' }}>
+        {check.state === 'met' ? (
+          <Button size="small" appearance="primary" data-tour="propose-agreed" disabled={inserted} onClick={() => actions.onInsertAgreed(issue)}>
+            {inserted ? `Proposed ${agreed} in Word` : `Propose ${agreed} in Word`}
+          </Button>
+        ) : (
+          <Button size="small" appearance="primary" onClick={() => toast(`Sent to ${personName(cloudDeskDeal.ownerId)}, the deal owner: the condition for ${agreed} is not met in this copy.`)}>
+            Route to deal owner
+          </Button>
+        )}
+        <Link href={`/outlook/ananya?msg=${src.messageId}`} style={{ fontSize: 12 }}>View email</Link>
+      </div>
+    </div>
+  );
+}
+
+/** Proposed in Word → Saved to Sirion as v7 → Accepted by CloudDesk: separate events, never one "Done" (review fix B2). */
+function StatusTrail({ row }: { row: LedgerRow }) {
+  const proposed = useDemo((st) => st.signing.inserted.includes(row.termKey));
+  const saved = useDemo((st) => st.signing.sentBackAt);
+  const signedAt = useDemo((st) => st.signedAt);
+  if (!proposed) return null;
+  const steps = [
+    { label: 'Proposed in Word', done: true },
+    { label: 'Saved to Sirion as v7', done: Boolean(saved) },
+    { label: `Accepted by ${cloudDeskDeal.supplier}`, done: Boolean(signedAt) },
+  ];
+  return (
+    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, marginTop: 8, fontSize: 11.5 }} aria-label="Status">
+      {steps.map((st, i) => (
+        <span key={st.label} style={{ display: 'inline-flex', alignItems: 'center', gap: 4, color: st.done ? tokens.colorPaletteGreenForeground1 : tokens.colorNeutralForeground3, fontWeight: st.done ? 600 : 400 }}>
+          {i > 0 && <span style={{ color: tokens.colorNeutralForeground4 }}>→</span>}
+          {st.done ? '✓' : '○'} {st.label}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+/** Policy passes, the deal check fails: the findings only Deal Ledger can make (review fix B1). */
+export function policyAllowsButDiffers(issue: ReviewIssue): boolean {
+  return issue.sources.length === 1 && issue.sources[0] === 'email' && issue.lens?.status === 'differs';
 }
 
 function SamplePill() {
@@ -219,7 +309,7 @@ export function IssueCard({
       <div className={s.termHead}>
         <span className={s.termName} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
           {expanded ? <ChevronDownRegular fontSize={12} /> : <ChevronRightRegular fontSize={12} />}
-          {l ? <StatusIcon status={l.status} /> : null} {issue.clauseNo} · {issue.label}
+          {l ? <StatusIcon status={l.status} /> : null} {issue.clauseNo} · {(row && differenceHeadline(row, l?.docValue ?? null)) ?? issue.label}
         </span>
         {priced ? (
           <span style={{ fontSize: 12.5, fontWeight: 600, color: tokens.colorPaletteRedForeground1, whiteSpace: 'nowrap' }}>{formatLakh(issue.costLakhPerYr)}</span>
@@ -229,9 +319,13 @@ export function IssueCard({
         {issue.sources.map((k) => <SourceBadge key={k} kind={k} />)}
         {resolvedLabel && <Badge size="small" appearance="filled" color="informative">{resolvedLabel}</Badge>}
       </div>
+      {issue.sources.includes('email') && <PolicyLine issue={issue} version={version} />}
+      {row?.condition && <ConditionBlock issue={issue} row={row} version={version} actions={actions} />}
+      {row && <StatusTrail row={row} />}
       {row && (
         <div style={{ fontSize: 11.5, marginTop: 3, color: tokens.colorNeutralForeground2, fontWeight: 600 }}>
           {draftLabel(draftMatch(row, version, cloudDeskDeal).draft)} · {negotiationLabel(negotiationStatus(row), cloudDeskDeal.supplier)}
+          {row.condition && negotiationStatus(row) === 'agreed' ? ', conditional' : ''}
         </div>
       )}
       {l ? (

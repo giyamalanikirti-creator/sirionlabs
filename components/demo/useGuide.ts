@@ -49,6 +49,29 @@ export function useGuide() {
     if (demo.clock < STEP_CLOCK[5]) demo.setClock(STEP_CLOCK[5]);
   };
 
+  /** Quick path (review fix B3): the step 4 state on 19 Nov, opened on CloudDesk's "ready to sign" email. */
+  const startQuickPath = () => {
+    const demo = useDemo.getState();
+    demo.setQuickPath(true);
+    demo.previewStage(4);
+    demo.setQuickPath(true);
+    goTo('/outlook/ananya?msg=M14');
+  };
+  const quickAction = (index: number) => {
+    const demo = useDemo.getState();
+    if (index === 0) goTo('/word/v6?from=sirion&clause=9.3');
+    else if (index === 1) goTo('/word/v6?from=sirion&clause=9.3');
+    else {
+      // What the clause drives after signing: the renewal line in the handover.
+      if (!demo.contract) {
+        demo.advanceTo(5);
+        demo.saveToSirion();
+        demo.setQuickPath(true);
+      }
+      goTo('/contracts/C-2026-0417?tab=obligations&focus=renewal');
+    }
+  };
+
   /** Move on from a step: finish it from saved results if needed, then open the next step. */
   const goNext = (from: GuideStep) => {
     const demo = useDemo.getState();
@@ -103,6 +126,8 @@ export function useGuide() {
     stepDone: (n: GuideStep) => (hydrated ? stepDone(n, s) : false),
     actionsDone: (n: GuideStep) => (hydrated ? actionsDone(n, s) : []),
     goNext,
+    startQuickPath,
+    quickAction,
     jumpTo,
     revisit,
     doAction,
