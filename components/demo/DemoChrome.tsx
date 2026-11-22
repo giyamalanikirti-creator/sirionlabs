@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { DemoStrip } from './DemoStrip';
 import { GuideRail } from './GuideRail';
 import { CoachMark } from './CoachMark';
+import { NextBar } from './NextBar';
 import { Toasts } from './Toasts';
 import { AskLauncher } from '@/components/ask/AskLauncher';
 import { SourceDrawer } from '@/components/sirion/SourceDrawer';
@@ -40,11 +41,16 @@ export function DemoChrome({ children }: { children: React.ReactNode }) {
             <GuideRail />
           </Suspense>
         </div>
-        <main id="app-frame" className="relative min-h-0 min-w-0 flex-1 overflow-hidden">
-          {children}
+        <main id="app-frame" className="relative flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
           <Suspense>
-            <AskLauncher />
+            <NextBar />
           </Suspense>
+          <div className="relative min-h-0 flex-1">
+            {children}
+            <Suspense>
+              <AskLauncher />
+            </Suspense>
+          </div>
         </main>
       </div>
       <SourceDrawer />

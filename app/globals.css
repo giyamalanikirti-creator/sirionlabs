@@ -373,5 +373,7 @@ body {
 }
 
 /* Walkthrough fills: green to blue (replaces the earlier indigo). */
-.bg-guide-600 { background-image: linear-gradient(90deg, #12a37a, #1f6fd1); }
+/* Guide UI that must not read as "agreed": solid blue, no green. */
+.guide-solid { background-color: var(--guide-600); }
+.bg-guide-600 { background-image: linear-gradient(90deg, #127fa6, #1f6fd1); }
 .bg-guide-600:hover, .hover\:bg-guide-700:hover { filter: brightness(0.94); }

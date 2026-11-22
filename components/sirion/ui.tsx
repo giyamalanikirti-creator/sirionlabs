@@ -181,12 +181,15 @@ export function Tabs({
 }) {
   return (
     <div className="flex items-center justify-between gap-4 border-b border-line">
-      <div className="flex items-end gap-1 overflow-x-auto">
+      <div role="tablist" className="flex items-end gap-1 overflow-x-auto">
         {tabs.map((t) => {
           const on = t.id === active;
           return (
             <button
               key={t.id}
+              role="tab"
+              aria-selected={on}
+              data-tour={`tab-${t.id}`}
               onClick={() => onChange(t.id)}
               className={cn(
                 'relative whitespace-nowrap px-3.5 pb-2.5 pt-2 text-[13px] transition-colors',

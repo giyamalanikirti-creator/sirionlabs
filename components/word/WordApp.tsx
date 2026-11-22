@@ -501,7 +501,7 @@ export function WordApp({ versionId }: { versionId: string }) {
               </MessageBar>
             )}
             <TabList size="small" selectedValue={tab} onTabSelect={(_, d) => setTab(d.value as PaneTab)} style={{ marginBottom: 10 }}>
-              <Tab value="review">Review</Tab>
+              <Tab value="review" data-tour="word-tab-review">Review</Tab>
               {versionId !== 'v7' && <Tab value="draft">Draft</Tab>}
               <Tab value="compare">Compare</Tab>
               <Tab value="approve">Approve</Tab>

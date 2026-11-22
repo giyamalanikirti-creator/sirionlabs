@@ -102,6 +102,9 @@ export function AskLauncher() {
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- reads localStorage once after mount
     setTip(!readTip());
+    /* It must not sit over the app for long: gone after a few seconds (shown again next visit until dismissed). */
+    const id = window.setTimeout(() => setTip(false), 6000);
+    return () => window.clearTimeout(id);
   }, []);
 
   /* Ctrl/⌘ + J toggles; Esc closes. */

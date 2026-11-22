@@ -24,7 +24,8 @@ export function AppSwitcher() {
   const clock = useDemo((s) => s.clock);
   const g = useGuide();
   const active = activeApp(pathname);
-  const nextApp = g.next ? appOf(g.next.action.href) : undefined;
+  const nextAction = g.target?.action;
+  const nextApp = nextAction ? appOf(nextAction.href) : undefined;
   const v6 = hydrated && clock >= STEP_CLOCK[4];
 
   return (
@@ -34,11 +35,11 @@ export function AppSwitcher() {
         const isActive = key === active;
         const isNext = hydrated && key === nextApp && !isActive;
         const caption = key === 'word' ? (v6 ? 'Signing copy' : 'Latest draft') : a.caption;
-        const href = isNext ? g.next!.action.href : key === 'word' ? (v6 ? '/word/v6?from=sirion' : '/word/v4?from=sirion') : a.href;
+        const href = key === 'word' ? (v6 ? '/word/v6?from=sirion' : '/word/v4?from=sirion') : a.href;
         return (
           <button
             key={key}
-            onClick={() => router.push(href)}
+            onClick={() => (isNext ? g.openAction(nextAction!) : router.push(href))}
             aria-current={isActive ? 'page' : undefined}
             className={[
               'relative flex h-9 items-center gap-2 rounded-lg px-3 text-left transition-colors',

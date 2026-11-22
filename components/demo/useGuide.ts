@@ -9,7 +9,10 @@ import {
   actionsDone,
   currentStep,
   doneCount,
+  guideTarget,
   nextAction,
+  quickDone,
+  stepComplete,
   started,
   stepDone,
   stepMeta,
@@ -29,8 +32,20 @@ export function useGuide() {
   const state = useDemo() as unknown as GuideStateInput;
   const s = state;
 
+  const quickPath = useDemo((st) => st.quickPath);
   const current = hydrated ? currentStep(s) : 1;
   const next = hydrated ? nextAction(s) : null;
+  /** What the in-app guidance points at: the quick path's action while it runs, else the walkthrough's. */
+  const target = hydrated ? guideTarget(s, quickPath) : null;
+  /** A step (or the quick path) whose actions are all done, waiting for the viewer to move on. */
+  const complete: { kind: 'step'; step: GuideStep } | { kind: 'quick' } | null = !hydrated
+    ? null
+    : quickPath
+      ? quickDone(s).every(Boolean) ? { kind: 'quick' } : null
+      : (() => {
+          const st = stepComplete(s) ?? (currentStep(s) === 7 ? 6 : null);
+          return st ? { kind: 'step' as const, step: st } : null;
+        })();
 
   const goTo = (href: string) => router.push(href);
 
@@ -64,9 +79,12 @@ export function useGuide() {
     else {
       // What the clause drives after signing: the renewal line in the handover.
       if (!demo.contract) {
+        /* advanceTo replays from saved results and clears tour clicks: keep the quick path's own ticks. */
+        const clicks = demo.tourClicks;
         demo.advanceTo(5);
         demo.saveToSirion();
         demo.setQuickPath(true);
+        clicks.forEach((id) => useDemo.getState().markTour(id));
       }
       goTo('/contracts/C-2026-0417?tab=obligations&focus=renewal');
     }
@@ -105,6 +123,13 @@ export function useGuide() {
     goTo(stepMeta(step).href);
   };
 
+  /** Take the viewer to where an action happens: the quick path's own moves, or the action's page. */
+  const openAction = (a: ScriptAction) => {
+    const qi = target?.kind === 'quick' && target.action.id === a.id ? target.index : -1;
+    if (qi >= 0) quickAction(qi);
+    else goTo(a.href);
+  };
+
   /** Revisit a done step without changing anything. */
   const revisit = (step: GuideStep) => goTo(stepMeta(step).href);
 
@@ -121,6 +146,10 @@ export function useGuide() {
     state: s,
     current,
     next,
+    target,
+    complete,
+    quickPath: hydrated && quickPath,
+    openAction,
     doneCount: hydrated ? doneCount(s) : 0,
     started: hydrated ? started(s) : false,
     stepDone: (n: GuideStep) => (hydrated ? stepDone(n, s) : false),

@@ -5,6 +5,7 @@
  * move the clock, so a skipped step reads as done).
  */
 import { AFTER_SIGNING, GUIDE_STAGES } from './guide';
+import { QUICK_ACTIONS } from './quickPath';
 import { CALENDAR, SCRIPT, type ScriptAction, type TourState } from './script';
 import { STEP_CLOCK } from './steps';
 
@@ -74,4 +75,29 @@ export function nextAction(s: GuideStateInput): { step: GuideStep; action: Scrip
 /** Has the walkthrough started (anything beyond the opening state)? */
 export function started(s: GuideStateInput): boolean {
   return s.clock > STEP_CLOCK[0] || actionsDone(1, s).some(Boolean);
+}
+
+/** What the in-app guidance points at now: the quick path's next action while it runs, otherwise the walkthrough's. */
+export type GuideTarget =
+  | { kind: 'step'; step: GuideStep; action: ScriptAction; index: number }
+  | { kind: 'quick'; action: ScriptAction; index: number };
+
+export function quickDone(s: GuideStateInput): boolean[] {
+  return QUICK_ACTIONS.map((a) => a.done(s));
+}
+
+export function guideTarget(s: GuideStateInput, quickPath: boolean): GuideTarget | null {
+  if (quickPath) {
+    const index = quickDone(s).findIndex((d) => !d);
+    return index < 0 ? null : { kind: 'quick', action: QUICK_ACTIONS[index], index };
+  }
+  const n = nextAction(s);
+  return n ? { kind: 'step', ...n } : null;
+}
+
+/** The current step has every action ticked but the walkthrough hasn't moved on yet: time for "step complete". */
+export function stepComplete(s: GuideStateInput): GuideStep | null {
+  const step = currentStep(s);
+  if (step === 7) return null;
+  return actionsDone(step, s).every(Boolean) ? step : null;
 }

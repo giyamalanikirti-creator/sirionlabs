@@ -1,9 +1,9 @@
 /**
  * The walkthrough as a script: for each step, the buttons to press in order.
  * Each action names the element it points at (data-tour="…") and says when it
- * counts as done, from the demo state. The script bar at the bottom of the
- * screen shows these as chips (grey when done, pulsing green for the next one)
- * and pulses the matching button on the page.
+ * counts as done, from the demo state. The rail lists them; the coach mark
+ * rings the next one on the page, or the first visible step on the way to it
+ * (a closed disclosure, an inactive tab: see `via`).
  */
 import type { EmailMessage, LedgerRow } from '@/lib/types';
 import { STEP_CLOCK } from './steps';
@@ -26,15 +26,29 @@ export interface TourState {
   disputeEmail?: EmailMessage;
 }
 
+/** A step on the way to a target that may be hidden: a tab or a card that has to be opened first. */
+export interface TourVia {
+  /** The data-tour value of the tab, link or disclosure trigger. */
+  target: string;
+  /** What the coach mark says on it: "Review tab", "Open the payment card (§9.3)". */
+  label: string;
+}
+
 export interface ScriptAction {
   id: string;
   label: string;
   /** The data-tour value of the element to press. */
   target: string;
+  /** Tabs or disclosures in front of the target, outermost first. Closed <details> are found on their own. */
+  via?: TourVia[];
   /** Where the element lives, so a chip can take you there. */
   href: string;
   done: (s: TourState) => boolean;
 }
+
+const WORD_REVIEW: TourVia[] = [{ target: 'word-tab-review', label: 'Review tab' }];
+const OBLIGATIONS: TourVia[] = [{ target: 'tab-obligations', label: 'Obligations tab' }];
+const INVOICES: TourVia[] = [{ target: 'tab-invoices', label: 'Invoices tab' }];
 
 const creditAgreed = (s: TourState) => s.ledger.some((r) => r.id === 'R-credit' && r.state === 'agreed');
 
@@ -57,17 +71,17 @@ export const SCRIPT: Record<1 | 2 | 3 | 4 | 5 | 6, ScriptAction[]> = {
     { id: '3d', label: 'Loop in, edit or send anyway', target: 'guard-actions', href: '/outlook/vikram?msg=M13', done: (s) => s.completedSteps.includes(3) },
   ],
   4: [
-    { id: '4a', label: 'Open the payment card (§9.3)', target: 'issue-9.3', href: '/word/v6?from=sirion&clause=9.3', done: (s) => s.tourClicks.includes('issue-9.3') || s.tourClicks.includes('issue-9.1') || s.signing.inserted.length > 0 },
-    { id: '4b', label: 'Fix all with agreed wording', target: 'insert-all', href: '/word/v6?from=sirion', done: (s) => s.signing.inserted.length >= 3 || Boolean(s.signing.sentBackAt) },
-    { id: '4c', label: 'Send back to CloudDesk', target: 'send-back', href: '/word/v6?from=sirion', done: (s) => Boolean(s.signing.sentBackAt) },
+    { id: '4a', label: 'Open the payment card (§9.3)', target: 'issue-9.3', via: WORD_REVIEW, href: '/word/v6?from=sirion&clause=9.3', done: (s) => s.tourClicks.includes('issue-9.3') || s.tourClicks.includes('issue-9.1') || s.signing.inserted.length > 0 },
+    { id: '4b', label: 'Fix all with agreed wording', target: 'insert-all', via: WORD_REVIEW, href: '/word/v6?from=sirion', done: (s) => s.signing.inserted.length >= 3 || Boolean(s.signing.sentBackAt) },
+    { id: '4c', label: 'Send back to CloudDesk', target: 'send-back', via: WORD_REVIEW, href: '/word/v6?from=sirion', done: (s) => Boolean(s.signing.sentBackAt) },
   ],
   5: [
-    { id: '5a', label: 'Review and save', target: 'review-save', href: '/contracts/C-2026-0417?tab=obligations', done: (s) => Boolean(s.contract) },
+    { id: '5a', label: 'Review and save', target: 'review-save', via: OBLIGATIONS, href: '/contracts/C-2026-0417?tab=obligations', done: (s) => Boolean(s.contract) },
   ],
   6: [
-    { id: '6a', label: 'Go to December’s invoice', target: 'tour-invoice', href: '/contracts/C-2026-0417?tab=invoices', done: (s) => s.invoiceFastForward },
-    { id: '6b', label: 'Raise dispute', target: 'raise-dispute', href: '/contracts/C-2026-0417?tab=invoices', done: (s) => s.tourClicks.includes('raise-dispute') || Boolean(s.disputeEmail) },
-    { id: '6c', label: 'Send the dispute', target: 'send-dispute', href: '/contracts/C-2026-0417?tab=invoices', done: (s) => Boolean(s.disputeEmail) },
+    { id: '6a', label: 'Go to December’s invoice', target: 'tour-invoice', via: INVOICES, href: '/contracts/C-2026-0417?tab=invoices', done: (s) => s.invoiceFastForward },
+    { id: '6b', label: 'Raise dispute', target: 'raise-dispute', via: INVOICES, href: '/contracts/C-2026-0417?tab=invoices', done: (s) => s.tourClicks.includes('raise-dispute') || Boolean(s.disputeEmail) },
+    { id: '6c', label: 'Send the dispute', target: 'send-dispute', via: INVOICES, href: '/contracts/C-2026-0417?tab=invoices', done: (s) => Boolean(s.disputeEmail) },
   ],
 };
 

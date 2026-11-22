@@ -4,10 +4,12 @@
  * The walkthrough, as a rail on the left of every screen. Demo chrome, not
  * product: neutral surface, ink text, and the guide accent only.
  *
- *  ≥ 1360 px   expanded (264 px), pushes the app frame
- *  < 1360 px   collapsed (64 px); opens as an overlay over the app
- *
- * The user's collapse choice is remembered (localStorage, wrapped in try/catch).
+ * Open and docked at every width (walkthrough brief A4):
+ *  ≥ 1280 px   264 px
+ *  < 1280 px   232 px (the "best viewed" notice is measured on the app frame)
+ * It never closes on its own. « shrinks it to the 64 px strip of numbered
+ * circles; clicking either reopens it docked. That choice lasts for this tab's
+ * session only (lib/guideUi), and Reset demo reopens it.
  */
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -23,24 +25,7 @@ import { AFTER_SIGNING, GUIDE_STAGES } from '@/lib/demo/guide';
 import { ConfirmDialog } from './ConfirmDialog';
 import { shiftText } from '@/lib/demo/timeShift';
 
-const PREF_KEY = 'deal-ledger-rail';
 const ring = 'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-guide-600';
-
-function readPref(): 'expanded' | 'collapsed' | null {
-  try {
-    const v = window.localStorage.getItem(PREF_KEY);
-    return v === 'expanded' || v === 'collapsed' ? v : null;
-  } catch {
-    return null;
-  }
-}
-function writePref(v: 'expanded' | 'collapsed') {
-  try {
-    window.localStorage.setItem(PREF_KEY, v);
-  } catch {
-    /* private window: fall back to the defaults */
-  }
-}
 
 function useWindowWidth() {
   const [w, setW] = useState(1440);
@@ -62,24 +47,19 @@ const STORY_LINKS = [
 
 export function GuideRail() {
   const width = useWindowWidth();
-  const [pref, setPref] = useState<'expanded' | 'collapsed' | null>(null);
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- reads the remembered choice once, after mount
-    setPref(readPref());
-  }, []);
-  const overlay = useGuideUi((s) => s.railOverlay);
-  const setOverlay = useGuideUi((s) => s.setRailOverlay);
-  const wide = width >= 1360;
-  const expanded = wide && pref !== 'collapsed';
+  const collapsed = useGuideUi((s) => s.railCollapsed);
+  const setCollapsed = useGuideUi((s) => s.setRailCollapsed);
+  const load = useGuideUi((s) => s.load);
+  useEffect(() => load(), [load]);
+  const railWidth = width >= 1280 ? 264 : 232;
   const g = useGuide();
 
-  /* Keyboard: ] next step, [ previous step, g then 1–5 to jump. */
+  /* Keyboard: ] next step, [ previous step, g then 1 to 6 to jump. */
   useEffect(() => {
     let pendingG = false;
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (t && (t.closest('input, textarea, select, [contenteditable="true"]') || e.metaKey || e.ctrlKey || e.altKey)) return;
-      if (e.key === 'Escape') setOverlay(false);
       if (e.key === ']') {
         if (g.current <= 5) g.goNext(g.current as GuideStep);
         pendingG = false;
@@ -98,39 +78,11 @@ export function GuideRail() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [g, setOverlay]);
-
-  const collapse = () => {
-    if (wide) {
-      setPref('collapsed');
-      writePref('collapsed');
-    }
-    setOverlay(false);
-  };
-  const expand = () => {
-    if (wide) {
-      setPref('expanded');
-      writePref('expanded');
-    } else {
-      setOverlay(true);
-    }
-  };
+  }, [g]);
 
   return (
-    <div className="ds-scope relative z-30 flex shrink-0" style={{ width: expanded ? 264 : 64, transition: 'width 180ms ease-out' }}>
-      {expanded ? (
-        <RailFull onCollapse={collapse} />
-      ) : (
-        <RailMini onExpand={expand} />
-      )}
-      {!expanded && overlay && (
-        <>
-          <button aria-label="Close the walkthrough" className="fixed inset-0 z-40 cursor-default bg-ink/20" onClick={() => setOverlay(false)} />
-          <div className="guide-overlay-in absolute left-0 top-0 z-50 h-full w-[264px] shadow-[8px_0_24px_rgba(31,42,46,0.18)]">
-            <RailFull onCollapse={() => setOverlay(false)} />
-          </div>
-        </>
-      )}
+    <div className="ds-scope relative z-30 flex shrink-0" style={{ width: collapsed ? 64 : railWidth, transition: 'width 180ms ease-out' }}>
+      {collapsed ? <RailMini onExpand={() => setCollapsed(false)} /> : <RailFull width={railWidth} onCollapse={() => setCollapsed(true)} />}
     </div>
   );
 }
@@ -141,12 +93,11 @@ function statusOf(step: GuideStep, g: ReturnType<typeof useGuide>): StepStatus {
   return g.stepDone(step) ? 'done' : 'upcoming';
 }
 
-function RailFull({ onCollapse }: { onCollapse: () => void }) {
+function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void }) {
   const router = useRouter();
   const g = useGuide();
   const hintsHidden = useGuideUi((s) => s.hintsHidden);
   const setHintsHidden = useGuideUi((s) => s.setHintsHidden);
-  const setOverlay = useGuideUi((s) => s.setRailOverlay);
   const [startOpen, setStartOpen] = useState<boolean | null>(null);
   const [menu, setMenu] = useState(false);
   const [confirm, setConfirm] = useState<'reset' | 'setup' | 'keys' | null>(null);
@@ -154,13 +105,10 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
   const startShown = startOpen ?? !g.started;
   const pct = (g.doneCount / 5) * 100;
 
-  const nav = (href: string) => {
-    setOverlay(false);
-    router.push(href);
-  };
+  const nav = (href: string) => router.push(href);
 
   return (
-    <aside aria-label="Walkthrough" className="flex h-full w-[264px] flex-col border-r border-line bg-white text-ink">
+    <aside aria-label="Walkthrough" className="flex h-full flex-col border-r border-line bg-white text-ink" style={{ width }}>
       {/* Header */}
       <div className="shrink-0 border-b border-line px-4 pb-3 pt-4">
         <div className="flex items-start justify-between gap-2">
@@ -168,7 +116,7 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
             <p className="text-[16px] font-semibold leading-[22px]">Walkthrough</p>
             <p className="text-[12px] text-muted">5 steps · about 3 minutes</p>
           </div>
-          <button onClick={onCollapse} aria-label="Collapse the walkthrough" className={`rounded-md p-1 text-muted hover:bg-page hover:text-ink ${ring}`}>
+          <button onClick={onCollapse} aria-label="Hide walkthrough" title="Hide walkthrough" className={`rounded-md p-1 text-muted hover:bg-page hover:text-ink ${ring}`}>
             <ChevronsLeft size={16} />
           </button>
         </div>
@@ -178,22 +126,30 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
           </div>
           <span className="whitespace-nowrap text-[12px] text-muted">{g.doneCount} of 5 done</span>
         </div>
-        <button onClick={() => setHintsHidden(!hintsHidden)} className={`mt-2 inline-flex items-center gap-1.5 rounded-md text-[12px] font-semibold text-muted hover:text-ink ${ring}`}>
-          {hintsHidden ? <Eye size={13} /> : <EyeOff size={13} />}
-          {hintsHidden ? 'Show hints' : 'Hide hints'}
-        </button>
+        {hintsHidden ? (
+          <p className="mt-2 flex items-center gap-1.5 text-[12px] text-muted">
+            <EyeOff size={13} /> Hints off ·{' '}
+            <button onClick={() => setHintsHidden(false)} className={`inline-flex items-center gap-1 rounded-md font-semibold text-guide-700 hover:underline ${ring}`}>
+              <Eye size={13} /> Turn on
+            </button>
+          </p>
+        ) : (
+          <button onClick={() => setHintsHidden(true)} className={`mt-2 inline-flex items-center gap-1.5 rounded-md text-[12px] font-semibold text-muted hover:text-ink ${ring}`}>
+            <EyeOff size={13} /> Hide hints
+          </button>
+        )}
       </div>
 
       {/* Body */}
       <div className="thin-scroll min-h-0 flex-1 overflow-y-auto px-4 py-3">
-        {quickPath && <QuickLook g={g} onNav={() => setOverlay(false)} />}
+        {quickPath && <QuickLook g={g} onNav={() => undefined} />}
         <button onClick={() => setStartOpen(!startShown)} aria-expanded={startShown} className={`flex w-full items-center justify-between rounded-md text-[12px] font-semibold uppercase tracking-wide text-muted ${ring}`}>
           Start here {startShown ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         </button>
         {startShown && (
           <ul className="mb-3 mt-2 space-y-0.5">
             <li>
-              <button onClick={() => { setOverlay(false); g.startQuickPath(); }} className={`flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left text-[13px] font-semibold text-guide-700 hover:bg-page ${ring}`}>
+              <button onClick={() => g.startQuickPath()} className={`flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left text-[13px] font-semibold text-guide-700 hover:bg-page ${ring}`}>
                 <Zap size={15} className="shrink-0" /> Quick look · review the signing copy
               </button>
             </li>
@@ -245,18 +201,9 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
                 nextTitle={nextStep?.title}
                 stepComplete={g.actionsDone(step).every(Boolean)}
                 asks={(step === 6 ? AFTER_SIGNING : GUIDE_STAGES[step - 1]).ask?.slice(0, 1)}
-                onAction={(a) => {
-                  setOverlay(false);
-                  g.doAction(a);
-                }}
-                onNext={() => {
-                  setOverlay(false);
-                  g.goNext(step);
-                }}
-                onJump={() => {
-                  setOverlay(false);
-                  g.jumpTo(step);
-                }}
+                onAction={(a) => g.doAction(a)}
+                onNext={() => g.goNext(step)}
+                onJump={() => g.jumpTo(step)}
                 onRevisit={() => nav(m.href)}
               />
             );
@@ -290,6 +237,7 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
         onConfirm={() => {
           setConfirm(null);
           useDemo.getState().reset();
+          useGuideUi.getState().resetUi();
           useDemo.getState().toast(shiftText('Walkthrough reset to 14 Nov.'));
           nav('/');
         }}
@@ -309,7 +257,7 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
       <ConfirmDialog
         open={confirm === 'keys'}
         title="Keyboard shortcuts"
-        body="]  next step   ·   [  previous step   ·   g then 1 to 6  jump to a step   ·   Esc  hide the hint"
+        body="]  next step   ·   [  previous step   ·   g then 1 to 6  jump to a step   ·   Esc  hide the hint label"
         confirmLabel="Got it"
         onCancel={() => setConfirm(null)}
         onConfirm={() => setConfirm(null)}
@@ -320,13 +268,12 @@ function RailFull({ onCollapse }: { onCollapse: () => void }) {
 
 function RailMini({ onExpand }: { onExpand: () => void }) {
   const g = useGuide();
-  const setOverlay = useGuideUi((s) => s.setRailOverlay);
   const pct = g.doneCount / 5;
   const r = 14;
   const c = 2 * Math.PI * r;
   return (
     <nav aria-label="Walkthrough (collapsed)" className="flex h-full w-16 flex-col items-center gap-3 border-r border-line bg-white py-3">
-      <button onClick={onExpand} aria-label="Expand the walkthrough" className={`relative grid h-10 w-10 place-items-center rounded-full ${ring}`} title={`${g.doneCount} of 5 done`}>
+      <button onClick={onExpand} aria-label="Show walkthrough" className={`relative grid h-10 w-10 place-items-center rounded-full ${ring}`} title={`${g.doneCount} of 5 done`}>
         <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden>
           <circle cx="18" cy="18" r={r} fill="none" stroke="#B3DFE3" strokeWidth="3" />
           <circle cx="18" cy="18" r={r} fill="none" stroke="#127FA6" strokeWidth="3" strokeDasharray={`${c * pct} ${c}`} strokeLinecap="round" transform="rotate(-90 18 18)" />
@@ -341,7 +288,7 @@ function RailMini({ onExpand }: { onExpand: () => void }) {
               <button
                 aria-label={`Step ${step}: ${m.title}, ${m.date}`}
                 aria-current={g.current === step ? 'step' : undefined}
-                onClick={() => setOverlay(true)}
+                onClick={onExpand}
                 className={`rounded-full ${ring}`}
               >
                 <StepCircle step={step} status={statusOf(step, g)} size={step === 6 ? 18 : 24} />
@@ -354,7 +301,7 @@ function RailMini({ onExpand }: { onExpand: () => void }) {
         })}
       </ol>
       <span className="flex-1" />
-      <button onClick={onExpand} aria-label="Expand the walkthrough" className={`rounded-md p-1.5 text-muted hover:bg-page hover:text-ink ${ring}`}>
+      <button onClick={onExpand} aria-label="Show walkthrough" title="Show walkthrough" className={`rounded-md p-1.5 text-muted hover:bg-page hover:text-ink ${ring}`}>
         <ChevronsRight size={16} />
       </button>
     </nav>
