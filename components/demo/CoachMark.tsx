@@ -265,7 +265,7 @@ export function CoachMark() {
       {showTag &&
         createPortal(
           <div data-coach-root role="status" className="ds-scope pointer-events-none fixed" style={{ top: pos.top, left: pos.left, zIndex: Z_TAG }}>
-            <div data-coach-label className="guide-solid relative whitespace-nowrap rounded-md px-2.5 py-1.5 text-[12px] font-semibold leading-[16px] text-white shadow-pop">
+            <div data-coach-label className="guide-solid guide-bob relative whitespace-nowrap rounded-md px-2.5 py-1.5 text-[12px] font-semibold leading-[16px] text-white shadow-pop">
               Next · {label}
               <span aria-hidden className="guide-solid absolute h-2 w-2 rotate-45" style={{ left: pos.arrowLeft - 4, ...(pos.above ? { bottom: -4 } : { top: -4 }) }} />
             </div>
@@ -350,7 +350,7 @@ function StepDoneCard() {
           <span className="text-muted">· {sub}</span>
         </p>
         <div className="mt-3 flex items-center gap-3">
-          <button data-guide-advance onClick={onPrimary} className="guide-solid whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-semibold text-white hover:brightness-95">
+          <button data-guide-advance onClick={onPrimary} className="guide-solid guide-bob whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-semibold text-white hover:brightness-95">
             {primary}
           </button>
           <button onClick={() => stay(key!)} className="whitespace-nowrap text-[13px] font-semibold text-muted hover:text-ink">

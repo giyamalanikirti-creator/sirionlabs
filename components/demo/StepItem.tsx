@@ -122,7 +122,7 @@ export function StepItem({
             {nextTitle && (
               <div className="mt-3">
                 {stepComplete ? (
-                  <button onClick={onNext} data-tour="guide-next" className={`guide-pulse w-full rounded-lg bg-guide-600 px-3 py-2 text-[13px] font-semibold text-white hover:bg-guide-700 ${ring}`}>
+                  <button onClick={onNext} data-tour="guide-next" className={`guide-pulse guide-bob w-full rounded-lg bg-guide-600 px-3 py-2 text-[13px] font-semibold text-white hover:bg-guide-700 ${ring}`}>
                     Next: {nextTitle} →
                   </button>
                 ) : (

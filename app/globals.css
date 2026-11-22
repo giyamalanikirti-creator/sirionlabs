@@ -302,6 +302,21 @@ body {
 .guide-pulse {
   animation: tour-pulse 1.6s ease-out infinite;
 }
+/* "Next" calls to action pop and bob so a viewer notices them (reduced motion: still). */
+@keyframes guide-bob {
+  0%, 100% { transform: translateY(0) scale(1); }
+  12% { transform: translateY(0) scale(1.06); }
+  24% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-5px); }
+  75% { transform: translateY(0); }
+}
+.guide-bob {
+  animation: guide-bob 1.8s ease-in-out infinite;
+  will-change: transform;
+}
+.guide-bob.guide-pulse {
+  animation: guide-bob 1.8s ease-in-out infinite, tour-pulse 1.6s ease-out infinite;
+}
 @keyframes guide-overlay-in {
   from { transform: translateX(-12px); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
@@ -311,7 +326,9 @@ body {
 }
 @media (prefers-reduced-motion: reduce) {
   .tour-target,
-  .guide-pulse {
+  .guide-pulse,
+  .guide-bob,
+  .guide-bob.guide-pulse {
     animation: none;
     box-shadow: 0 0 0 3px rgba(18, 127, 166, 0.35);
   }

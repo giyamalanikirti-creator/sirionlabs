@@ -47,7 +47,7 @@ export function NextBar() {
       </span>
       <button
         onClick={() => g.openAction(action)}
-        className="guide-solid inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1 text-[12.5px] font-semibold text-white hover:brightness-95"
+        className="guide-solid guide-bob inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1 text-[12.5px] font-semibold text-white hover:brightness-95"
       >
         {otherApp ? `Open ${app.label}` : 'Go there'} <ArrowRight size={14} />
       </button>

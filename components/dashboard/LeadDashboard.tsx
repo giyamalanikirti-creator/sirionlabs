@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowDown, ArrowRight, ArrowUpRight, BookOpen, ChevronRight } from 'lucide-react';
 import { KpiTile, SirionCard, Table, Td, Th } from '@/components/sirion/ui';
 import { Donut, HBars } from '@/components/sirion/charts';
 import { StatePill, NewAskBadge } from '@/components/sirion/StatePill';
@@ -53,7 +53,7 @@ export function LeadDashboard() {
         <h2 className="text-[17px] font-semibold text-ink">Workspace</h2>
         <p className="text-[13px] text-muted">Portfolio figures, exposure and the live CloudDesk ledger</p>
       </div>
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2 xl:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 min-[1400px]:grid-cols-4">
         <KpiTile
           label="Signed with no agreed term missing"
           value={`${northStarPct}%`}
@@ -90,7 +90,7 @@ export function LeadDashboard() {
             </>
           }
         />
-        <SirionCard title="Where agreed terms were found" className="lg:col-span-2" sample={`From ${termsFound.interviews} primary interviews`}>
+        <SirionCard title="Where agreed terms were found" className="md:col-span-2" sample={`From ${termsFound.interviews} primary interviews`}>
           <Donut
             data={termsFound.split.map((s) => ({ name: s.source, value: s.pct }))}
             height={212}
@@ -285,43 +285,83 @@ const CASE_LINKS = [
   { href: '/today', label: 'Sirion today vs Deal Ledger' },
 ];
 
-/** Review fix B3/C1: one primary action, the rest as text links, the case one click away. */
+/**
+ * Home's opening (review fix B3/C1, reworked): the promise and one primary
+ * action on the left, the case on the right as a proper side panel, and the
+ * deal's facts in one quiet line. Two columns from 1024 px; stacked below.
+ */
 function HomeHero() {
   const g = useGuide();
+  const deal = cloudDeskDeal;
+  const annual = deal.annualFeeInr / 1e5;
+  const facts = [
+    `${deal.supplier} renewal`,
+    `${formatLakh(annual)} a year`,
+    `${deal.termYears}-year term`,
+    `${formatLakh(annual * deal.termYears)} committed`,
+    `Owner ${personName(deal.ownerId)}`,
+  ];
   return (
-    <section className="rounded-2xl border border-line bg-white px-7 py-7 shadow-card">
-      <div className="flex flex-wrap items-start justify-between gap-6">
-        <div className="min-w-0 max-w-[760px]">
-          <p className="text-[12px] font-semibold uppercase tracking-[0.06em] text-teal-900">Deal Ledger · prototype</p>
-          <h1 className="mt-2 text-[26px] font-semibold leading-[34px] text-ink">{OPENING_LINE}</h1>
-          <p className="mt-3 text-[15px] leading-[23px] text-[#3F4E52]">{QUICK_INTRO}</p>
-          <div className="mt-5 flex flex-wrap items-center gap-x-5 gap-y-3">
-            <button onClick={g.startQuickPath} className="rounded-lg bg-teal-900 px-5 py-3 text-[15px] font-semibold text-white shadow-sm hover:bg-teal-700">
-              Review CloudDesk&apos;s signing copy
+    <section className="overflow-hidden rounded-2xl border border-line bg-white shadow-card">
+      <div className="grid lg:grid-cols-[minmax(0,1fr)_250px] min-[1400px]:grid-cols-[minmax(0,1fr)_300px]">
+        <div className="min-w-0 bg-gradient-to-br from-[#F1F8F7] via-white to-white px-7 py-7 min-[1400px]:px-8 min-[1400px]:py-8">
+          <span className="inline-flex items-center gap-1.5 rounded-full border border-teal-900/15 bg-white px-2.5 py-[3px] text-[11.5px] font-semibold uppercase tracking-[0.06em] text-teal-900">
+            <span className="h-1.5 w-1.5 rounded-full bg-teal-900" /> Deal Ledger · prototype
+          </span>
+          <h1 className="mt-4 max-w-[720px] text-[24px] font-semibold leading-[32px] tracking-[-0.01em] text-ink min-[1400px]:text-[28px] min-[1400px]:leading-[36px]">{OPENING_LINE}</h1>
+          <p className="mt-3 max-w-[640px] text-[15px] leading-[24px] text-[#3F4E52]">{QUICK_INTRO}</p>
+          <div className="mt-6 flex flex-wrap items-center gap-3">
+            <button onClick={g.startQuickPath} className="inline-flex items-center gap-2 rounded-lg bg-teal-900 px-4 py-3 text-[15px] font-semibold text-white shadow-sm transition hover:bg-teal-700">
+              Review CloudDesk&apos;s signing copy <ArrowRight size={16} />
             </button>
-            <button onClick={() => { useDemo.getState().setQuickPath(false); g.jumpTo(1); }} className="text-[14px] font-semibold text-teal-900 underline underline-offset-2">
+            <button
+              onClick={() => {
+                useDemo.getState().setQuickPath(false);
+                g.jumpTo(1);
+              }}
+              className="rounded-lg border border-line bg-white px-4 py-3 text-[15px] font-semibold text-teal-900 transition hover:border-teal-900/40 hover:bg-page"
+            >
               Start the full walkthrough
             </button>
-            <a href="#workspace" className="text-[14px] font-semibold text-teal-900 underline underline-offset-2">
-              Explore the workspace
+          </div>
+          <div className="mt-7 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 border-t border-line pt-4">
+            <ul className="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted">
+              {facts.map((f, i) => (
+                <li key={f} className="flex items-center gap-2">
+                  {i > 0 && <span aria-hidden className="h-1 w-1 rounded-full bg-line" />}
+                  <span className={i === 0 ? 'font-semibold text-ink' : undefined}>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <a href="#workspace" className="inline-flex shrink-0 items-center gap-1 text-[13px] font-semibold text-teal-900 hover:underline">
+              Explore the workspace <ArrowDown size={14} />
             </a>
           </div>
         </div>
-        <nav aria-label="About this case" className="min-w-[200px] rounded-xl border border-line bg-page px-4 py-3">
-          <Link href="/story" className="text-[13px] font-semibold text-ink hover:underline">About this case</Link>
-          <ul className="mt-1.5 space-y-1">
+
+        <nav aria-label="About this case" className="border-t border-line bg-page/60 px-5 py-6 lg:border-l lg:border-t-0 min-[1400px]:px-6">
+          <Link href="/story" className="group flex items-center gap-2 text-[14px] font-semibold text-ink">
+            <BookOpen size={16} className="text-teal-900" /> About this case
+            <ArrowRight size={14} className="ml-auto text-muted transition group-hover:translate-x-0.5 group-hover:text-ink" />
+          </Link>
+          <ul className="mt-3 divide-y divide-line rounded-xl border border-line bg-white">
             {CASE_LINKS.map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="text-[13px] text-teal-900 hover:underline">{l.label}</Link>
+                <Link href={l.href} className="group flex items-center justify-between gap-2 px-3.5 py-2.5 text-[13.5px] text-ink hover:bg-page">
+                  {l.label}
+                  <ChevronRight size={14} className="shrink-0 text-muted transition group-hover:translate-x-0.5 group-hover:text-teal-900" />
+                </Link>
               </li>
             ))}
           </ul>
-          <details className="mt-2 border-t border-line pt-2">
-            <summary className="cursor-pointer text-[13px] font-semibold text-ink">More detail</summary>
-            <ul className="mt-1.5 space-y-1">
+          <details className="group/more mt-3">
+            <summary className="flex cursor-pointer list-none items-center gap-1.5 px-1 text-[13px] font-semibold text-muted hover:text-ink [&::-webkit-details-marker]:hidden">
+              <ChevronRight size={14} className="transition group-open/more:rotate-90" /> More detail
+            </summary>
+            <ul className="mt-2 space-y-0.5 pl-6">
               {MORE_LINKS.map((l) => (
                 <li key={l.href}>
-                  <Link href={l.href} className="text-[13px] text-teal-900 hover:underline">{l.label}</Link>
+                  <Link href={l.href} className="block py-1 text-[13px] text-teal-900 hover:underline">{l.label}</Link>
                 </li>
               ))}
             </ul>

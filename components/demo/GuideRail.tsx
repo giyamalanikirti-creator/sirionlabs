@@ -12,7 +12,7 @@
  * session only (lib/guideUi), and Reset demo reopens it.
  */
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { BookOpen, Check, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Columns2, Eye, EyeOff, MoreHorizontal, PlugZap, Zap } from 'lucide-react';
 import { OPENING_LINE, QUICK_ACTIONS } from '@/lib/demo/quickPath';
 import { useDemo } from '@/lib/store';
@@ -36,6 +36,25 @@ function useWindowWidth() {
     return () => window.removeEventListener('resize', on);
   }, []);
   return w;
+}
+
+/**
+ * The Outlook and Word mocks need room (BUILD_SPEC §4F). When their frame is
+ * under 1100 px, the rail points at its own « button instead of showing a
+ * notice over the app: the one thing the viewer can do about it.
+ */
+function useNeedsRoom() {
+  const pathname = usePathname();
+  const mock = pathname.startsWith('/outlook') || pathname.startsWith('/word');
+  const [narrow, setNarrow] = useState(false);
+  useEffect(() => {
+    const frame = document.getElementById('app-frame');
+    if (!frame) return;
+    const ro = new ResizeObserver(([entry]) => setNarrow(entry.contentRect.width < 1100));
+    ro.observe(frame);
+    return () => ro.disconnect();
+  }, []);
+  return mock && narrow;
 }
 
 const STORY_LINKS = [
@@ -95,9 +114,11 @@ function statusOf(step: GuideStep, g: ReturnType<typeof useGuide>): StepStatus {
 
 function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void }) {
   const router = useRouter();
+  const pathname = usePathname();
   const g = useGuide();
   const hintsHidden = useGuideUi((s) => s.hintsHidden);
   const setHintsHidden = useGuideUi((s) => s.setHintsHidden);
+  const needsRoom = useNeedsRoom();
   const [startOpen, setStartOpen] = useState<boolean | null>(null);
   const [menu, setMenu] = useState(false);
   const [confirm, setConfirm] = useState<'reset' | 'setup' | 'keys' | null>(null);
@@ -116,10 +137,25 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
             <p className="text-[16px] font-semibold leading-[22px]">Walkthrough</p>
             <p className="text-[12px] text-muted">5 steps · about 3 minutes</p>
           </div>
-          <button onClick={onCollapse} aria-label="Hide walkthrough" title="Hide walkthrough" className={`rounded-md p-1 text-muted hover:bg-page hover:text-ink ${ring}`}>
+          <button
+            onClick={onCollapse}
+            aria-label="Hide walkthrough"
+            title="Hide walkthrough"
+            className={`rounded-md p-1 hover:bg-page hover:text-ink ${ring} ${needsRoom ? 'guide-pulse bg-guide-50 text-guide-700 outline outline-2 outline-offset-2 outline-[#127FA6]' : 'text-muted'}`}
+          >
             <ChevronsLeft size={16} />
           </button>
         </div>
+        {needsRoom && (
+          <div className="relative mt-2.5 rounded-lg border border-guide-200 bg-guide-50 px-3 py-2 text-[12.5px] leading-[17px] text-ink">
+            <span aria-hidden className="absolute -top-[6px] right-[7px] h-2.5 w-2.5 rotate-45 border-l border-t border-guide-200 bg-guide-50" />
+            Short on room for {pathname.startsWith('/word') ? 'Word' : 'Outlook'}? Press{' '}
+            <button onClick={onCollapse} aria-label="Hide walkthrough" className={`inline-flex translate-y-[2px] items-center rounded border border-guide-200 bg-white px-1 text-guide-700 hover:bg-guide-200/40 ${ring}`}>
+              <ChevronsLeft size={13} />
+            </button>{' '}
+            above to hide the walkthrough. The steps stay as numbers on the left.
+          </div>
+        )}
         <div className="mt-3 flex items-center gap-2">
           <div className="h-1 flex-1 overflow-hidden rounded-full bg-guide-200" role="progressbar" aria-valuemin={0} aria-valuemax={5} aria-valuenow={g.doneCount}>
             <div className="h-full rounded-full bg-guide-600 transition-[width] duration-200" style={{ width: `${pct}%` }} />
