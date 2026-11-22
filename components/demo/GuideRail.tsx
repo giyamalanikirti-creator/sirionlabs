@@ -138,13 +138,13 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
             onClick={onCollapse}
             aria-label="Hide walkthrough"
             title="Hide walkthrough"
-            className={`rounded-md p-1 hover:bg-page hover:text-ink ${ring} ${needsRoom ? 'guide-pulse bg-guide-50 text-guide-700 outline outline-2 outline-offset-2 outline-[#127FA6]' : 'text-muted'}`}
+            className={`rounded-md p-1 hover:bg-page hover:text-ink ${ring} ${needsRoom ? 'bg-guide-50 text-guide-700 outline outline-2 outline-offset-2 outline-[#127FA6]' : 'text-muted'}`}
           >
             <ChevronsLeft size={16} />
           </button>
         </div>
         {needsRoom && (
-          <div className="relative mt-2.5 rounded-lg border border-guide-200 bg-guide-50 px-3 py-2 text-[12.5px] leading-[17px] text-ink">
+          <div className="guide-pulse relative mt-2.5 rounded-lg border border-guide-200 bg-guide-50 px-3 py-2 text-[12.5px] leading-[17px] text-ink">
             <span aria-hidden className="absolute -top-[6px] right-[7px] h-2.5 w-2.5 rotate-45 border-l border-t border-guide-200 bg-guide-50" />
             Short on room for {pathname.startsWith('/word') ? 'Word' : 'Outlook'}? Press{' '}
             <button onClick={onCollapse} aria-label="Hide walkthrough" className={`inline-flex translate-y-[2px] items-center rounded border border-guide-200 bg-white px-1 text-guide-700 hover:bg-guide-200/40 ${ring}`}>
@@ -257,7 +257,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
 
       <ConfirmDialog
         open={confirm === 'reset'}
-        title={shiftText("Reset the walkthrough to 14 Nov?")}
+        title="Reset the walkthrough?"
         body="Your choices will be cleared."
         confirmLabel="Reset demo"
         onCancel={() => setConfirm(null)}
@@ -265,7 +265,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
           setConfirm(null);
           useDemo.getState().reset();
           useGuideUi.getState().resetUi();
-          useDemo.getState().toast(shiftText('Walkthrough reset to 14 Nov.'));
+          useDemo.getState().toast('Walkthrough reset.');
           nav('/');
         }}
       />
