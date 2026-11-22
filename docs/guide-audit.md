@@ -122,5 +122,5 @@ These are not highlight failures, so they are left as they were. The brief didn'
 **Later changes:**
 - **Edit reply:** Edit reply no longer ends step 3. Two actions follow it (3e and 3f), so the guidance carries on until the edited reply is sent.
 - **Stay here:** after Stay here on a step-complete card, the in-frame bar keeps offering the next step.
-- **Colour:** the next step's ring, label and buttons use an indigo accent (`--guide-cta`) that no app on screen uses, and they bob.
+- **Colour:** the next step's ring, label and buttons use the walkthrough's blue (`--guide-cta`, as on the rail's step circles) that no app on screen uses, and they bob.
 - **Word:** clicking an issue card anywhere outside its buttons scrolls the document to that clause and highlights it.

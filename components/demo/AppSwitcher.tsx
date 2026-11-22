@@ -45,7 +45,7 @@ export function AppSwitcher() {
               'relative flex h-9 items-center gap-2 rounded-lg px-3 text-left transition-colors',
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-guide-200',
               isActive ? 'text-white' : 'border border-white/[0.22] bg-white/[0.08] text-white hover:bg-white/[0.14]',
-              isNext ? 'ring-2 ring-[#5B5BD6] ring-offset-2 ring-offset-ink' : '',
+              isNext ? 'ring-2 ring-[#1F6FD1] ring-offset-2 ring-offset-ink' : '',
             ].join(' ')}
             style={isActive ? { background: a.colour } : undefined}
           >

@@ -34,7 +34,7 @@ const TIP_H = 30;
 /** Above Fluent dialogs and drawers, so a target inside a dialog keeps its tag. */
 const Z_TAG = 2147483000;
 /** The tag's width from its text (12 px semibold), so it can sit flush and never wrap. */
-const tagWidth = (text: string) => Math.min(340, Math.round(text.length * 6.6) + 24);
+const tagWidth = (text: string) => Math.min(480, Math.round(text.length * 7.1) + 28);
 
 /** The visible part of the element, or null when too little of it is usable. */
 function visibleRect(el: HTMLElement): DOMRect | null {
