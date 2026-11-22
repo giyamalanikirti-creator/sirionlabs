@@ -146,3 +146,7 @@ How it works:
 - **Start here:** "How it was set up" is gone from Start here, because the setup is now step 1. The first-prompt link stays.
 
 **Play-through:** a fresh visit at 1440 × 900 reached every action, step 1 included, through the ring, a ringed link on the checklist, or the in-frame bar.
+
+**Step 1 to step 2:**
+- **When step 1 ends:** step 1 is done the moment the checklist is complete, so step 2's guidance starts however the viewer reaches Outlook next (the top bar, the app switcher, or opening Outlook directly).
+- **The round arrives:** completing the connection moves the demo clock to round 4's arrival, so Rohan's email is already in Ananya's inbox.

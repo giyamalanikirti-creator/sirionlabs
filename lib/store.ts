@@ -624,10 +624,16 @@ export const useDemo = create<DemoState>()(
       },
 
       updateSetup: (patch) =>
-        set((s) => ({
-          setup: { ...s.setup, ...patch },
-          events: [...s.events, { at: s.clock, text: `Setup: ${Object.entries(patch).map(([k, v]) => `${k} ${v ? 'done' : 'off'}`).join(', ')}.` }],
-        })),
+        set((s) => {
+          const setup = { ...s.setup, ...patch };
+          const connected = setup.enabled && setup.consented && setup.group && setup.deployed;
+          return {
+            setup,
+            // Once Microsoft 365 is connected, the walkthrough's round 4 email is in Ananya's inbox (step 2 starts).
+            clock: connected && s.clock < STEP_CLOCK[1] ? STEP_CLOCK[1] : s.clock,
+            events: [...s.events, { at: s.clock, text: `Setup: ${Object.entries(patch).map(([k, v]) => `${k} ${v ? 'done' : 'off'}`).join(', ')}.` }],
+          };
+        }),
 
       resetSetup: () =>
         set((s) => ({

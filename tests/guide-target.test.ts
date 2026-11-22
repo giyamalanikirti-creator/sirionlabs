@@ -28,12 +28,11 @@ describe('guide target', () => {
     const fresh = base({ clock: STEP_CLOCK[0] });
     expect(currentStep(fresh)).toBe(1);
     expect(guideTarget(fresh, false)?.action.target).toBe('setup-enable');
+    /* As soon as the checklist is complete, step 2 leads: its first action is next, wherever the viewer goes. */
     const connected = base({ clock: STEP_CLOCK[0], setup: CONNECTED });
-    expect(guideTarget(connected, false)?.action.id).toBe(undefined);
-    expect(stepComplete(connected)).toBe(1);
-    const movedOn = base({ clock: STEP_CLOCK[0], setup: CONNECTED, tourClicks: ['guide:setup-next'] });
-    expect(currentStep(movedOn)).toBe(2);
-    expect(guideTarget(movedOn, false)?.action.id).toBe('2a');
+    expect(currentStep(connected)).toBe(2);
+    expect(guideTarget(connected, false)?.action.id).toBe('2a');
+    expect(stepComplete(connected)).toBeNull();
   });
 
   it('serves the walkthrough action, then the quick path action while it runs', () => {

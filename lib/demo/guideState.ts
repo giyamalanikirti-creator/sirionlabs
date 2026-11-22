@@ -69,14 +69,14 @@ export function setupComplete(s: GuideStateInput): boolean {
 
 /**
  * The walkthrough has moved past this step.
- *  - Step 1 (setup): the checklist is complete and the viewer moved on (Next, or the round has begun).
+ *  - Step 1 (setup): the checklist is complete.
  *  - Steps 2 to 6: the clock reached the next step's day.
  *  - After signing: its actions are done.
  */
 export function stepPassed(step: GuideStep, s: GuideStateInput): boolean {
-  if (step === SETUP_STEP) {
-    return setupComplete(s) && (s.tourClicks.includes(SETUP_MOVED_ON) || s.clock > STEP_CLOCK[0] || actionsDone(2, s).some(Boolean));
-  }
+  /* Step 1 is behind the viewer the moment the checklist is complete, however they reach Outlook next
+     (the top bar, the app switcher or the rail), so step 2's highlights start straight away. */
+  if (step === SETUP_STEP) return setupComplete(s);
   if (step === AFTER_STEP) return actionsDone(AFTER_STEP, s).every(Boolean);
   return s.clock >= STEP_CLOCK[(momentOf(step) + 1) as 2 | 3 | 4 | 5 | 6];
 }
