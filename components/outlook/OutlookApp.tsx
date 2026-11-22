@@ -501,6 +501,7 @@ export function OutlookApp({ person }: { person: Person }) {
   };
 
   const unread = inbox.filter((m) => !readIds.includes(m.id)).length;
+  const reviewingSirionDraft = composing && Boolean(draftOpts.kind);
 
   return (
     <div className={chrome.app}>
@@ -528,14 +529,16 @@ export function OutlookApp({ person }: { person: Person }) {
                 else setSelectedId(undefined);
               }}
             />
-            <MessageList
-              messages={list}
-              selectedId={selectedId}
-              readIds={readIds}
-              clock={viewClock}
-              folder={folder}
-              onSelect={openMessage}
-            />
+            {!reviewingSirionDraft && (
+              <MessageList
+                messages={list}
+                selectedId={selectedId}
+                readIds={readIds}
+                clock={viewClock}
+                folder={folder}
+                onSelect={openMessage}
+              />
+            )}
             <div className={s.relative}>
               {composing ? (
                 <Compose
@@ -556,6 +559,7 @@ export function OutlookApp({ person }: { person: Person }) {
                     setEditQuote(null);
                   }}
                   sending={checking}
+                  draftedBySirion={reviewingSirionDraft}
                   attachments={attachments.map((a) => a.fileName)}
                   summary={draftOpts.summary}
                   notice={

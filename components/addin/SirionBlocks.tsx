@@ -208,16 +208,8 @@ export function AiReviewBlock({ versionId }: { versionId: string }) {
   );
 }
 
-/** 5 · Action row: Sirion's actions, plus Respond to round. */
-export function ActionRow({
-  versionId,
-  onRespond,
-  responded,
-}: {
-  versionId: string;
-  onRespond?: () => void;
-  responded?: boolean;
-}) {
+/** Sirion's review, approval and Word actions. */
+export function ActionRow({ versionId }: { versionId: string }) {
   const s = usePaneStyles();
   const requests = useDemo((st) => st.reviewRequests).filter((r) => r.versionId === versionId);
   const request = useDemo((st) => st.requestReview);
@@ -256,22 +248,6 @@ export function ActionRow({
       <div className={s.grey} style={{ marginTop: 4 }}>
         <OriginTag kind="today" /> Review, approval and Word are in Sirion&apos;s plugin today.
       </div>
-      {onRespond && (
-        <div style={{ marginTop: 10 }}>
-          <Button appearance="primary" data-tour="respond-round" style={{ width: '100%' }} onClick={onRespond}>
-            {responded ? 'Reply drafted · open it again' : 'Respond to round'}
-          </Button>
-          <div className={s.grey} style={{ marginTop: 4 }}>
-            <OriginTag kind="new" /> Drafts the reply and prepares the next version with tracked changes, in one step.
-          </div>
-          {responded && (
-            <p className={s.note}>
-              v5 is ready: clause 14.2 back to 30 days as a tracked change.{' '}
-              <Link href="/word/v5">Open v5 in Word</Link>
-            </p>
-          )}
-        </div>
-      )}
       {requests.length > 0 && (
         <div className={s.grey} style={{ marginTop: 8 }}>
           {requests.map((r) => (

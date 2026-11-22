@@ -98,11 +98,10 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
   const g = useGuide();
   const hintsHidden = useGuideUi((s) => s.hintsHidden);
   const setHintsHidden = useGuideUi((s) => s.setHintsHidden);
-  const [startOpen, setStartOpen] = useState<boolean | null>(null);
+  const [startOpen, setStartOpen] = useState(false);
   const [menu, setMenu] = useState(false);
   const [confirm, setConfirm] = useState<'reset' | 'setup' | 'keys' | null>(null);
   const quickPath = useDemo((st) => st.quickPath) && g.hydrated;
-  const startShown = startOpen ?? !g.started;
   const pct = (g.doneCount / 5) * 100;
 
   const nav = (href: string) => router.push(href);
@@ -143,10 +142,10 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
       {/* Body */}
       <div className="thin-scroll min-h-0 flex-1 overflow-y-auto px-4 py-3">
         {quickPath && <QuickLook g={g} onNav={() => undefined} />}
-        <button onClick={() => setStartOpen(!startShown)} aria-expanded={startShown} className={`flex w-full items-center justify-between rounded-md text-[12px] font-semibold uppercase tracking-wide text-muted ${ring}`}>
-          Start here {startShown ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+        <button onClick={() => setStartOpen((open) => !open)} aria-expanded={startOpen} className={`flex w-full items-center justify-between rounded-md text-[12px] font-semibold uppercase tracking-wide text-muted ${ring}`}>
+          Start here {startOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         </button>
-        {startShown && (
+        {startOpen && (
           <ul className="mb-3 mt-2 space-y-0.5">
             <li>
               <button onClick={() => g.startQuickPath()} className={`flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left text-[13px] font-semibold text-guide-700 hover:bg-page ${ring}`}>

@@ -12,18 +12,15 @@
  *  - The ring stays until the action is done: a first click, a route change,
  *    a re-render or AskSirion opening don't clear it. Esc hides only the tag.
  *    "Hide hints" in the rail is the only off switch.
- *  - When a step's last action is done, a "step complete" card offers the
- *    same move as the rail's Next button.
+ *  - The in-frame bar offers the next step when the last action is done.
  */
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { usePathname, useRouter } from 'next/navigation';
-import { Check } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 import { useDemo } from '@/lib/store';
 import { useGuideUi } from '@/lib/guideUi';
-import { appOf, stepMeta, type GuideStep } from '@/lib/demo/guideState';
-import { SCRIPT, type ScriptAction } from '@/lib/demo/script';
-import { QUICK_ACTIONS } from '@/lib/demo/quickPath';
+import { appOf } from '@/lib/demo/guideState';
+import type { ScriptAction } from '@/lib/demo/script';
 import { useGuide } from './useGuide';
 
 interface Pos {
@@ -34,15 +31,13 @@ interface Pos {
 }
 
 const TIP_H = 30;
-const CARD_W = 340;
-const CARD_H = 104;
 /** Above Fluent dialogs and drawers, so a target inside a dialog keeps its tag. */
 const Z_TAG = 2147483000;
 /** The tag's width from its text (12 px semibold), so it can sit flush and never wrap. */
 const tagWidth = (text: string) => Math.min(340, Math.round(text.length * 6.6) + 24);
 
-/** The part of the element's box not cut off by scrolling ancestors or the window, or null if too little shows. */
-function visibleRect(el: HTMLElement, strict = false): DOMRect | null {
+/** The visible part of the element, or null when too little of it is usable. */
+function visibleRect(el: HTMLElement): DOMRect | null {
   if (el.offsetParent === null && getComputedStyle(el).position !== 'fixed') return null;
   const r = el.getBoundingClientRect();
   let top = r.top;
@@ -61,8 +56,7 @@ function visibleRect(el: HTMLElement, strict = false): DOMRect | null {
   }
   top = Math.max(top, 0);
   bottom = Math.min(bottom, window.innerHeight);
-  /* Strict: most of the element must show (used to decide whether to scroll it into view). */
-  const need = strict ? Math.min(r.height, 140) - 2 : 8;
+  const need = Math.min(r.height, 140) - 2;
   if (bottom - top < need || right - left < 8) return null;
   return new DOMRect(left, top, right - left, bottom - top);
 }
@@ -201,8 +195,8 @@ export function CoachMark() {
       document.querySelectorAll('.tour-target').forEach((el) => {
         if (el !== found?.el) el.classList.remove('tour-target');
       });
-      setOffscreen(found ? undefined : a.id);
       if (!found) {
+        setOffscreen(a.id);
         setPos((p) => (p === null ? p : null));
         return;
       }
@@ -210,8 +204,9 @@ export function CoachMark() {
       /* Bring it into view, so the tag never points at something half hidden. Once the viewer
          scrolls by hand for this action, leave the scrolling to them. */
       const key = `${a.id}:${found.final}`;
-      if (userScrolled !== key && !visibleRect(found.el, true)) scrollToCentre(found.el);
+      if (userScrolled !== key && !visibleRect(found.el)) scrollToCentre(found.el);
       const r = visibleRect(found.el);
+      setOffscreen(r ? undefined : a.id);
       setLabel(found.label);
       if (!r) {
         setPos((p) => (p === null ? p : null));
@@ -272,93 +267,6 @@ export function CoachMark() {
           </div>,
           document.body,
         )}
-      <StepDoneCard />
     </>
-  );
-}
-
-/* ------------------------------------------------------------------ */
-/* Step complete (A3)                                                  */
-/* ------------------------------------------------------------------ */
-
-function StepDoneCard() {
-  const g = useGuide();
-  const router = useRouter();
-  const pathname = usePathname();
-  const hidden = useGuideUi((s) => s.hintsHidden);
-  const stayed = useGuideUi((s) => s.stayed);
-  const stay = useGuideUi((s) => s.stay);
-  const [pos, setPos] = useState<Pos | null>(null);
-  const c = g.complete;
-  const key = c ? (c.kind === 'quick' ? 'quick' : `step-${c.step}`) : undefined;
-  const show = Boolean(c && key && !hidden && !stayed.includes(key));
-  const lastTarget = c ? (c.kind === 'quick' ? QUICK_ACTIONS.at(-1)!.target : SCRIPT[c.step].at(-1)!.target) : undefined;
-
-  useEffect(() => {
-    if (!show) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect -- hidden: nothing to place
-      setPos(null);
-      return;
-    }
-    const place = () => {
-      const el = lastTarget ? laidOut(lastTarget) : undefined;
-      const r = el ? visibleRect(el) : null;
-      let next: Pos;
-      if (r) next = anchor(r, CARD_W, CARD_H);
-      else {
-        /* Nothing left to point at (the dialog closed, the email sent): top right of the app frame. */
-        const f = document.getElementById('app-frame')?.getBoundingClientRect();
-        next = { top: (f?.top ?? 60) + 12, left: (f?.right ?? window.innerWidth) - CARD_W - 16, above: false, arrowLeft: -1 };
-      }
-      setPos((p) => (samePos(p, next) ? p : next));
-    };
-    place();
-    const id = window.setInterval(place, 500);
-    window.addEventListener('resize', place);
-    return () => {
-      window.clearInterval(id);
-      window.removeEventListener('resize', place);
-    };
-  }, [show, lastTarget, pathname]);
-
-  if (!show || !pos || !c) return null;
-  const quick = c.kind === 'quick';
-  const step = quick ? undefined : (c.step as GuideStep);
-  const title = quick ? 'Quick look done' : step === 6 ? 'After signing done' : `Step ${step} done`;
-  const sub = quick ? 'Review the signing copy' : stepMeta(step!).title;
-  const nextTitle = step && step < 6 ? stepMeta((step + 1) as GuideStep).title : undefined;
-  const primary = quick ? 'Start the full walkthrough →' : nextTitle ? `Next: ${nextTitle} →` : 'Back to Home →';
-  const onPrimary = () => {
-    if (quick) {
-      useDemo.getState().setQuickPath(false);
-      g.jumpTo(1);
-    } else if (step && step < 6) g.goNext(step);
-    else {
-      stay(key!);
-      router.push('/');
-    }
-  };
-
-  return createPortal(
-    <div data-coach-root data-guide-done-card role="dialog" aria-label={title} className="ds-scope fixed" style={{ top: pos.top, left: pos.left, width: CARD_W, zIndex: Z_TAG }}>
-      <div className="rounded-xl border border-guide-600 bg-white p-3.5 shadow-pop">
-        <p className="flex items-center gap-1.5 text-[14px] text-ink">
-          <span className="guide-solid grid h-5 w-5 place-items-center rounded-full text-white">
-            <Check size={12} strokeWidth={3} />
-          </span>
-          <strong className="font-semibold">{title}</strong>
-          <span className="text-muted">· {sub}</span>
-        </p>
-        <div className="mt-3 flex items-center gap-3">
-          <button data-guide-advance onClick={onPrimary} className="guide-solid whitespace-nowrap rounded-lg px-3 py-2 text-[13px] font-semibold text-white hover:brightness-95">
-            {primary}
-          </button>
-          <button onClick={() => stay(key!)} className="whitespace-nowrap text-[13px] font-semibold text-muted hover:text-ink">
-            Stay here
-          </button>
-        </div>
-      </div>
-    </div>,
-    document.body,
   );
 }
