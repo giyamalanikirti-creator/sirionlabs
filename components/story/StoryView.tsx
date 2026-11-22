@@ -15,12 +15,22 @@ import { ArchitectureDiagram } from './ArchitectureDiagram';
 import { ConnectionFlow } from './ConnectionFlow';
 import { StakeholderMap } from './StakeholderMap';
 import { Assumptions } from './Assumptions';
+import { CaseAtAGlance, ExposureChart, HandoffChain, JourneyTimeline, LossPatterns, MetricsPanel, ProductScope, StakeholderCards, WhyNegotiation } from './Visuals';
 
 const COMPONENTS: Record<string, () => React.ReactElement> = {
   'stakeholder-map': StakeholderMap,
   architecture: ArchitectureDiagram,
   'connection-flow': ConnectionFlow,
   assumptions: Assumptions,
+  'case-at-a-glance': CaseAtAGlance,
+  'why-negotiation': WhyNegotiation,
+  'product-scope': ProductScope,
+  'stakeholder-cards': StakeholderCards,
+  'loss-patterns': LossPatterns,
+  'exposure-chart': ExposureChart,
+  'journey-timeline': JourneyTimeline,
+  'handoff-chain': HandoffChain,
+  'metrics-panel': MetricsPanel,
 };
 
 type Node = { kind: 'md'; text: string } | { kind: 'component'; name: string } | { kind: 'collapse'; title: string; children: Node[] };
