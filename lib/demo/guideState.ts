@@ -137,3 +137,14 @@ export function stepComplete(s: GuideStateInput): GuideStep | null {
   if (step === ALL_DONE) return null;
   return actionsDone(step, s).every(Boolean) ? step : null;
 }
+
+/**
+ * Pages for reading, not doing (Sirion today, the case, privacy, AskSirion): the walkthrough never
+ * rings anything or shows its bar there, so a viewer can read the case first. Home joins them until
+ * the walkthrough has started.
+ */
+export const READING_PAGES = ['/today', '/story', '/settings', '/ask'];
+export function isReadingPage(pathname: string, walkthroughStarted: boolean): boolean {
+  if (!walkthroughStarted && pathname === '/') return true;
+  return READING_PAGES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}

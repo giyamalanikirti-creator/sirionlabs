@@ -371,10 +371,11 @@ export function JourneyTimeline() {
   return (
     <figure className="my-6">
       <ol className="relative grid grid-cols-1 gap-2 sm:grid-cols-2 md:grid-cols-3" style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-        {GUIDE_STAGES.map((s, i) => (
+        {/* The negotiation's five moments: walkthrough steps 2 to 6 (step 1, connecting Microsoft 365, is setup). */}
+        {GUIDE_STAGES.filter((s) => s.step >= 2).map((s, i) => (
           <li key={s.step} className="flex flex-col rounded-xl border border-teal-900/30 bg-white p-3" style={{ margin: 0 }}>
             <div className="flex items-center gap-1.5">
-              <span className="grid h-5 w-5 place-items-center rounded-full bg-teal-900 text-[10.5px] font-semibold text-white">{s.step}</span>
+              <span className="grid h-5 w-5 place-items-center rounded-full bg-teal-900 text-[10.5px] font-semibold text-white">{i + 1}</span>
               <span className="text-[11px] font-semibold text-muted">{shiftText(DATES[i])}</span>
             </div>
             <div className="mt-1.5 text-[13px] font-semibold leading-[17px] text-ink">{s.title}</div>

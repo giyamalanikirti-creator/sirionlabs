@@ -14,11 +14,9 @@ import { usePathname } from 'next/navigation';
 import { ArrowRight, Check } from 'lucide-react';
 import { useDemo } from '@/lib/store';
 import { useGuideUi } from '@/lib/guideUi';
-import { AFTER_STEP, appOf, stepMeta, type GuideStep } from '@/lib/demo/guideState';
+import { AFTER_STEP, appOf, isReadingPage, stepMeta, type GuideStep } from '@/lib/demo/guideState';
 import { APPS } from './apps';
 import { useGuide, visibleTarget } from './useGuide';
-
-const READING_PAGES = ['/today', '/story', '/settings', '/ask'];
 
 const barClass = 'ds-scope flex min-h-10 shrink-0 items-center gap-3 border-b border-guide-200 bg-guide-50 px-4 py-1 text-[13px] text-ink';
 /* The next step's own colour (the walkthrough's blue, as on the rail's step circles), coming out of the screen and settling back, so it is noticed. */
@@ -45,9 +43,9 @@ export function NextBar() {
     return () => window.clearTimeout(id);
   }, [want, pathname]);
 
-  /* Reading pages (Sirion today, the case, privacy, AskSirion) aren't part of the walkthrough:
-     no bar there. The rail still shows where the viewer is. */
-  if (READING_PAGES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
+  /* Reading pages (Sirion today, the case, privacy, AskSirion; Home before the walkthrough starts)
+     aren't part of the walkthrough: no bar there. The rail still shows where the viewer is. */
+  if (isReadingPage(pathname, g.started)) return null;
 
   if (g.complete && !hidden) {
     const step = g.complete.kind === 'step' ? g.complete.step : undefined;

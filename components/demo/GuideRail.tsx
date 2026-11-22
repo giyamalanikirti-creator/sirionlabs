@@ -154,7 +154,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
           </div>
         )}
         <div className="mt-3 flex items-center gap-2">
-          <div className="h-1 flex-1 overflow-hidden rounded-full bg-guide-200" role="progressbar" aria-valuemin={0} aria-valuemax={5} aria-valuenow={g.doneCount}>
+          <div className="h-1 flex-1 overflow-hidden rounded-full bg-guide-200" role="progressbar" aria-valuemin={0} aria-valuemax={MAIN_STEPS} aria-valuenow={g.doneCount}>
             <div className="h-full rounded-full bg-guide-600 transition-[width] duration-200" style={{ width: `${pct}%` }} />
           </div>
           <span className="whitespace-nowrap text-[12px] text-muted">{g.doneCount} of {MAIN_STEPS} done</span>
@@ -297,12 +297,12 @@ function RailMini({ onExpand }: { onExpand: () => void }) {
   const c = 2 * Math.PI * r;
   return (
     <nav aria-label="Walkthrough (collapsed)" className="flex h-full w-16 flex-col items-center gap-3 border-r border-line bg-white py-3">
-      <button onClick={onExpand} aria-label="Show walkthrough" className={`relative grid h-10 w-10 place-items-center rounded-full ${ring}`} title={`${g.doneCount} of 5 done`}>
+      <button onClick={onExpand} aria-label="Show walkthrough" className={`relative grid h-10 w-10 place-items-center rounded-full ${ring}`} title={`${g.doneCount} of ${MAIN_STEPS} done`}>
         <svg width="36" height="36" viewBox="0 0 36 36" aria-hidden>
           <circle cx="18" cy="18" r={r} fill="none" stroke="#B3DFE3" strokeWidth="3" />
           <circle cx="18" cy="18" r={r} fill="none" stroke="#127FA6" strokeWidth="3" strokeDasharray={`${c * pct} ${c}`} strokeLinecap="round" transform="rotate(-90 18 18)" />
         </svg>
-        <span className="absolute text-[11px] font-semibold text-ink">{g.doneCount}/5</span>
+        <span className="absolute text-[11px] font-semibold text-ink">{g.doneCount}/{MAIN_STEPS}</span>
       </button>
       <ol className="flex flex-col items-center gap-2">
         {GUIDE_STEPS.map((step) => {

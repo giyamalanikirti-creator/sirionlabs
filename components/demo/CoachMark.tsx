@@ -19,7 +19,7 @@ import { createPortal } from 'react-dom';
 import { usePathname } from 'next/navigation';
 import { useDemo } from '@/lib/store';
 import { useGuideUi } from '@/lib/guideUi';
-import { appOf } from '@/lib/demo/guideState';
+import { appOf, isReadingPage } from '@/lib/demo/guideState';
 import type { ScriptAction } from '@/lib/demo/script';
 import { useGuide } from './useGuide';
 
@@ -145,7 +145,8 @@ export function CoachMark() {
   const [label, setLabel] = useState('');
   const action = g.target?.action;
   const sameApp = action ? appOf(action.href) === appOf(pathname) : false;
-  const active = Boolean(g.hydrated && action && !hidden);
+  /* Nothing is ringed on reading pages (the case, Sirion today…): the viewer reads first. */
+  const active = Boolean(g.hydrated && action && !hidden && !isReadingPage(pathname, g.started));
   const actionId = active ? action!.id : undefined;
   const actionRef = useRef(action);
   useEffect(() => {
