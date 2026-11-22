@@ -17,7 +17,7 @@ import { formatLakh } from '@/lib/format';
 import { Tag } from '@/components/ui/Tag';
 import { shiftText } from '@/lib/demo/timeShift';
 
-function Row({
+function SetupStep({
   n,
   done,
   title,
@@ -35,23 +35,23 @@ function Row({
   children?: React.ReactNode;
 }) {
   return (
-    <li className="flex gap-4 border-b border-line py-4 last:border-0">
-      <span
-        className={`mt-0.5 grid h-7 w-7 shrink-0 place-items-center rounded-full text-[12px] font-semibold ${
-          done ? 'bg-teal-900 text-white' : 'border border-line bg-white text-muted'
-        }`}
-      >
-        {done ? <Check size={14} strokeWidth={3} /> : n}
-      </span>
-      <div className="min-w-0 flex-1">
-        <p className="flex flex-wrap items-center gap-2 text-[13.5px] font-medium text-ink">
-          {title} <Tag kind={tag} />
-        </p>
-        <p className="mt-0.5 text-[12px] text-muted">
-          {who} · {caption}
-        </p>
-        {children && <div className="mt-2.5 flex flex-wrap items-center gap-2">{children}</div>}
+    <li className="flex min-w-0 flex-col rounded-lg border border-line bg-page p-3.5">
+      <div className="flex items-center gap-2.5">
+        <span
+          aria-hidden
+          className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[12px] font-semibold ${
+            done ? 'bg-teal-900 text-white' : 'border border-line bg-white text-muted'
+          }`}
+        >
+          {done ? <Check size={14} strokeWidth={3} /> : n}
+        </span>
+        <h3 className="text-[13.5px] font-semibold leading-[18px] text-ink">
+          {title}{done && <span className="sr-only">, complete</span>}
+        </h3>
       </div>
+      <div className="mt-2.5"><Tag kind={tag} /></div>
+      <p className="mt-1.5 text-[12px] leading-[17px] text-muted">{who} · {caption}</p>
+      {children && <div className="mt-auto flex flex-wrap items-center gap-2 pt-3">{children}</div>}
     </li>
   );
 }
@@ -67,7 +67,8 @@ export default function SetupPage() {
 
   const defaults = people.filter((p) => p.org === 'meridian' && ['Procurement lead', 'Procurement', 'Legal counsel', 'CFO'].includes(p.role));
   const owners = [...new Set(Object.values(dealPeople).flat())].map((id) => people.find((p) => p.id === id)!).filter(Boolean);
-  const allDone = setup.enabled && setup.consented && setup.group && setup.deployed;
+  const completedSteps = [setup.enabled, setup.consented, setup.group, setup.deployed].filter(Boolean).length;
+  const allDone = completedSteps === 4;
 
   return (
     <>
@@ -86,17 +87,17 @@ export default function SetupPage() {
         }
       />
 
-      <div className="grid gap-4 lg:grid-cols-[3fr_2fr]">
-        <SirionCard title="Checklist" caption={allDone ? 'All four steps are done. Deal Ledger is live for the connected mailboxes.' : 'Each row turns green when it is done.'}>
-          <ol>
-            <Row n={1} done={setup.enabled} title="Turn on Deal Ledger" who="Sirion admin" caption="Adds the ledger to Sirion's negotiation workspace" tag="new">
+      <div className="grid min-w-0 gap-4 [container-type:inline-size]">
+        <SirionCard title="Integration setup" caption={allDone ? 'All four steps are done. Deal Ledger is live for the connected mailboxes.' : `${completedSteps} of 4 steps complete`}>
+          <ol className="grid gap-3 [@container_(min-width:_30rem)]:grid-cols-2 [@container_(min-width:_55rem)]:grid-cols-4">
+            <SetupStep n={1} done={setup.enabled} title="Turn on Deal Ledger" who="Sirion admin" caption="Adds the ledger to Sirion's negotiation workspace" tag="new">
               {!setup.enabled && (
                 <Button variant="primary" size="sm" data-tour="setup-enable" onClick={() => update({ enabled: true })}>
                   Turn on
                 </Button>
               )}
-            </Row>
-            <Row n={2} done={setup.consented} title="Connect Microsoft 365" who="Microsoft 365 admin" caption="An M365 admin must approve this" tag="new">
+            </SetupStep>
+            <SetupStep n={2} done={setup.consented} title="Connect Microsoft 365" who="Microsoft 365 admin" caption="An M365 admin must approve this" tag="new">
               {!setup.consented && (
                 <Link href="/m365/consent">
                   <Button variant="primary" size="sm" data-tour="setup-consent" disabled={!setup.enabled}>
@@ -105,22 +106,15 @@ export default function SetupPage() {
                 </Link>
               )}
               {setup.consented && <span className="text-[12px] text-muted">Consented on behalf of Meridian Foods: read mail in connected mailboxes; sign users in.</span>}
-            </Row>
-            <Row n={3} done={setup.group} title="Choose connected mailboxes" who="Sirion admin" caption="Deal Ledger can only read mailboxes in this group" tag="new">
-              <div className="w-full rounded-lg border border-line p-3 text-[12px]">
-                <p className="font-medium text-ink">{CONNECTED_GROUP}</p>
-                <p className="mt-1 text-muted">Default deal members (Procurement, Legal, Finance), who can be added to a deal: {defaults.map((p) => p.name).join(', ')}. Membership alone does not connect a mailbox; see the table below.</p>
-                <p className="mt-0.5 text-muted">
-                  Business owners, added per deal by the deal owner: {owners.length ? owners.map((p) => `${p.name} (CloudDesk)`).join(', ') : 'none yet'}
-                </p>
-              </div>
+            </SetupStep>
+            <SetupStep n={3} done={setup.group} title="Choose connected mailboxes" who="Sirion admin" caption="Deal Ledger can only read mailboxes in this group" tag="new">
               {!setup.group && (
                 <Button variant="primary" size="sm" data-tour="setup-group" disabled={!setup.consented} onClick={() => update({ group: true })}>
                   Create the group
                 </Button>
               )}
-            </Row>
-            <Row n={4} done={setup.deployed} title="Deploy the add-ins" who="Microsoft 365 admin" caption="Required for the check at Send" tag="today">
+            </SetupStep>
+            <SetupStep n={4} done={setup.deployed} title="Deploy the add-ins" who="Microsoft 365 admin" caption="Required for the check at Send" tag="today">
               {!setup.deployed && (
                 <Link href="/m365/integrated-apps">
                   <Button variant="primary" size="sm" data-tour="setup-deploy" disabled={!setup.group}>
@@ -133,14 +127,22 @@ export default function SetupPage() {
                   Sirion for Outlook and Sirion for Word deployed to “{CONNECTED_GROUP}”: Fixed for Procurement and Legal, Available for everyone else.
                 </span>
               )}
-            </Row>
+            </SetupStep>
           </ol>
         </SirionCard>
 
-        <div className="grid content-start gap-4">
-          <SirionCard title="Per person" caption="Add-in available · Mailbox connected · Negotiation tracked" bodyClassName="px-0 pb-0 pt-0">
-            <AccessStates />
-          </SirionCard>
+        <SirionCard title="People and access" caption="Membership alone does not connect a mailbox." className="min-w-0">
+          <AccessStates />
+          <div className="mt-4 rounded-lg border border-line bg-page p-3 text-[12px]">
+            <p className="font-medium text-ink">{CONNECTED_GROUP}</p>
+            <p className="mt-1 text-muted">Default deal members (Procurement, Legal, Finance), who can be added to a deal: {defaults.map((p) => p.name).join(', ')}.</p>
+            <p className="mt-0.5 text-muted">
+              Business owners, added per deal by the deal owner: {owners.length ? owners.map((p) => `${p.name} (CloudDesk)`).join(', ') : 'none yet'}
+            </p>
+          </div>
+        </SirionCard>
+
+        <div className="grid min-w-0 gap-4 [@container_(min-width:_44rem)]:grid-cols-2">
           <SirionCard title="Rules" caption="The same rules as Privacy and admin">
             <ul className="space-y-2 text-[12.5px]">
               <li className="flex gap-2"><Check size={14} className="mt-0.5 shrink-0 text-teal-900" /> Read only threads with a live deal&apos;s supplier domain.</li>
