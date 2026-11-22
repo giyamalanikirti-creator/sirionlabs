@@ -91,7 +91,8 @@ export function AnanyaPane({
   const message = openMessageId ? messageById(openMessageId) : undefined;
   const versionId = message?.attachments.find((a) => a.versionId)?.versionId;
 
-  const m8 = !busy && openMessageId === 'M8' && roundReviewed;
+  const showRound = !busy && openMessageId === 'M8';
+  const m8 = showRound && roundReviewed;
   const unchangedCount = termStatuses(rows, versionById('v4')!, cloudDeskDeal).filter((t) => t.matchesAgreed).length;
 
   const respondToRound = () => {
@@ -110,9 +111,8 @@ export function AnanyaPane({
       <TrackedBanner />
       {/* The ready-to-sign email leads with its one action (review fix B3). */}
       {!busy && openMessageId === 'M14' && <SigningCopyCard rows={rows} />}
-      {/* Round 4 (review fix C2): the sentence and Compare first, then Respond; filing and checks as a disclosure. */}
-      {m8 && <RoundFourCard rows={rows} />}
-      {m8 && <ActionRow versionId="v4" onRespond={respondToRound} responded={responded} />}
+      {showRound && <RoundFourCard rows={rows} onRespond={respondToRound} responded={responded} />}
+      {!busy && (openMessageId === 'M12' || openMessageId === 'M12R') && <SideThreadFlow rows={rows} onDraftReply={onDraftReply} />}
       {message && !m8 && <DealHeaderBlock message={message} />}
 
       <section className={s.card} style={{ borderColor: tokens.colorBrandStroke1, boxShadow: `inset 3px 0 0 ${tokens.colorBrandBackground}` }}>
@@ -167,13 +167,9 @@ export function AnanyaPane({
         </div>
       )}
 
-      {!busy && openMessageId === 'M8' && !m8 && <RoundFourCard rows={rows} />}
-      {!busy && (openMessageId === 'M12' || openMessageId === 'M12R') && <SideThreadFlow rows={rows} onDraftReply={onDraftReply} />}
       {!busy && openMessageId === 'M13' && <NewAskCard rows={rows} />}
 
-      {!busy && openMessageId === 'M8' && !m8 && (
-        <ActionRow versionId="v4" onRespond={respondToRound} responded={responded} />
-      )}
+      {showRound && <ActionRow versionId="v4" />}
 
       <ReaderPreview />
 
@@ -200,7 +196,7 @@ export function AnanyaPane({
 /* Moment 1 — round 4                                                  */
 /* ------------------------------------------------------------------ */
 
-function RoundFourCard({ rows }: { rows: LedgerRow[] }) {
+function RoundFourCard({ rows, onRespond, responded }: { rows: LedgerRow[]; onRespond: () => void; responded: boolean }) {
   const s = usePaneStyles();
   const open = useSourceDrawer((st) => st.open);
   const price = rows.find((r) => r.id === 'R-price');
@@ -225,16 +221,25 @@ function RoundFourCard({ rows }: { rows: LedgerRow[] }) {
       <div className={s.cardMeta}>{formatDateShort(STEP_CLOCK[1])} · {personName('rohan')}</div>
       {/* Review fix C2: one sentence and one button first; the rest is disclosure. */}
       <p style={{ fontSize: 13.5, lineHeight: '19px', fontWeight: 600, margin: '4px 0 8px' }}>{summary.text}</p>
-      {noticeThreat && (
-        <div className={s.actions} style={{ marginTop: 0 }}>
-          <Button size="small" appearance="primary" data-tour="compare-14.2" aria-expanded={compare} onClick={() => setCompare(!compare)}>
+      <div className={s.actions} style={{ marginTop: 0 }}>
+        {noticeThreat && (
+          <Button size="small" data-tour="compare-14.2" data-ask-avoid aria-expanded={compare} onClick={() => setCompare(!compare)}>
             Compare §14.2
           </Button>
-          <BasisTag basis="supplier" supplier={cloudDeskDeal.supplier} />
-        </div>
+        )}
+        <Button size="small" appearance="primary" data-tour="respond-round" data-ask-avoid onClick={onRespond}>
+          {responded ? 'Reopen Sirion’s draft' : 'Respond to round'}
+        </Button>
+      </div>
+      {responded && (
+        <p className={s.note}>
+          v5 is ready: clause 14.2 back to 30 days as a tracked change.{' '}
+          <Link href="/word/v5">Open v5 in Word</Link>
+        </p>
       )}
       {compare && noticeThreat && (
         <div className={s.quote}>
+          <BasisTag basis="supplier" supplier={cloudDeskDeal.supplier} />
           <p>Agreed · {oldClause?.text.split('30').map((part, index) => index ? <span key={index}><mark>30</mark>{part}</span> : part)}</p>
           <p>v4 · {newClause?.text.split('90').map((part, index) => index ? <span key={index}><mark>90</mark>{part}</span> : part)}</p>
           <dl>
@@ -448,18 +453,12 @@ function ConfirmCreditCard({ row, onDraftReply }: { row: LedgerRow; onDraftReply
       <p style={{ fontSize: 12.5, lineHeight: '18px', marginTop: 6 }}>
         Rohan replied “{row.pendingConfirmation?.quote}” ({formatDateShort(row.pendingConfirmation?.messageId ? messageById(row.pendingConfirmation.messageId)?.sentAt ?? row.source.at : row.source.at)}). It isn&apos;t clear which offer he means.
       </p>
-      <p style={{ fontSize: 12.5, margin: '2px 0 0' }}>Status: <strong>Supplier response ambiguous</strong></p>
-      <div style={{ marginTop: 8 }}>
-        <span className={s.money}>{formatLakh(gap.costLakhPerYr)}</span>{' '}
-        <span className={s.moneySuffix}>{HEADLINE_SUFFIX} if it is 5%</span>
-      </div>
-      <MoveBox row={row} />
-
       <div className={s.actions}>
         <Button
           size="small"
           appearance="primary"
           data-tour="send-clarification"
+          data-ask-avoid
           onClick={() => onDraftReply(CLARIFY_DRAFT, { kind: 'clarify' })}
         >
           Draft clarification
@@ -468,7 +467,13 @@ function ConfirmCreditCard({ row, onDraftReply }: { row: LedgerRow; onDraftReply
           I already confirmed it
         </Button>
       </div>
-      <p className={s.grey}>Opens a draft in the supplier thread; you press Send. Rohan’s answer becomes the source.</p>
+      <p className={s.grey}>Review the draft in the supplier thread before sending. Rohan’s answer becomes the source.</p>
+      <p style={{ fontSize: 12.5, margin: '8px 0 0' }}>Status: <strong>Supplier response ambiguous</strong></p>
+      <div style={{ marginTop: 8 }}>
+        <span className={s.money}>{formatLakh(gap.costLakhPerYr)}</span>{' '}
+        <span className={s.moneySuffix}>{HEADLINE_SUFFIX} if it is 5%</span>
+      </div>
+      <MoveBox row={row} />
 
       {manual && (
         <div style={{ marginTop: 10 }}>

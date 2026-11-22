@@ -5,6 +5,7 @@
  * Fluent UI v9 tokens only; no Microsoft logos or app icons. The product name
  * appears as plain text beside a "Mock" pill.
  */
+import { useId, useState } from 'react';
 import {
   Avatar,
   Button,
@@ -27,6 +28,7 @@ import {
   GridDotsRegular,
   MailRegular,
   MailUnreadRegular,
+  NavigationRegular,
   PeopleRegular,
   QuestionCircleRegular,
   SearchRegular,
@@ -183,13 +185,16 @@ export const useChromeStyles = makeStyles({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
+    width: '100%',
     height: '30px',
+    backgroundColor: 'transparent',
+    ...shorthands.border('0'),
     ...shorthands.padding('0', '8px'),
     ...shorthands.borderRadius('4px'),
     fontSize: '13px',
     color: tokens.colorNeutralForeground1,
-    cursor: 'pointer',
-    ':hover': { backgroundColor: tokens.colorNeutralBackground1Hover },
+    ':enabled:hover': { backgroundColor: tokens.colorNeutralBackground1Hover, cursor: 'pointer' },
+    ':disabled': { opacity: 0.55 },
   },
   folderActive: {
     backgroundColor: tokens.colorNeutralBackground1Selected,
@@ -333,29 +338,49 @@ export function FolderPane({
   onSelect: (f: 'inbox' | 'sent') => void;
 }) {
   const s = useChromeStyles();
-  const folders: { id: 'inbox' | 'sent' | string; label: string; count?: number; live: boolean }[] = [
-    { id: 'inbox', label: 'Inbox', count: unread, live: true },
-    { id: 'drafts', label: 'Drafts', live: false },
-    { id: 'sent', label: 'Sent Items', live: true },
-    { id: 'deleted', label: 'Deleted Items', live: false },
-    { id: 'archive', label: 'Archive', live: false },
-    { id: 'junk', label: 'Junk Email', live: false },
-  ];
+  const [expanded, setExpanded] = useState(false);
+  const foldersId = useId();
+  const folders = [
+    { id: 'inbox', label: 'Inbox', count: unread },
+    { id: 'drafts', label: 'Drafts' },
+    { id: 'sent', label: 'Sent Items' },
+    { id: 'deleted', label: 'Deleted Items' },
+    { id: 'archive', label: 'Archive' },
+    { id: 'junk', label: 'Junk Email' },
+  ] as const;
 
   return (
-    <aside className={s.folderPane}>
-      <div className={s.mailboxName}>{owner.email}</div>
-      {folders.map((f) => (
-        <div
-          key={f.id}
-          className={`${s.folder} ${active === f.id ? s.folderActive : ''}`}
-          style={{ opacity: f.live ? 1 : 0.55, cursor: f.live ? 'pointer' : 'default' }}
-          onClick={() => f.live && onSelect(f.id as 'inbox' | 'sent')}
-        >
-          <span style={{ fontWeight: f.id === 'inbox' && f.count ? 600 : undefined }}>{f.label}</span>
-          {f.count ? <span className={s.folderCount}>{f.count}</span> : null}
-        </div>
-      ))}
+    <aside aria-label="Mail folders" className={s.folderPane} style={expanded ? undefined : { width: 44, paddingInline: 5, boxSizing: 'border-box' }}>
+      <Tooltip content={expanded ? 'Collapse mail folders' : 'Expand mail folders'} relationship="label">
+        <Button
+          size="small"
+          appearance="subtle"
+          icon={<NavigationRegular />}
+          aria-expanded={expanded}
+          aria-controls={foldersId}
+          onClick={() => setExpanded((open) => !open)}
+        />
+      </Tooltip>
+      <div id={foldersId} hidden={!expanded}>
+        <div className={s.mailboxName} title={owner.email}>{owner.email}</div>
+        {folders.map((f) => {
+          const { id } = f;
+          const live = id === 'inbox' || id === 'sent';
+          return (
+            <button
+              key={id}
+              type="button"
+              className={`${s.folder} ${active === id ? s.folderActive : ''}`}
+              aria-current={active === id || undefined}
+              disabled={!live}
+              onClick={live ? () => onSelect(id) : undefined}
+            >
+              <span style={{ fontWeight: id === 'inbox' && f.count ? 600 : undefined }}>{f.label}</span>
+              {id === 'inbox' && f.count > 0 && <span className={s.folderCount}>{f.count}</span>}
+            </button>
+          );
+        })}
+      </div>
     </aside>
   );
 }
