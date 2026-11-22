@@ -13,8 +13,7 @@
  */
 import { useEffect, useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { BookOpen, Check, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Columns2, Eye, EyeOff, MoreHorizontal, PlugZap, Zap } from 'lucide-react';
-import { OPENING_LINE, QUICK_ACTIONS } from '@/lib/demo/quickPath';
+import { BookOpen, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Columns2, Eye, EyeOff, MoreHorizontal, PlugZap } from 'lucide-react';
 import { useDemo } from '@/lib/store';
 import { useGuideUi } from '@/lib/guideUi';
 import { SCRIPT } from '@/lib/demo/script';
@@ -122,7 +121,6 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
   const [startOpen, setStartOpen] = useState(false);
   const [menu, setMenu] = useState(false);
   const [confirm, setConfirm] = useState<'reset' | 'setup' | 'keys' | null>(null);
-  const quickPath = useDemo((st) => st.quickPath) && g.hydrated;
   const pct = (g.doneCount / 5) * 100;
 
   const nav = (href: string) => router.push(href);
@@ -140,13 +138,13 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
             onClick={onCollapse}
             aria-label="Hide walkthrough"
             title="Hide walkthrough"
-            className={`rounded-md p-1 hover:bg-page hover:text-ink ${ring} ${needsRoom ? 'guide-pulse bg-guide-50 text-guide-700 outline outline-2 outline-offset-2 outline-[#127FA6]' : 'text-muted'}`}
+            className={`rounded-md p-1 hover:bg-page hover:text-ink ${ring} ${needsRoom ? 'bg-guide-50 text-guide-700 outline outline-2 outline-offset-2 outline-[#127FA6]' : 'text-muted'}`}
           >
             <ChevronsLeft size={16} />
           </button>
         </div>
         {needsRoom && (
-          <div className="relative mt-2.5 rounded-lg border border-guide-200 bg-guide-50 px-3 py-2 text-[12.5px] leading-[17px] text-ink">
+          <div className="guide-pulse relative mt-2.5 rounded-lg border border-guide-200 bg-guide-50 px-3 py-2 text-[12.5px] leading-[17px] text-ink">
             <span aria-hidden className="absolute -top-[6px] right-[7px] h-2.5 w-2.5 rotate-45 border-l border-t border-guide-200 bg-guide-50" />
             Short on room for {pathname.startsWith('/word') ? 'Word' : 'Outlook'}? Press{' '}
             <button onClick={onCollapse} aria-label="Hide walkthrough" className={`inline-flex translate-y-[2px] items-center rounded border border-guide-200 bg-white px-1 text-guide-700 hover:bg-guide-200/40 ${ring}`}>
@@ -177,17 +175,11 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
 
       {/* Body */}
       <div className="thin-scroll min-h-0 flex-1 overflow-y-auto px-4 py-3">
-        {quickPath && <QuickLook g={g} onNav={() => undefined} />}
         <button onClick={() => setStartOpen((open) => !open)} aria-expanded={startOpen} className={`flex w-full items-center justify-between rounded-md text-[12px] font-semibold uppercase tracking-wide text-muted ${ring}`}>
           Start here {startOpen ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
         </button>
         {startOpen && (
           <ul className="mb-3 mt-2 space-y-0.5">
-            <li>
-              <button onClick={() => g.startQuickPath()} className={`flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left text-[13px] font-semibold text-guide-700 hover:bg-page ${ring}`}>
-                <Zap size={15} className="shrink-0" /> Quick look · review the signing copy
-              </button>
-            </li>
             <li>
               <button onClick={() => nav('/today')} className={`flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left text-[13px] hover:bg-page ${ring}`}>
                 <Columns2 size={15} className="shrink-0 text-muted" /> Sirion today vs Deal Ledger
@@ -265,7 +257,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
 
       <ConfirmDialog
         open={confirm === 'reset'}
-        title={shiftText("Reset the walkthrough to 14 Nov?")}
+        title="Reset the walkthrough?"
         body="Your choices will be cleared."
         confirmLabel="Reset demo"
         onCancel={() => setConfirm(null)}
@@ -273,7 +265,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
           setConfirm(null);
           useDemo.getState().reset();
           useGuideUi.getState().resetUi();
-          useDemo.getState().toast(shiftText('Walkthrough reset to 14 Nov.'));
+          useDemo.getState().toast('Walkthrough reset.');
           nav('/');
         }}
       />
@@ -340,49 +332,5 @@ function RailMini({ onExpand }: { onExpand: () => void }) {
         <ChevronsRight size={16} />
       </button>
     </nav>
-  );
-}
-
-/** Quick look (review fix B3): three actions on the §9.3 hero, ending on the renewal line in the handover. */
-function QuickLook({ g, onNav }: { g: ReturnType<typeof useGuide>; onNav: () => void }) {
-  const state = useDemo() as unknown as Parameters<(typeof QUICK_ACTIONS)[number]['done']>[0];
-  const done = QUICK_ACTIONS.map((a) => a.done(state));
-  const next = done.findIndex((d) => !d);
-  return (
-    <div className="mb-4 rounded-xl border border-guide-600 bg-guide-50 p-3">
-      <p className="text-[14px] font-semibold leading-[20px] text-ink">Quick look · 3 actions</p>
-      <p className="mt-0.5 text-[12px] leading-[17px] text-muted">{OPENING_LINE}</p>
-      <ol className="mt-2 space-y-1">
-        {QUICK_ACTIONS.map((a, i) => (
-          <li key={a.id}>
-            <button
-              onClick={() => {
-                onNav();
-                g.quickAction(i);
-              }}
-              className={`flex w-full items-start gap-2 rounded-md px-1.5 py-1 text-left text-[13px] leading-[18px] hover:bg-white ${ring} ${done[i] ? 'text-muted' : i === next ? 'font-semibold text-guide-700' : 'text-muted/80'}`}
-            >
-              <span className="mt-[1px] grid h-4 w-4 shrink-0 place-items-center">
-                {done[i] ? <Check size={14} strokeWidth={2.5} className="text-guide-600" /> : <span className={`h-2 w-2 rounded-full ${i === next ? 'guide-solid' : 'bg-line'}`} />}
-              </span>
-              <span className="min-w-0 flex-1">
-                {i + 1}. {a.label}
-                {i === next && <span className="guide-solid ml-1.5 inline-block rounded-full px-1.5 py-[1px] align-[1px] text-[11px] font-semibold leading-[14px] text-white">Do this</span>}
-              </span>
-            </button>
-          </li>
-        ))}
-      </ol>
-      <button
-        onClick={() => {
-          onNav();
-          useDemo.getState().setQuickPath(false);
-          g.jumpTo(1);
-        }}
-        className={`mt-2 w-full rounded-md px-2 py-1 text-left text-[12px] font-semibold text-muted hover:text-ink ${ring}`}
-      >
-        Want the full story? Start the walkthrough (5 steps)
-      </button>
-    </div>
   );
 }
