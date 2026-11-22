@@ -18,6 +18,8 @@ import { appOf, stepMeta, type GuideStep } from '@/lib/demo/guideState';
 import { APPS } from './apps';
 import { useGuide, visibleTarget } from './useGuide';
 
+const READING_PAGES = ['/today', '/story', '/setup', '/settings', '/ask'];
+
 const barClass = 'ds-scope flex min-h-10 shrink-0 items-center gap-3 border-b border-guide-200 bg-guide-50 px-4 py-1 text-[13px] text-ink';
 /* The next step's own colour (the walkthrough's blue, as on the rail's step circles), coming out of the screen and settling back, so it is noticed. */
 const actionClass = 'guide-solid guide-bob inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1 text-left text-[12.5px] font-semibold text-white';
@@ -43,12 +45,19 @@ export function NextBar() {
     return () => window.clearTimeout(id);
   }, [want, pathname]);
 
+  /* Reading pages (Sirion today, the case, setup, privacy, AskSirion) aren't part of the walkthrough:
+     no bar there. The rail still shows where the viewer is. */
+  if (READING_PAGES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
+
   if (g.complete && !hidden) {
     const step = g.complete.kind === 'step' ? g.complete.step : undefined;
     const key = step ? `step-${step}` : 'quick';
     const stayedHere = stayed.includes(key);
-    /* The walkthrough is over and the viewer is back on Home: nothing left to suggest. */
-    if (stayedHere && step === 6 && pathname === '/') return null;
+    /* The end of the walkthrough (after signing) or of the quick look: the bar belongs to the screen it
+       finished on. Anywhere else (Home, Sirion today, the case, other deals) there is nothing to suggest. */
+    const finalScreen = step === 6 || step === undefined;
+    const finishedHere = pathname.startsWith('/contracts/');
+    if (finalScreen && (!finishedHere || stayedHere)) return null;
     const next = step && step < 6 ? stepMeta((step + 1) as GuideStep) : undefined;
     const advance = () => {
       if (step === undefined) {
