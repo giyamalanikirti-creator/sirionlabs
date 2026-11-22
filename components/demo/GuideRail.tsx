@@ -17,10 +17,10 @@ import { BookOpen, ChevronDown, ChevronRight, ChevronsLeft, ChevronsRight, Colum
 import { useDemo } from '@/lib/store';
 import { useGuideUi } from '@/lib/guideUi';
 import { SCRIPT } from '@/lib/demo/script';
-import { GUIDE_STEPS, stepMeta, type GuideStep } from '@/lib/demo/guideState';
+import { AFTER_STEP, GUIDE_STEPS, MAIN_STEPS, stepMeta, type GuideStep } from '@/lib/demo/guideState';
 import { useGuide } from './useGuide';
 import { StepCircle, StepItem, type StepStatus } from './StepItem';
-import { AFTER_SIGNING, GUIDE_STAGES } from '@/lib/demo/guide';
+import { stageOf } from '@/lib/demo/guide';
 import { ConfirmDialog } from './ConfirmDialog';
 import { shiftText } from '@/lib/demo/timeShift';
 
@@ -72,22 +72,22 @@ export function GuideRail() {
   const railWidth = width >= 1280 ? 264 : 232;
   const g = useGuide();
 
-  /* Keyboard: ] next step, [ previous step, g then 1 to 6 to jump. */
+  /* Keyboard: ] next step, [ previous step, g then 1 to 7 to jump. */
   useEffect(() => {
     let pendingG = false;
     const onKey = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (t && (t.closest('input, textarea, select, [contenteditable="true"]') || e.metaKey || e.ctrlKey || e.altKey)) return;
       if (e.key === ']') {
-        if (g.current <= 5) g.goNext(g.current as GuideStep);
+        if (g.current <= MAIN_STEPS) g.goNext(g.current as GuideStep);
         pendingG = false;
       } else if (e.key === '[') {
-        const prev = Math.max(1, Math.min(6, g.current) - 1) as GuideStep;
+        const prev = Math.max(1, Math.min(AFTER_STEP, g.current) - 1) as GuideStep;
         g.revisit(prev);
         pendingG = false;
       } else if (e.key === 'g') {
         pendingG = true;
-      } else if (pendingG && /^[1-6]$/.test(e.key)) {
+      } else if (pendingG && /^[1-7]$/.test(e.key)) {
         g.jumpTo(Number(e.key) as GuideStep);
         pendingG = false;
       } else {
@@ -107,7 +107,7 @@ export function GuideRail() {
 
 function statusOf(step: GuideStep, g: ReturnType<typeof useGuide>): StepStatus {
   if (g.current === step) return 'current';
-  if (step === 6 && !g.stepDone(5)) return 'locked';
+  if (step === AFTER_STEP && !g.stepDone(MAIN_STEPS as GuideStep)) return 'locked';
   return g.stepDone(step) ? 'done' : 'upcoming';
 }
 
@@ -121,7 +121,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
   const [startOpen, setStartOpen] = useState(false);
   const [menu, setMenu] = useState(false);
   const [confirm, setConfirm] = useState<'reset' | 'setup' | 'keys' | null>(null);
-  const pct = (g.doneCount / 5) * 100;
+  const pct = (g.doneCount / MAIN_STEPS) * 100;
 
   const nav = (href: string) => router.push(href);
 
@@ -132,7 +132,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
         <div className="flex items-start justify-between gap-2">
           <div>
             <p className="text-[16px] font-semibold leading-[22px]">Walkthrough</p>
-            <p className="text-[12px] text-muted">5 steps · about 3 minutes</p>
+            <p className="text-[12px] text-muted">{MAIN_STEPS} steps · about 4 minutes</p>
           </div>
           <button
             onClick={onCollapse}
@@ -157,7 +157,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
           <div className="h-1 flex-1 overflow-hidden rounded-full bg-guide-200" role="progressbar" aria-valuemin={0} aria-valuemax={5} aria-valuenow={g.doneCount}>
             <div className="h-full rounded-full bg-guide-600 transition-[width] duration-200" style={{ width: `${pct}%` }} />
           </div>
-          <span className="whitespace-nowrap text-[12px] text-muted">{g.doneCount} of 5 done</span>
+          <span className="whitespace-nowrap text-[12px] text-muted">{g.doneCount} of {MAIN_STEPS} done</span>
         </div>
         {hintsHidden ? (
           <p className="mt-2 flex items-center gap-1.5 text-[12px] text-muted">
@@ -186,11 +186,8 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
               </button>
             </li>
             <li>
-              <button onClick={() => nav('/setup')} className={`flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left text-[13px] hover:bg-page ${ring}`}>
-                <PlugZap size={15} className="shrink-0 text-muted" /> How it was set up
-              </button>
-              <button onClick={() => nav('/outlook/ananya?msg=M1&prequel=1')} className={`ml-7 block rounded-md px-1.5 py-0.5 text-left text-[12px] text-muted hover:text-ink ${ring}`}>
-                {shiftText('Then: the first prompt, 1 Nov')}
+              <button onClick={() => nav('/outlook/ananya?msg=M1&prequel=1')} className={`flex w-full items-center gap-2 rounded-md px-1.5 py-1.5 text-left text-[13px] hover:bg-page ${ring}`}>
+                <PlugZap size={15} className="shrink-0 text-muted" /> {shiftText('After setup: the first prompt, 1 Nov')}
               </button>
             </li>
             <li>
@@ -211,7 +208,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
           {GUIDE_STEPS.map((step) => {
             const m = stepMeta(step);
             const status = statusOf(step, g);
-            const nextStep = step < 6 ? stepMeta((step + 1) as GuideStep) : undefined;
+            const nextStep = step < AFTER_STEP ? stepMeta((step + 1) as GuideStep) : undefined;
             return (
               <StepItem
                 key={step}
@@ -221,13 +218,13 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
                 app={m.app}
                 instruction={m.instruction}
                 status={status}
-                last={step === 6}
-                small={step === 6}
+                last={step === AFTER_STEP}
+                small={step === AFTER_STEP}
                 actions={SCRIPT[step].filter((_, i) => g.actionsShown(step)[i])}
                 done={g.actionsDone(step).filter((_, i) => g.actionsShown(step)[i])}
                 nextTitle={nextStep?.title}
                 stepComplete={g.actionsDone(step).every(Boolean)}
-                asks={(step === 6 ? AFTER_SIGNING : GUIDE_STAGES[step - 1]).ask?.slice(0, 1)}
+                asks={stageOf(step).ask?.slice(0, 1)}
                 onAction={(a) => g.doAction(a)}
                 onNext={() => g.goNext(step)}
                 onJump={() => g.jumpTo(step)}
@@ -284,7 +281,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
       <ConfirmDialog
         open={confirm === 'keys'}
         title="Keyboard shortcuts"
-        body="]  next step   ·   [  previous step   ·   g then 1 to 6  jump to a step   ·   Esc  hide the hint label"
+        body="]  next step   ·   [  previous step   ·   g then 1 to 7  jump to a step   ·   Esc  hide the hint label"
         confirmLabel="Got it"
         onCancel={() => setConfirm(null)}
         onConfirm={() => setConfirm(null)}
@@ -295,7 +292,7 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
 
 function RailMini({ onExpand }: { onExpand: () => void }) {
   const g = useGuide();
-  const pct = g.doneCount / 5;
+  const pct = g.doneCount / MAIN_STEPS;
   const r = 14;
   const c = 2 * Math.PI * r;
   return (
@@ -318,7 +315,7 @@ function RailMini({ onExpand }: { onExpand: () => void }) {
                 onClick={onExpand}
                 className={`rounded-full ${ring}`}
               >
-                <StepCircle step={step} status={statusOf(step, g)} size={step === 6 ? 18 : 24} />
+                <StepCircle step={step} status={statusOf(step, g)} size={step === AFTER_STEP ? 18 : 24} />
               </button>
               <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-2 hidden -translate-y-1/2 whitespace-nowrap rounded-md bg-ink px-2 py-1 text-[12px] text-white group-hover:block">
                 {m.title} · {m.date}

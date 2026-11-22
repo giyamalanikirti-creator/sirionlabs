@@ -4,13 +4,26 @@
  * the demo clock has moved on to the next step's day (Next, Skip and jumps all
  * move the clock, so a skipped step reads as done).
  */
-import { AFTER_SIGNING, GUIDE_STAGES } from './guide';
+import { stageOf } from './guide';
 import { QUICK_ACTIONS } from './quickPath';
 import { CALENDAR, SCRIPT, type ScriptAction, type TourState } from './script';
 import { STEP_CLOCK } from './steps';
 
-export type GuideStep = 1 | 2 | 3 | 4 | 5 | 6;
-export const GUIDE_STEPS: GuideStep[] = [1, 2, 3, 4, 5, 6];
+/**
+ * Walkthrough steps: 1 Connect Microsoft 365 (the setup checklist), 2 to 6 the
+ * negotiation's five moments, 7 After signing. The store's moments (Step 0 to
+ * 6 in steps.ts) are unchanged: guide step n ≥ 2 is moment n − 1.
+ */
+export type GuideStep = 1 | 2 | 3 | 4 | 5 | 6 | 7;
+export const GUIDE_STEPS: GuideStep[] = [1, 2, 3, 4, 5, 6, 7];
+export const SETUP_STEP = 1 as const;
+/** The last main step (handover); After signing comes after it. */
+export const MAIN_STEPS = 6;
+export const AFTER_STEP = 7 as const;
+/** currentStep() once everything is done. */
+export const ALL_DONE = 8 as const;
+/** The store moment a guide step replays (steps.ts STEP_CLOCK keys). */
+export const momentOf = (step: GuideStep) => (step - 1) as 0 | 1 | 2 | 3 | 4 | 5 | 6;
 
 export type AppKey = 'sirion' | 'ananya' | 'vikram' | 'word';
 
@@ -19,7 +32,7 @@ export interface GuideStateInput extends TourState {
 }
 
 export function stepMeta(step: GuideStep) {
-  const stage = step === 6 ? AFTER_SIGNING : GUIDE_STAGES[step - 1];
+  const stage = stageOf(step);
   const day = CALENDAR.find((d) => d.step === step)!;
   return {
     step,
@@ -49,30 +62,47 @@ export function actionsShown(step: GuideStep, s: GuideStateInput): boolean[] {
   return SCRIPT[step].map((a) => !a.when || a.when(s));
 }
 
-/** The walkthrough has moved past this step: the clock reached the next step's day (or, for the last row, it is finished). */
-export function stepPassed(step: GuideStep, s: GuideStateInput): boolean {
-  if (step === 6) return actionsDone(6, s).every(Boolean);
-  return s.clock >= STEP_CLOCK[(step + 1) as 2 | 3 | 4 | 5 | 6];
+/** The setup checklist is complete: all four rows green. */
+export function setupComplete(s: GuideStateInput): boolean {
+  return Boolean(s.setup?.enabled && s.setup.consented && s.setup.group && s.setup.deployed);
 }
+
+/**
+ * The walkthrough has moved past this step.
+ *  - Step 1 (setup): the checklist is complete and the viewer moved on (Next, or the round has begun).
+ *  - Steps 2 to 6: the clock reached the next step's day.
+ *  - After signing: its actions are done.
+ */
+export function stepPassed(step: GuideStep, s: GuideStateInput): boolean {
+  if (step === SETUP_STEP) {
+    return setupComplete(s) && (s.tourClicks.includes(SETUP_MOVED_ON) || s.clock > STEP_CLOCK[0] || actionsDone(2, s).some(Boolean));
+  }
+  if (step === AFTER_STEP) return actionsDone(AFTER_STEP, s).every(Boolean);
+  return s.clock >= STEP_CLOCK[(momentOf(step) + 1) as 2 | 3 | 4 | 5 | 6];
+}
+
+/** Recorded (as a tour click) when the viewer moves on from step 1. */
+export const SETUP_MOVED_ON = 'guide:setup-next';
 
 /** Done: every action ticked, or moved past. A done step stays current until Next is pressed. */
 export function stepDone(step: GuideStep, s: GuideStateInput): boolean {
   return stepPassed(step, s) || actionsDone(step, s).every(Boolean);
 }
 
-/** The first step not yet moved past; 7 once everything is. */
-export function currentStep(s: GuideStateInput): GuideStep | 7 {
-  return GUIDE_STEPS.find((n) => !stepPassed(n, s)) ?? 7;
+/** The first step not yet moved past; ALL_DONE once everything is. */
+export function currentStep(s: GuideStateInput): GuideStep | typeof ALL_DONE {
+  return GUIDE_STEPS.find((n) => !stepPassed(n, s)) ?? ALL_DONE;
 }
 
+/** Main steps done, out of MAIN_STEPS (After signing is extra). */
 export function doneCount(s: GuideStateInput): number {
-  return ([1, 2, 3, 4, 5] as GuideStep[]).filter((n) => stepDone(n, s)).length;
+  return GUIDE_STEPS.filter((n) => n <= MAIN_STEPS && stepDone(n, s)).length;
 }
 
 /** The one action to do now, if any. */
 export function nextAction(s: GuideStateInput): { step: GuideStep; action: ScriptAction; index: number } | null {
   const step = currentStep(s);
-  if (step === 7) return null;
+  if (step === ALL_DONE) return null;
   const done = actionsDone(step, s);
   const index = done.findIndex((d) => !d);
   return index < 0 ? null : { step, action: SCRIPT[step][index], index };
@@ -80,7 +110,7 @@ export function nextAction(s: GuideStateInput): { step: GuideStep; action: Scrip
 
 /** Has the walkthrough started (anything beyond the opening state)? */
 export function started(s: GuideStateInput): boolean {
-  return s.clock > STEP_CLOCK[0] || actionsDone(1, s).some(Boolean);
+  return s.clock > STEP_CLOCK[0] || actionsDone(1, s).some(Boolean) || actionsDone(2, s).some(Boolean);
 }
 
 /** What the in-app guidance points at now: the quick path's next action while it runs, otherwise the walkthrough's. */
@@ -104,6 +134,6 @@ export function guideTarget(s: GuideStateInput, quickPath: boolean): GuideTarget
 /** The current step has every action ticked but the walkthrough hasn't moved on yet: time for "step complete". */
 export function stepComplete(s: GuideStateInput): GuideStep | null {
   const step = currentStep(s);
-  if (step === 7) return null;
+  if (step === ALL_DONE) return null;
   return actionsDone(step, s).every(Boolean) ? step : null;
 }

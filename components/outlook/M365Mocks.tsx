@@ -86,6 +86,7 @@ export function ConsentMock() {
           <Button onClick={() => router.push('/setup')}>Cancel</Button>
           <Button
             appearance="primary"
+            data-tour="m365-accept"
             disabled={!forOrg}
             onClick={() => {
               update({ consented: true });
@@ -158,6 +159,7 @@ export function IntegratedAppsMock() {
           {!deployed && (
             <Button
               appearance="primary"
+              data-tour="m365-deploy"
               onClick={() => {
                 update({ deployed: true });
                 router.push('/setup');

@@ -90,6 +90,8 @@ export interface SetupState {
 }
 
 export const SETUP_COMPLETE: SetupState = { enabled: true, consented: true, group: true, deployed: true, autoTrackAbove25: false };
+/** A fresh demo: nothing connected yet. Connecting Microsoft 365 is step 1 of the walkthrough. */
+export const SETUP_NONE: SetupState = { enabled: false, consented: false, group: false, deployed: false, autoTrackAbove25: false };
 
 export interface ReviewRequest {
   kind: 'review' | 'approval';
@@ -268,7 +270,7 @@ const BASE = {
   startedDealIds: [] as string[],
   approvals: [] as ApprovalRequest[],
   settings: DEFAULT_SETTINGS,
-  setup: SETUP_COMPLETE,
+  setup: SETUP_NONE,
   firstRunSeen: true,
   trackedDealIds: ['D-CLOUDDESK'] as string[],
   neverTrackDomains: [] as string[],

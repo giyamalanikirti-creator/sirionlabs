@@ -3,7 +3,7 @@
  * (brief §3.5), and which three questions it suggests (§8.3).
  */
 import { dealById, messageById, threadById } from '@/lib/data';
-import { GUIDE_STAGES, AFTER_SIGNING } from '@/lib/demo/guide';
+import { stageOf } from '@/lib/demo/guide';
 import { INTENT_BY_ID } from './intents';
 import type { AskScope, IntentId } from './types';
 
@@ -62,8 +62,8 @@ export interface Suggestion {
 }
 
 export function suggestionsFor(scope: AskScope, step?: number): Suggestion[] {
-  const stage = step === 6 ? AFTER_SIGNING : step && step >= 1 && step <= 5 ? GUIDE_STAGES[step - 1] : undefined;
-  const stepAsks = (stage && 'ask' in stage ? stage.ask ?? [] : []).filter((a) => INTENT_BY_ID[a.intent].scopes.includes(scope.kind)).map((a) => ({ prompt: a.prompt, intent: a.intent }));
+  const stage = step && step >= 1 && step <= 7 ? stageOf(step) : undefined;
+  const stepAsks = (stage?.ask ?? []).filter((a) => INTENT_BY_ID[a.intent].scopes.includes(scope.kind)).map((a) => ({ prompt: a.prompt, intent: a.intent }));
   if (scope.dealId === 'D-BRIGHTSTAFF') {
     return [
       { prompt: INTENT_BY_ID.internal_conflict.suggestion, intent: 'internal_conflict' },

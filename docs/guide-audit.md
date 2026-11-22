@@ -124,3 +124,25 @@ These are not highlight failures, so they are left as they were. The brief didn'
 - **Stay here:** after Stay here on a step-complete card, the in-frame bar keeps offering the next step.
 - **Colour:** the next step's ring, label and buttons use the walkthrough's blue (`--guide-cta`, as on the rail's step circles) that no app on screen uses, and they bob.
 - **Word:** clicking an issue card anywhere outside its buttons scrolls the document to that clause and highlights it.
+
+## Walkthrough renumbered: Microsoft 365 connection is step 1
+
+The walkthrough now has six steps plus After signing:
+
+| Step | Title | Where | Actions |
+| --- | --- | --- | --- |
+| 1 | Connect Microsoft 365 | `/setup` and the Microsoft 365 mocks | 1a Turn on Deal Ledger (`setup-enable`) · 1b Approve Microsoft 365 access (`m365-accept`, reached through the checklist's Connect link) · 1c Choose the connected mailboxes (`setup-group`) · 1d Deploy the add-ins (`m365-deploy`, through Open Integrated apps) |
+| 2 | Review round | Ananya's Outlook | The former step 1 (2a to 2d) |
+| 3 | Resolve side thread | Ananya's Outlook | The former step 2 |
+| 4 | Check reply | Vikram's Outlook | The former step 3, with the Edit reply path |
+| 5 | Verify signing copy | Word | The former step 4 |
+| 6 | See handover | Sirion | The former step 5 |
+| 7 | After signing | Sirion | The former step 6 |
+
+How it works:
+- **Fresh demo and Reset demo:** both start with nothing connected, so a new viewer begins at step 1.
+- **Jumping to a later step:** completes the connection from saved settings first.
+- **Moments unchanged:** the store's story moments (`STEP_CLOCK` 0 to 6) are the same as before. Guide step *n* ≥ 2 replays moment *n* − 1 (`momentOf`).
+- **Start here:** "How it was set up" is gone from Start here, because the setup is now step 1. The first-prompt link stays.
+
+**Play-through:** a fresh visit at 1440 × 900 reached every action, step 1 included, through the ring, a ringed link on the checklist, or the in-frame bar.

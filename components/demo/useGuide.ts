@@ -17,6 +17,12 @@ import {
   started,
   stepDone,
   stepMeta,
+  setupComplete,
+  momentOf,
+  SETUP_STEP,
+  SETUP_MOVED_ON,
+  AFTER_STEP,
+  ALL_DONE,
   type GuideStateInput,
   type GuideStep,
 } from '@/lib/demo/guideState';
@@ -44,13 +50,19 @@ export function useGuide() {
     : quickPath
       ? quickDone(s).every(Boolean) ? { kind: 'quick' } : null
       : (() => {
-          const st = stepComplete(s) ?? (currentStep(s) === 7 ? 6 : null);
+          const st = stepComplete(s) ?? (currentStep(s) === ALL_DONE ? AFTER_STEP : null);
           return st ? { kind: 'step' as const, step: st } : null;
         })();
 
   const goTo = (href: string) => router.push(href);
 
-  /** Step 5 needs the corrected copy sent back: complete step 4 from saved results if it isn't. */
+  /** Step 1: the Microsoft 365 connection. Anything later needs it done (from saved results if skipped). */
+  const ensureSetup = () => {
+    const demo = useDemo.getState();
+    if (!setupComplete(demo as unknown as GuideStateInput)) demo.updateSetup({ enabled: true, consented: true, group: true, deployed: true });
+  };
+
+  /** The handover (step 6) needs the corrected copy sent back: complete the signing step from saved results if it isn't. */
   const prepareHandover = () => {
     const demo = useDemo.getState();
     if (demo.signing.sentBackAt) return;
@@ -59,7 +71,7 @@ export function useGuide() {
     demo.insertAll();
     demo.sendBack();
   };
-  /** The handover happens on 21 Nov: moving to step 5 moves the clock there. */
+  /** The handover happens on 21 Nov: moving to step 6 moves the clock there. */
   const toHandoverDay = () => {
     const demo = useDemo.getState();
     if (demo.clock < STEP_CLOCK[5]) demo.setClock(STEP_CLOCK[5]);
@@ -68,6 +80,7 @@ export function useGuide() {
   /** Quick path (review fix B3): the step 4 state on 19 Nov, opened on CloudDesk's "ready to sign" email. */
   const startQuickPath = () => {
     const demo = useDemo.getState();
+    ensureSetup();
     demo.setQuickPath(true);
     demo.previewStage(4);
     demo.setQuickPath(true);
@@ -91,35 +104,51 @@ export function useGuide() {
     }
   };
 
-  /** Move on from a step: finish it from saved results if needed, then open the next step. */
+  /**
+   * Move on from a step: finish it from saved results if needed, then open the next step.
+   * Guide step n ≥ 2 replays store moment n − 1 (see guideState).
+   */
   const goNext = (from: GuideStep) => {
     const demo = useDemo.getState();
-    if (from === 4) {
+    ensureSetup();
+    if (from === SETUP_STEP) {
+      demo.markTour(SETUP_MOVED_ON);
+      goTo(stepMeta(2).href);
+    } else if (from === 5) {
       prepareHandover();
       toHandoverDay();
-      goTo(stepMeta(5).href);
-    } else if (from <= 3) {
-      if (!stepDone(from, s)) demo.advanceTo(from);
-      demo.startStage((from + 1) as 2 | 3 | 4 | 5);
+      goTo(stepMeta(6).href);
+    } else if (from <= 4) {
+      const m = momentOf(from) as 1 | 2 | 3;
+      if (!stepDone(from, s)) demo.advanceTo(m);
+      demo.startStage((m + 1) as 2 | 3 | 4);
       goTo(stepMeta((from + 1) as GuideStep).href);
-    } else if (from === 5) {
+    } else if (from === 6) {
       if (!demo.contract) demo.previewStage(5);
       else demo.fastForwardInvoice();
-      goTo(stepMeta(6).href);
+      goTo(stepMeta(AFTER_STEP).href);
     }
   };
 
-  /** Jump to any step; earlier steps are completed from saved results. */
+  /** Jump to any step; earlier steps are completed from saved results. Step 1 starts the walkthrough over. */
   const jumpTo = (step: GuideStep) => {
     const demo = useDemo.getState();
-    if (step === 6) {
-      if (!demo.contract) demo.previewStage(5);
-      else demo.fastForwardInvoice();
-    } else if (step === 5) {
-      prepareHandover();
-      toHandoverDay();
+    if (step === SETUP_STEP) {
+      demo.advanceTo(0);
+      demo.resetSetup();
     } else {
-      demo.startStage(step as 1 | 2 | 3 | 4 | 5, true);
+      ensureSetup();
+      if (step === AFTER_STEP) {
+        if (!demo.contract) demo.previewStage(5);
+        else demo.fastForwardInvoice();
+      } else if (step === 6) {
+        prepareHandover();
+        toHandoverDay();
+      } else {
+        demo.startStage(momentOf(step) as 1 | 2 | 3 | 4, true);
+        /* Step 2 starts on the setup's far side: record that step 1 was left behind. */
+        useDemo.getState().markTour(SETUP_MOVED_ON);
+      }
     }
     goTo(stepMeta(step).href);
   };

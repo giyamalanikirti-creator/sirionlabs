@@ -10,9 +10,11 @@ import { cloudDeskDeal } from '@/lib/data';
 const s = () => useDemo.getState();
 
 describe('org setup', () => {
-  it('starts complete, can be reset and replayed', () => {
+  it('starts not connected (connecting is walkthrough step 1), can be completed, reset and replayed', () => {
     s().reset();
-    expect(s().setup).toMatchObject({ enabled: true, consented: true, group: true, deployed: true });
+    expect(s().setup).toMatchObject({ enabled: false, consented: false, group: false, deployed: false });
+    s().updateSetup({ enabled: true, consented: true, group: true, deployed: true });
+    expect(s().setup.deployed).toBe(true);
     s().resetSetup();
     expect(s().setup).toMatchObject({ enabled: false, consented: false, group: false, deployed: false });
     expect(s().firstRunSeen).toBe(false);

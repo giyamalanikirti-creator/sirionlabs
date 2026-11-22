@@ -14,6 +14,7 @@ import { scopeFor, widen } from '@/lib/ask/scope';
 import { useDemo } from '@/lib/store';
 import { useGuide } from '@/components/demo/useGuide';
 import { AskConversation } from './AskConversation';
+import { ALL_DONE } from '@/lib/demo/guideState';
 
 const TIP_KEY = 'asksirion-tip-seen';
 
@@ -50,7 +51,7 @@ export function AskLauncher() {
   const routeKey = `${pathname}?${params.toString()}`;
   const baseScope = scopeFor(pathname, params.toString(), linked);
   const scope = widenedFor === routeKey ? widen(baseScope) : baseScope;
-  const step = g.current === 7 ? undefined : g.current;
+  const step = g.current === ALL_DONE ? undefined : g.current;
 
   const microsoft = pathname.startsWith('/outlook') || pathname.startsWith('/word');
   const size = microsoft ? 48 : 56;

@@ -6,7 +6,7 @@ import { Check, MessageCircleQuestion } from 'lucide-react';
 import { useAsk } from '@/lib/ask/store';
 import type { GuideAsk } from '@/lib/demo/guide';
 import type { ScriptAction } from '@/lib/demo/script';
-import type { AppKey, GuideStep } from '@/lib/demo/guideState';
+import { AFTER_STEP, MAIN_STEPS, type AppKey, type GuideStep } from '@/lib/demo/guideState';
 import { AppChip } from './apps';
 
 export type StepStatus = 'done' | 'current' | 'upcoming' | 'locked';
@@ -17,8 +17,8 @@ export function StepCircle({ step, status, size = 24 }: { step: GuideStep; statu
   const base = 'grid shrink-0 place-items-center rounded-full text-[12px] font-semibold';
   const style = { width: size, height: size };
   if (status === 'done') return <span className={`${base} bg-guide-600 text-white`} style={style}><Check size={13} strokeWidth={3} /></span>;
-  if (status === 'current') return <span className={`${base} guide-pulse border-2 border-guide-600 bg-white text-guide-600`} style={style}>{step === 6 ? '•' : step}</span>;
-  return <span className={`${base} border-2 border-line bg-white ${status === 'locked' ? 'text-muted/60' : 'text-muted'}`} style={style}>{step === 6 ? '•' : step}</span>;
+  if (status === 'current') return <span className={`${base} guide-pulse border-2 border-guide-600 bg-white text-guide-600`} style={style}>{step === AFTER_STEP ? '•' : step}</span>;
+  return <span className={`${base} border-2 border-line bg-white ${status === 'locked' ? 'text-muted/60' : 'text-muted'}`} style={style}>{step === AFTER_STEP ? '•' : step}</span>;
 }
 
 export function StepItem({
@@ -139,7 +139,7 @@ export function StepItem({
               disabled={status === 'locked'}
               onClick={() => (status === 'done' ? onRevisit() : setConfirming(true))}
               className={`w-full rounded-md px-1 py-0.5 text-left disabled:cursor-not-allowed ${ring} ${status === 'locked' ? 'opacity-60' : 'hover:bg-page'}`}
-              title={status === 'done' ? 'Revisit this step' : status === 'locked' ? 'Unlocked when step 5 is done' : 'Jump to this step'}
+              title={status === 'done' ? 'Revisit this step' : status === 'locked' ? `Unlocked when step ${MAIN_STEPS} is done` : 'Jump to this step'}
             >
               <span className={`block ${small ? 'text-[13px]' : 'text-[14px]'} font-semibold leading-[20px] ${status === 'done' ? 'text-muted' : 'text-ink'}`}>{title}</span>
               <span className="mt-0.5 flex flex-wrap items-center gap-1.5 text-[12px] text-muted">
@@ -148,7 +148,7 @@ export function StepItem({
             </button>
             {confirming && (
               <div role="dialog" aria-label={`Jump to step ${step}`} className="absolute left-0 right-0 top-full z-20 mt-1 rounded-lg border border-line bg-white p-3 shadow-pop">
-                <p className="text-[13px] font-semibold text-ink">Jump to {step === 6 ? 'after signing' : `step ${step}`}?</p>
+                <p className="text-[13px] font-semibold text-ink">Jump to {step === AFTER_STEP ? 'after signing' : `step ${step}`}?</p>
                 <p className="mt-0.5 text-[12px] leading-[17px] text-muted">Earlier steps will be completed for you.</p>
                 <div className="mt-2.5 flex justify-end gap-2">
                   <button onClick={() => setConfirming(false)} className={`rounded-md border border-line px-2.5 py-1 text-[12px] font-semibold text-ink ${ring}`}>Cancel</button>

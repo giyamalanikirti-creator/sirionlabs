@@ -91,7 +91,7 @@ export default function SetupPage() {
           <ol>
             <Row n={1} done={setup.enabled} title="Turn on Deal Ledger" who="Sirion admin" caption="Adds the ledger to Sirion's negotiation workspace" tag="new">
               {!setup.enabled && (
-                <Button variant="primary" size="sm" onClick={() => update({ enabled: true })}>
+                <Button variant="primary" size="sm" data-tour="setup-enable" onClick={() => update({ enabled: true })}>
                   Turn on
                 </Button>
               )}
@@ -99,7 +99,7 @@ export default function SetupPage() {
             <Row n={2} done={setup.consented} title="Connect Microsoft 365" who="Microsoft 365 admin" caption="An M365 admin must approve this" tag="new">
               {!setup.consented && (
                 <Link href="/m365/consent">
-                  <Button variant="primary" size="sm" disabled={!setup.enabled}>
+                  <Button variant="primary" size="sm" data-tour="setup-consent" disabled={!setup.enabled}>
                     Connect Microsoft 365 <ExternalLink size={12} />
                   </Button>
                 </Link>
@@ -115,7 +115,7 @@ export default function SetupPage() {
                 </p>
               </div>
               {!setup.group && (
-                <Button variant="primary" size="sm" disabled={!setup.consented} onClick={() => update({ group: true })}>
+                <Button variant="primary" size="sm" data-tour="setup-group" disabled={!setup.consented} onClick={() => update({ group: true })}>
                   Create the group
                 </Button>
               )}
@@ -123,7 +123,7 @@ export default function SetupPage() {
             <Row n={4} done={setup.deployed} title="Deploy the add-ins" who="Microsoft 365 admin" caption="Required for the check at Send" tag="today">
               {!setup.deployed && (
                 <Link href="/m365/integrated-apps">
-                  <Button variant="primary" size="sm" disabled={!setup.group}>
+                  <Button variant="primary" size="sm" data-tour="setup-deploy" disabled={!setup.group}>
                     Open Integrated apps <ExternalLink size={12} />
                   </Button>
                 </Link>

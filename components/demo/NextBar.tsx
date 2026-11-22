@@ -14,11 +14,11 @@ import { usePathname } from 'next/navigation';
 import { ArrowRight, Check } from 'lucide-react';
 import { useDemo } from '@/lib/store';
 import { useGuideUi } from '@/lib/guideUi';
-import { appOf, stepMeta, type GuideStep } from '@/lib/demo/guideState';
+import { AFTER_STEP, appOf, stepMeta, type GuideStep } from '@/lib/demo/guideState';
 import { APPS } from './apps';
 import { useGuide, visibleTarget } from './useGuide';
 
-const READING_PAGES = ['/today', '/story', '/setup', '/settings', '/ask'];
+const READING_PAGES = ['/today', '/story', '/settings', '/ask'];
 
 const barClass = 'ds-scope flex min-h-10 shrink-0 items-center gap-3 border-b border-guide-200 bg-guide-50 px-4 py-1 text-[13px] text-ink';
 /* The next step's own colour (the walkthrough's blue, as on the rail's step circles), coming out of the screen and settling back, so it is noticed. */
@@ -45,7 +45,7 @@ export function NextBar() {
     return () => window.clearTimeout(id);
   }, [want, pathname]);
 
-  /* Reading pages (Sirion today, the case, setup, privacy, AskSirion) aren't part of the walkthrough:
+  /* Reading pages (Sirion today, the case, privacy, AskSirion) aren't part of the walkthrough:
      no bar there. The rail still shows where the viewer is. */
   if (READING_PAGES.some((p) => pathname === p || pathname.startsWith(`${p}/`))) return null;
 
@@ -55,22 +55,22 @@ export function NextBar() {
     const stayedHere = stayed.includes(key);
     /* The end of the walkthrough (after signing) or of the quick look: the bar belongs to the screen it
        finished on. Anywhere else (Home, Sirion today, the case, other deals) there is nothing to suggest. */
-    const finalScreen = step === 6 || step === undefined;
+    const finalScreen = step === AFTER_STEP || step === undefined;
     const finishedHere = pathname.startsWith('/contracts/');
     if (finalScreen && (!finishedHere || stayedHere)) return null;
-    const next = step && step < 6 ? stepMeta((step + 1) as GuideStep) : undefined;
+    const next = step && step < AFTER_STEP ? stepMeta((step + 1) as GuideStep) : undefined;
     const advance = () => {
       if (step === undefined) {
         useDemo.getState().setQuickPath(false);
         g.jumpTo(1);
-      } else if (step < 6) {
+      } else if (step < AFTER_STEP) {
         g.goNext(step as GuideStep);
       } else {
         stay(key);
         g.goTo('/');
       }
     };
-    const doneLabel = step === undefined ? 'Quick look done' : step === 6 ? 'After signing done' : `Step ${step} done · ${stepMeta(step as GuideStep).title}`;
+    const doneLabel = step === undefined ? 'Quick look done' : step === AFTER_STEP ? 'After signing done' : `Step ${step} done · ${stepMeta(step as GuideStep).title}`;
     return (
       <div data-next-bar data-guide-done-card className={barClass}>
         <span role="status" className="flex min-w-0 flex-1 items-center gap-1.5 font-semibold text-guide-700">
@@ -93,7 +93,7 @@ export function NextBar() {
   if (!want || !shown || !action || !g.target) return null;
   const app = APPS[appOf(action.href)];
   const otherApp = appOf(action.href) !== appOf(pathname);
-  const where = g.target.kind === 'quick' ? 'Quick look' : `Step ${g.target.step === 6 ? 'after signing' : g.target.step} · ${stepMeta(g.target.step).title}`;
+  const where = g.target.kind === 'quick' ? 'Quick look' : `Step ${g.target.step === AFTER_STEP ? 'after signing' : g.target.step} · ${stepMeta(g.target.step).title}`;
 
   return (
     <div data-next-bar className={barClass}>
