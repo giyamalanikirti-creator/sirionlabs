@@ -158,7 +158,6 @@ export function useGuide() {
     actionsShown: (n: GuideStep) => (hydrated ? actionsShown(n, s) : SCRIPT_ALL[n].map((a) => !a.when)),
     goNext,
     startQuickPath,
-    quickAction,
     jumpTo,
     revisit,
     doAction,
