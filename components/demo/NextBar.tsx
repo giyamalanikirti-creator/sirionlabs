@@ -19,7 +19,7 @@ import { APPS } from './apps';
 import { useGuide, visibleTarget } from './useGuide';
 
 const barClass = 'ds-scope flex min-h-10 shrink-0 items-center gap-3 border-b border-guide-200 bg-guide-50 px-4 py-1 text-[13px] text-ink';
-/* The next step's own colour (indigo, no app uses it), floating up and down, so it is noticed. */
+/* The next step's own colour (indigo, no app uses it), coming out of the screen and settling back, so it is noticed. */
 const actionClass = 'guide-solid guide-bob inline-flex shrink-0 items-center gap-1.5 rounded-md px-3 py-1 text-left text-[12.5px] font-semibold text-white';
 
 export function NextBar() {
