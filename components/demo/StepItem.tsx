@@ -90,12 +90,12 @@ export function StepItem({
                     >
                       <span className="mt-[1px] grid h-4 w-4 shrink-0 place-items-center">
                         {isDone ? <Check size={14} strokeWidth={2.5} className="text-guide-600" /> : (
-                          <span className={`h-2 w-2 rounded-full ${isNext ? 'bg-guide-600' : 'bg-line'}`} />
+                          <span className={`h-2 w-2 rounded-full ${isNext ? 'guide-solid' : 'bg-line'}`} />
                         )}
                       </span>
                       <span className="min-w-0 flex-1">
                         {a.label}
-                        {isNext && <span className="ml-1.5 inline-block rounded-full bg-guide-600 px-1.5 py-[1px] align-[1px] text-[11px] font-semibold leading-[14px] text-white">Do this</span>}
+                        {isNext && <span className="guide-solid ml-1.5 inline-block rounded-full px-1.5 py-[1px] align-[1px] text-[11px] font-semibold leading-[14px] text-white">Do this</span>}
                       </span>
                     </button>
                   </li>
@@ -122,7 +122,7 @@ export function StepItem({
             {nextTitle && (
               <div className="mt-3">
                 {stepComplete ? (
-                  <button onClick={onNext} data-tour="guide-next" className={`guide-pulse guide-bob w-full rounded-lg bg-guide-600 px-3 py-2 text-[13px] font-semibold text-white hover:bg-guide-700 ${ring}`}>
+                  <button onClick={onNext} data-tour="guide-next" className={`guide-solid guide-bob w-full rounded-lg px-3 py-2 text-[13px] font-semibold text-white ${ring}`}>
                     Next: {nextTitle} →
                   </button>
                 ) : (

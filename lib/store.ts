@@ -728,8 +728,9 @@ export const useDemo = create<DemoState>()(
       recordSend: (outcome) =>
         set((s) => ({
           sendOutcomes: [...s.sendOutcomes, outcome],
+          // Edit reply is not the end of step 3: the edited reply still has to be sent.
           completedSteps:
-            outcome.personId === 'vikram' && (outcome.choice || outcome.decision === 'allow') && s.clock >= STEP_CLOCK[3] && !s.completedSteps.includes(3)
+            outcome.personId === 'vikram' && ((outcome.choice && outcome.choice !== 'edit' && outcome.choice !== 'fix_attachment') || outcome.decision === 'allow') && s.clock >= STEP_CLOCK[3] && !s.completedSteps.includes(3)
               ? [...s.completedSteps, 3]
               : s.completedSteps,
         })),

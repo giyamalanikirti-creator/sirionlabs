@@ -44,11 +44,16 @@ export interface ScriptAction {
   /** Where the element lives, so a chip can take you there. */
   href: string;
   done: (s: TourState) => boolean;
+  /** Only part of the step on one path (Vikram chose Edit reply); otherwise skipped and not listed. */
+  when?: (s: TourState) => boolean;
 }
 
 const WORD_REVIEW: TourVia[] = [{ target: 'word-tab-review', label: 'Review tab' }];
 const OBLIGATIONS: TourVia[] = [{ target: 'tab-obligations', label: 'Obligations tab' }];
 const INVOICES: TourVia[] = [{ target: 'tab-invoices', label: 'Invoices tab' }];
+
+/** Vikram chose Edit reply at the Send check: two more actions before step 3 is done. */
+const choseEdit = (s: TourState) => s.sendOutcomes.some((o) => o.personId === 'vikram' && o.choice === 'edit');
 
 const creditAgreed = (s: TourState) => s.ledger.some((r) => r.id === 'R-credit' && r.state === 'agreed');
 
@@ -68,10 +73,12 @@ export const SCRIPT: Record<1 | 2 | 3 | 4 | 5 | 6, ScriptAction[]> = {
     { id: '3a', label: shiftText('Open Rohan’s price ask (18 Nov)'), target: 'msg-M13', href: '/outlook/vikram?msg=M13', done: (s) => s.readMessageIds.includes('M13') },
     { id: '3b', label: 'Reply (draft is filled in)', target: 'reply', href: '/outlook/vikram?msg=M13', done: (s) => s.tourClicks.includes('reply') || s.sendOutcomes.some((o) => o.personId === 'vikram') },
     { id: '3c', label: 'Press Send', target: 'compose-send', href: '/outlook/vikram?msg=M13', done: (s) => s.sendOutcomes.some((o) => o.personId === 'vikram') },
-    { id: '3d', label: 'Loop in, edit or send anyway', target: 'guard-actions', href: '/outlook/vikram?msg=M13', done: (s) => s.completedSteps.includes(3) },
+    { id: '3d', label: 'Loop in, edit or send anyway', target: 'guard-actions', href: '/outlook/vikram?msg=M13', done: (s) => s.completedSteps.includes(3) || choseEdit(s) },
+    { id: '3e', label: 'Risky reply: use the suggested wording', target: 'use-suggested-wording', href: '/outlook/vikram?msg=M13', when: choseEdit, done: (s) => s.completedSteps.includes(3) || s.tourClicks.includes('use-suggested-wording') },
+    { id: '3f', label: 'Send the edited reply', target: 'compose-send', href: '/outlook/vikram?msg=M13', when: choseEdit, done: (s) => s.completedSteps.includes(3) },
   ],
   4: [
-    { id: '4a', label: 'Open the payment card (§9.3)', target: 'issue-9.3', via: WORD_REVIEW, href: '/word/v6?from=sirion&clause=9.3', done: (s) => s.tourClicks.includes('issue-9.3') || s.tourClicks.includes('issue-9.1') || s.signing.inserted.length > 0 },
+    { id: '4a', label: 'Click the §9.3 payment card in the Deal Ledger pane', target: 'issue-9.3', via: WORD_REVIEW, href: '/word/v6?from=sirion&clause=9.3', done: (s) => s.tourClicks.includes('issue-9.3') || s.tourClicks.includes('issue-9.1') || s.signing.inserted.length > 0 },
     { id: '4b', label: 'Fix all with agreed wording', target: 'insert-all', via: WORD_REVIEW, href: '/word/v6?from=sirion', done: (s) => s.signing.inserted.length >= 3 || Boolean(s.signing.sentBackAt) },
     { id: '4c', label: 'Send back to CloudDesk', target: 'send-back', via: WORD_REVIEW, href: '/word/v6?from=sirion', done: (s) => Boolean(s.signing.sentBackAt) },
   ],

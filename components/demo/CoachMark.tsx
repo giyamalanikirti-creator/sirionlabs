@@ -341,7 +341,7 @@ function StepDoneCard() {
 
   return createPortal(
     <div data-coach-root data-guide-done-card role="dialog" aria-label={title} className="ds-scope fixed" style={{ top: pos.top, left: pos.left, width: CARD_W, zIndex: Z_TAG }}>
-      <div className="rounded-xl border border-guide-600 bg-white p-3.5 shadow-pop">
+      <div className="guide-cta-border rounded-xl border-2 bg-white p-3.5 shadow-pop">
         <p className="flex items-center gap-1.5 text-[14px] text-ink">
           <span className="guide-solid grid h-5 w-5 place-items-center rounded-full text-white">
             <Check size={12} strokeWidth={3} />

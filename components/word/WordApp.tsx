@@ -532,7 +532,13 @@ export function WordApp({ versionId }: { versionId: string }) {
                           version={working ?? version}
                           rows={rows}
                           expanded={expanded === issue.clauseNo}
-                          onToggle={() => setExpanded((e) => (e === issue.clauseNo ? undefined : issue.clauseNo))}
+                          onToggle={() => {
+                            /* A click on a card brings its clause into view in the document and highlights it.
+                               A second click on the card already shown in the document folds it. */
+                            const showing = expanded === issue.clauseNo && highlightedClause === issue.clauseNo;
+                            setExpanded(showing ? undefined : issue.clauseNo);
+                            if (!showing) goToClause(issue.clauseNo);
+                          }}
                           actions={issueActions}
                           resolvedLabel={rowOf(issue)?.signing === 'waived' ? 'Accepted · waiver logged' : undefined}
                         />

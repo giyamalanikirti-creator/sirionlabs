@@ -91,7 +91,7 @@ function ConditionBlock({ issue, row, version, actions }: { issue: ReviewIssue; 
   const agreed = l.agreedPlain.toLowerCase();
   const src = row.condition.source;
   return (
-    <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: '18px' }} onClick={(e) => e.stopPropagation()}>
+    <div style={{ marginTop: 6, fontSize: 12.5, lineHeight: '18px' }} onClick={keepInnerClicks}>
       <div>
         Signing copy {version.id}, §{issue.clauseNo}: {clause ? `${clause.title} within ` : ''}<strong>{l.docPlain.toLowerCase()}</strong>.
       </div>
@@ -132,7 +132,7 @@ function RenewalDatesCompare({ row, docValue, versionId }: { row: LedgerRow; doc
   const agreed = renewalDates({ end, noticeDays: row.position.days });
   const cell = { padding: '3px 6px', borderTop: `1px solid ${tokens.colorNeutralStroke3}` } as const;
   return (
-    <table style={{ width: '100%', marginTop: 6, fontSize: 11.5, borderCollapse: 'collapse' }} onClick={(e) => e.stopPropagation()}>
+    <table style={{ width: '100%', marginTop: 6, fontSize: 11.5, borderCollapse: 'collapse' }} onClick={keepInnerClicks}>
       <thead>
         <tr style={{ color: tokens.colorNeutralForeground3, textAlign: 'left' }}>
           <th style={{ padding: '2px 6px' }} />
@@ -174,6 +174,12 @@ function StatusTrail({ row }: { row: LedgerRow }) {
 }
 
 /** Policy passes, the deal check fails: the findings only Deal Ledger can make (review fix B1). */
+
+/** A button or link inside a card does its own job; a click anywhere else on the card opens it in the document. */
+const keepInnerClicks = (e: React.MouseEvent) => {
+  if ((e.target as HTMLElement).closest('button, a')) e.stopPropagation();
+};
+
 export function policyAllowsButDiffers(issue: ReviewIssue): boolean {
   return issue.sources.length === 1 && issue.sources[0] === 'email' && issue.lens?.status === 'differs';
 }

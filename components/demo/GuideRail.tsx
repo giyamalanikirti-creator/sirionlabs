@@ -232,8 +232,8 @@ function RailFull({ width, onCollapse }: { width: number; onCollapse: () => void
                 status={status}
                 last={step === 6}
                 small={step === 6}
-                actions={SCRIPT[step]}
-                done={g.actionsDone(step)}
+                actions={SCRIPT[step].filter((_, i) => g.actionsShown(step)[i])}
+                done={g.actionsDone(step).filter((_, i) => g.actionsShown(step)[i])}
                 nextTitle={nextStep?.title}
                 stepComplete={g.actionsDone(step).every(Boolean)}
                 asks={(step === 6 ? AFTER_SIGNING : GUIDE_STAGES[step - 1]).ask?.slice(0, 1)}
@@ -364,11 +364,11 @@ function QuickLook({ g, onNav }: { g: ReturnType<typeof useGuide>; onNav: () => 
               className={`flex w-full items-start gap-2 rounded-md px-1.5 py-1 text-left text-[13px] leading-[18px] hover:bg-white ${ring} ${done[i] ? 'text-muted' : i === next ? 'font-semibold text-guide-700' : 'text-muted/80'}`}
             >
               <span className="mt-[1px] grid h-4 w-4 shrink-0 place-items-center">
-                {done[i] ? <Check size={14} strokeWidth={2.5} className="text-guide-600" /> : <span className={`h-2 w-2 rounded-full ${i === next ? 'bg-guide-600' : 'bg-line'}`} />}
+                {done[i] ? <Check size={14} strokeWidth={2.5} className="text-guide-600" /> : <span className={`h-2 w-2 rounded-full ${i === next ? 'guide-solid' : 'bg-line'}`} />}
               </span>
               <span className="min-w-0 flex-1">
                 {i + 1}. {a.label}
-                {i === next && <span className="ml-1.5 inline-block rounded-full bg-guide-600 px-1.5 py-[1px] align-[1px] text-[11px] font-semibold leading-[14px] text-white">Do this</span>}
+                {i === next && <span className="guide-solid ml-1.5 inline-block rounded-full px-1.5 py-[1px] align-[1px] text-[11px] font-semibold leading-[14px] text-white">Do this</span>}
               </span>
             </button>
           </li>

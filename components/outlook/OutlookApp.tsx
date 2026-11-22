@@ -567,11 +567,17 @@ export function OutlookApp({ person }: { person: Person }) {
                       <div role="status" style={{ padding: '8px 20px', background: editStillConcedes ? '#FFF4CE' : '#DFF6DD', borderBottom: '1px solid #E0E0E0', fontSize: 12.5, lineHeight: '18px' }}>
                         {editStillConcedes ? (
                           <>
-                            Change or remove: <mark style={{ background: '#FDE68A' }}>“{editQuote.quote}”</mark>
+                            <strong>Risky reply.</strong> Change or remove: <mark style={{ background: '#FDE68A' }}>“{editQuote.quote}”</mark>
                             {editQuote.rewrite && (
-                              <button onClick={() => setDraft((d) => d.replace(editQuote.quote, editQuote.rewrite!))} style={{ marginLeft: 8, border: 0, background: 'none', color: '#0F6CBD', textDecoration: 'underline', cursor: 'pointer', fontSize: 12.5 }}>
+                              <Button
+                                size="small"
+                                appearance="primary"
+                                data-tour="use-suggested-wording"
+                                onClick={() => setDraft((d) => d.replace(editQuote.quote, editQuote.rewrite!))}
+                                style={{ marginLeft: 10 }}
+                              >
                                 Use suggested wording
-                              </button>
+                              </Button>
                             )}
                           </>
                         ) : (

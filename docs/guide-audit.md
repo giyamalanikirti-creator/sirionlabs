@@ -81,6 +81,8 @@ Play-through from a fresh visit, clicking only what the app highlights (1440 × 
 | 3 | 3b Reply | `reply` | Yes | Yes | Yes | On arrival |
 | 3 | 3c Press Send | `compose-send` | Yes | Yes | Yes | On arrival |
 | 3 | 3d Loop in, edit or send anyway | `guard-actions` | Yes | Yes | Yes | On arrival (dialog) |
+| 3 | 3e Risky reply: use the suggested wording (only after Edit reply) | `use-suggested-wording` | Yes | Yes | Yes | On arrival |
+| 3 | 3f Send the edited reply (only after Edit reply) | `compose-send` | Yes | Yes | Yes | On arrival |
 | 4 | 4a Open the payment card | `issue-9.3` | Yes | Yes | Yes | On arrival. From another Word tab, via "Next · Review tab" |
 | 4 | 4b Fix all with agreed wording | `insert-all` | Yes | Yes | Yes | On arrival |
 | 4 | 4c Send back to CloudDesk | `send-back` | Yes | Yes | Yes | On arrival |
@@ -116,3 +118,9 @@ Play-through from a fresh visit, clicking only what the app highlights (1440 × 
 - **6a:** step 5's Next moves the clock to the invoice.
 
 These are not highlight failures, so they are left as they were. The brief didn't ask for the step flow to change.
+
+**Later changes:**
+- **Edit reply:** Edit reply no longer ends step 3. Two actions follow it (3e and 3f), so the guidance carries on until the edited reply is sent.
+- **Stay here:** after Stay here on a step-complete card, the in-frame bar keeps offering the next step.
+- **Colour:** the next step's ring, label and buttons use an orange accent (`--guide-cta`) that no app on screen uses, and they bob.
+- **Word:** clicking an issue card anywhere outside its buttons scrolls the document to that clause and highlights it.

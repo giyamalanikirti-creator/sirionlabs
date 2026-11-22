@@ -39,8 +39,14 @@ export function appOf(href: string): AppKey {
   return 'sirion';
 }
 
+/** An action that doesn't apply on this path (its `when` is false) counts as done and isn't listed. */
 export function actionsDone(step: GuideStep, s: GuideStateInput): boolean[] {
-  return SCRIPT[step].map((a) => a.done(s));
+  return SCRIPT[step].map((a) => (a.when && !a.when(s) ? true : a.done(s)));
+}
+
+/** The actions to list for a step on the path the viewer took. */
+export function actionsShown(step: GuideStep, s: GuideStateInput): boolean[] {
+  return SCRIPT[step].map((a) => !a.when || a.when(s));
 }
 
 /** The walkthrough has moved past this step: the clock reached the next step's day (or, for the last row, it is finished). */

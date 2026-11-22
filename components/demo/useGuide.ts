@@ -7,6 +7,7 @@ import { useHydrated } from '@/lib/useHydrated';
 import { useGuideUi } from '@/lib/guideUi';
 import {
   actionsDone,
+  actionsShown,
   currentStep,
   doneCount,
   guideTarget,
@@ -19,7 +20,7 @@ import {
   type GuideStateInput,
   type GuideStep,
 } from '@/lib/demo/guideState';
-import type { ScriptAction } from '@/lib/demo/script';
+import { SCRIPT as SCRIPT_ALL, type ScriptAction } from '@/lib/demo/script';
 import { STEP_CLOCK } from '@/lib/demo/steps';
 
 export function visibleTarget(target: string): HTMLElement | undefined {
@@ -154,6 +155,7 @@ export function useGuide() {
     started: hydrated ? started(s) : false,
     stepDone: (n: GuideStep) => (hydrated ? stepDone(n, s) : false),
     actionsDone: (n: GuideStep) => (hydrated ? actionsDone(n, s) : []),
+    actionsShown: (n: GuideStep) => (hydrated ? actionsShown(n, s) : SCRIPT_ALL[n].map((a) => !a.when)),
     goNext,
     startQuickPath,
     quickAction,

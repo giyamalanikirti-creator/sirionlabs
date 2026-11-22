@@ -45,7 +45,7 @@ export function AppSwitcher() {
               'relative flex h-9 items-center gap-2 rounded-lg px-3 text-left transition-colors',
               'focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-guide-200',
               isActive ? 'text-white' : 'border border-white/[0.22] bg-white/[0.08] text-white hover:bg-white/[0.14]',
-              isNext ? 'ring-2 ring-guide-600 ring-offset-2 ring-offset-ink' : '',
+              isNext ? 'ring-2 ring-[#EA6A12] ring-offset-2 ring-offset-ink' : '',
             ].join(' ')}
             style={isActive ? { background: a.colour } : undefined}
           >
@@ -64,7 +64,7 @@ export function AppSwitcher() {
             )}
             {isActive && <span aria-hidden className="absolute bottom-[-8px] left-3 right-3 h-[3px] rounded-full bg-white" />}
             {isNext && (
-              <span className="absolute -right-2 -top-2 rounded-full bg-guide-600 px-1.5 py-[1px] text-[10.5px] font-semibold text-white shadow">Next</span>
+              <span className="guide-solid guide-bob absolute -right-2 -top-2 rounded-full px-1.5 py-[1px] text-[10.5px] font-semibold text-white shadow">Next</span>
             )}
           </button>
         );
