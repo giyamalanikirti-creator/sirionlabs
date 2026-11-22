@@ -14,7 +14,8 @@ import { useDemo } from '@/lib/store';
 import { CONNECTED_GROUP } from '@/lib/settings';
 
 const useStyles = makeStyles({
-  page: { minHeight: '100%', backgroundColor: '#F3F2F1', display: 'flex', flexDirection: 'column' },
+  /* The page scrolls inside the app frame, so nothing is ever out of reach on a laptop screen. */
+  page: { height: '100%', overflowY: 'auto', backgroundColor: '#F3F2F1', display: 'flex', flexDirection: 'column' },
   bar: {
     height: '48px',
     display: 'flex',
@@ -29,10 +30,23 @@ const useStyles = makeStyles({
   card: {
     width: '440px',
     maxWidth: 'calc(100% - 32px)',
-    ...shorthands.margin('48px', 'auto'),
+    ...shorthands.margin('24px', 'auto'),
     backgroundColor: '#FFFFFF',
     boxShadow: '0 2px 6px rgba(0,0,0,0.2)',
-    ...shorthands.padding('44px'),
+    ...shorthands.padding('28px', '36px', '0'),
+    flexShrink: 0,
+  },
+  /* Cancel and Accept stay on screen while the permissions above scroll. */
+  actions: {
+    position: 'sticky',
+    bottom: '0',
+    display: 'flex',
+    justifyContent: 'flex-end',
+    columnGap: '8px',
+    backgroundColor: '#FFFFFF',
+    ...shorthands.margin('0', '-36px'),
+    ...shorthands.padding('14px', '36px', '24px'),
+    ...shorthands.borderTop('1px', 'solid', '#EDEBE9'),
   },
   table: { width: '100%', borderCollapse: 'collapse', fontSize: '13px' },
   th: { textAlign: 'left', fontWeight: 600, ...shorthands.padding('10px', '12px'), ...shorthands.borderBottom('1px', 'solid', '#E1DFDD') },
@@ -59,7 +73,7 @@ export function ConsentMock() {
       </div>
       <div className={s.card}>
         <div style={{ fontSize: 13, color: tokens.colorNeutralForeground3 }}>it.admin@meridian.example</div>
-        <h1 style={{ fontSize: 24, fontWeight: 600, margin: '12px 0 16px' }}>Permissions requested</h1>
+        <h1 style={{ fontSize: 22, fontWeight: 600, margin: '8px 0 12px' }}>Permissions requested</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
           <Mark size={36} tone="dark" />
           <div>
@@ -79,10 +93,10 @@ export function ConsentMock() {
           </li>
         </ul>
         <Checkbox checked={forOrg} onChange={(_, d) => setForOrg(Boolean(d.checked))} label="Consent on behalf of your organisation" />
-        <p style={{ fontSize: 12, color: tokens.colorNeutralForeground3, margin: '12px 0 24px' }}>
+        <p style={{ fontSize: 12, color: tokens.colorNeutralForeground3, margin: '8px 0 16px' }}>
           Accepting lets this app use the data above. An organisation admin must approve. You can change this in My Apps.
         </p>
-        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+        <div className={s.actions}>
           <Button onClick={() => router.push('/setup')}>Cancel</Button>
           <Button
             appearance="primary"
