@@ -37,9 +37,13 @@ import { plainValue } from '@/lib/plain';
 import { CONTRACT_ID } from '@/lib/settings';
 import { shiftText } from '@/lib/demo/timeShift';
 import { STEP_CLOCK } from '@/lib/demo/steps';
+import { NegotiationSoFar } from '@/components/deal/NegotiationSoFar';
+import { useNegotiationSummary } from '@/lib/useNegotiationSummary';
 
 export function ContractRecord({ initialTab = 'overview' }: { initialTab?: string }) {
   const [tab, setTab] = useState(initialTab);
+  /* Walkthrough brief B2: the handover view carries the negotiation's story, open items as "Unresolved at signature". */
+  const handoverSummary = useNegotiationSummary('handover');
   const top = useRef<HTMLDivElement>(null);
   const changeTab = (id: string) => {
     setTab(id);
@@ -161,6 +165,8 @@ export function ContractRecord({ initialTab = 'overview' }: { initialTab?: strin
           </div>
         </div>
       </SirionCard>
+
+      {handoverSummary && <NegotiationSoFar summary={handoverSummary} />}
 
       <Tabs
         active={tab}

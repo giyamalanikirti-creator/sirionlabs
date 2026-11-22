@@ -121,3 +121,25 @@ describe('AskSirion: everything a supplier could see, for every question type in
     });
   }
 });
+
+describe('negotiation so far stays internal', async () => {
+  const { setStep } = await import('./helpers/summaryStates');
+  const { buildNegotiationSummary, summaryText } = await import('@/lib/engines/negotiationSummary');
+  const { roundReply } = await import('@/lib/engines/replyCopy');
+  it('no summary line reaches a supplier-facing string', () => {
+    for (const key of ['step1', 'step2', 'step3-send-anyway', 'step4', 'step5'] as const) {
+      const st = setStep(key);
+      const lines = summaryText(buildNegotiationSummary(st, 'D-CLOUDDESK', st.clock)).filter((l) => l.length > 14);
+      const supplierFacing = [
+        HOLDING_REPLY,
+        RESTORE_NOTICE_DRAFT,
+        CLARIFY_DRAFT,
+        ...st.ledger.map((r) => r.supplierNote),
+        ...st.ledger.map((r) => agreedWording(r.termKey, r.position)),
+        ...signingCheck(st.ledger, versionById('v6')!, cloudDeskDeal).gaps.map((g) => st.ledger.find((r) => r.id === g.rowId)?.supplierNote ?? ''),
+        roundReply({ rows: st.ledger, prev: versionById('v4')!, attached: versionById('v5')!, roundMessageId: 'M8', deal: cloudDeskDeal, greeting: 'Rohan', signOff: 'Ananya' }).body,
+      ];
+      for (const text of supplierFacing) for (const line of lines) expect(text.includes(line)).toBe(false);
+    }
+  });
+});

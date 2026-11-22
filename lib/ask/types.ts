@@ -5,6 +5,7 @@
  * classify the question.
  */
 import type { ContractRecord } from '@/lib/engines/handover';
+import type { NegotiationSummary, SummaryState } from '@/lib/engines/negotiationSummary';
 import type { Invoice, LedgerRow, SourceRef, TermKey } from '@/lib/types';
 
 export type Surface = 'sirion' | 'ananya' | 'vikram' | 'word' | 'ask';
@@ -38,7 +39,8 @@ export type IntentId =
   | 'invoice_mismatch'
   | 'draft_reply'
   | 'suggest_term'
-  | 'internal_conflict';
+  | 'internal_conflict'
+  | 'negotiation_summary';
 
 export interface Slots {
   term?: TermKey;
@@ -131,6 +133,8 @@ export interface AskAnswer {
   term?: TermKey;
   /** Every figure in the answer, as text: a model rephrase may use only these. */
   facts: string[];
+  /** "Negotiation so far": rendered with the same component as the deal page card. */
+  negotiation?: NegotiationSummary;
 }
 
 /** What answer.ts reads from the demo store. Pure input: same state, same answer. */
@@ -141,11 +145,15 @@ export interface AskState {
   mailboxes: Record<string, boolean>;
   ownersSeeFallbacks: boolean;
   syncedVersionIds: string[];
-  signing: { inserted: TermKey[]; waived: { termKey: TermKey; reason: string }[]; checkedAt?: string; sentBackAt?: string };
+  signing: { inserted: TermKey[]; waived: { termKey: TermKey; reason: string }[]; checkedAt?: string; sentBackAt?: string } & SummaryState['signing'];
   signedAt?: string;
   contract?: ContractRecord;
   invoices: Invoice[];
   invoiceFastForward: boolean;
+  /** For "Negotiation so far": handoffs, exceptions and approvals. */
+  sendOutcomes?: SummaryState['sendOutcomes'];
+  approvals?: SummaryState['approvals'];
+  termHolds?: SummaryState['termHolds'];
 }
 
 export interface AskTurn {

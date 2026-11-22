@@ -29,6 +29,7 @@ import { answer as advise } from './advisor';
 import { CLAUSE_TOPICS, INTENT_BY_ID } from './intents';
 import type { AskAction, AskAnswer, AskQuote, AskScope, AskState, IntentId, Slots, SourceChipSpec } from './types';
 import { shiftText } from '@/lib/demo/timeShift';
+import { buildNegotiationSummary } from '@/lib/engines/negotiationSummary';
 
 const deal = cloudDeskDeal;
 /** "Annual price" reads as "Price" in chips and lists. */
@@ -778,6 +779,25 @@ function internalConflictAnswer(s: AskState): AskAnswer {
   );
 }
 
+/** "Negotiation so far" (walkthrough brief B2): the same engine and component as the deal page card. */
+function negotiationSummaryAnswer(s: AskState): AskAnswer {
+  const summary = buildNegotiationSummary(
+    { ...s, sendOutcomes: s.sendOutcomes ?? [], approvals: s.approvals ?? [], termHolds: s.termHolds ?? {} },
+    deal.id,
+    s.clock,
+    s.signedAt ? 'handover' : 'deal',
+  );
+  return withFacts(
+    base('negotiation_summary', {
+      sources: dealChips(s, [emailChip(s)]),
+      text: [`${summary.headline}.`, `${summary.countsLine}.`],
+      negotiation: summary,
+      actions: [openInLedger(DEAL_HREF)],
+      followUps: ['What’s still open with CloudDesk?', 'Does this copy match what we agreed?'],
+    }),
+  );
+}
+
 /* ------------------------------------------------------------------ */
 /* Entry point                                                         */
 /* ------------------------------------------------------------------ */
@@ -824,5 +844,7 @@ export function buildAnswer(intent: IntentId, slots: Slots, scope: AskScope, s: 
       return draftReply(slots, scope, s);
     case 'suggest_term':
       return suggestTerm(question, slots, scope, s);
+    case 'negotiation_summary':
+      return negotiationSummaryAnswer(s);
   }
 }

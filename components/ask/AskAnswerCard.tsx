@@ -13,6 +13,7 @@ import { Tag } from '@/components/ui/Tag';
 import { useSourceDrawer } from '@/lib/drawer';
 import { useDemo } from '@/lib/store';
 import type { AskAction, AskAnswer, SourceChipSpec } from '@/lib/ask/types';
+import { NegotiationSoFar } from '@/components/deal/NegotiationSoFar';
 
 const CONFIDENCE: Record<string, string> = { high: 'High confidence', medium: 'Medium confidence', low: 'Low confidence', formula: 'By formula' };
 
@@ -128,6 +129,7 @@ export function AskAnswerCard({ answer, onAction, onFollowUp }: { answer: AskAns
           </div>
         )}
 
+        {answer.negotiation && <NegotiationSoFar summary={answer.negotiation} variant="compact" />}
         {answer.list && answer.list.length > 0 && (
           <ul className="mt-3 divide-y divide-line rounded-lg border border-line">
             {answer.list.map((item) => {

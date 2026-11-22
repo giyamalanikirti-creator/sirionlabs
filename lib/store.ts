@@ -491,6 +491,8 @@ export const useDemo = create<DemoState>()(
         });
         set((s) => ({
           clarifySentAt: s.clock,
+          // Rohan's answer arrives a little later: the clock moves to it, so nothing on screen is dated after "now".
+          clock: s.clock < CLARIFY_REPLY.sentAt ? CLARIFY_REPLY.sentAt : s.clock,
           ledger: rows,
           sentMessages: [...s.sentMessages, CLARIFY_REPLY],
           completedSteps: s.completedSteps.includes(2) ? s.completedSteps : [...s.completedSteps, 2],

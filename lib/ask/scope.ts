@@ -44,7 +44,7 @@ export function widen(scope: AskScope): AskScope {
 
 const DEFAULTS: Record<string, IntentId[]> = {
   all: ['portfolio_at_risk', 'repo_search', 'contract_summary'],
-  deal: ['open_terms', 'agreed_term', 'explain_figure'],
+  deal: ['negotiation_summary', 'open_terms', 'agreed_term'],
   'thread:ananya': ['round_changes', 'agreed_term', 'open_terms'],
   'thread:vikram': ['can_i_agree', 'agreed_term', 'other_threads'],
   doc: ['signing_match', 'clause_lookup', 'draft_reply'],

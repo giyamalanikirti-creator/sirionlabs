@@ -16,6 +16,8 @@ import { RoundsTab } from './RoundsTab';
 import { ThreadsTab } from './ThreadsTab';
 import { SigningTab } from './SigningTab';
 import { ActivityTab } from './ActivityTab';
+import { NegotiationSoFar } from './NegotiationSoFar';
+import { useNegotiationSummary } from '@/lib/useNegotiationSummary';
 
 const STAGES = ['Rounds', 'Signing', 'Signed', 'In Sirion'] as const;
 
@@ -29,6 +31,7 @@ export function DealPage({ initialRow, initialTab }: { initialRow?: string; init
   const checkedAt = useDemo((s) => s.signing.checkedAt);
 
   const deal = cloudDeskDeal;
+  const summary = useNegotiationSummary(signed ? 'handover' : 'deal');
   const stageIndex = contract ? 3 : signed ? 2 : checkedAt || sentBackAt ? 1 : 0;
 
   return (
@@ -111,6 +114,8 @@ export function DealPage({ initialRow, initialTab }: { initialRow?: string; init
           </div>
         )}
       </SirionCard>
+
+      {summary && <NegotiationSoFar summary={summary} />}
 
       <Tabs
         active={tab}

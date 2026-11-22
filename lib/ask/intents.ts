@@ -216,6 +216,19 @@ export const INTENTS: IntentDef[] = [
       [/\bmarkup\b/, 1.5],
     ],
   },
+  {
+    id: 'negotiation_summary',
+    source: 'deal-ledger',
+    scopes: ['deal', 'thread', 'doc'],
+    suggestion: 'Summarise the CloudDesk negotiation so far',
+    phrasings: ['Summarise the negotiation', 'Where are we with CloudDesk?', 'Negotiation so far', 'Recap the CloudDesk negotiation'],
+    patterns: [
+      [/\bnegotiation so far\b/, 6],
+      [/\b(summar\w*|recap|catch me up)\b.*\bnegotiation\b/, 5],
+      [/\bwhere (are|do) we (stand )?with\b/, 5],
+      [/\bso far\b/, 2],
+    ],
+  },
 ];
 
 export const INTENT_BY_ID = Object.fromEntries(INTENTS.map((i) => [i.id, i])) as Record<IntentId, IntentDef>;

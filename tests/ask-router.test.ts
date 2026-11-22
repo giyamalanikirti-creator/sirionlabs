@@ -32,6 +32,13 @@ describe('AskSirion router', () => {
     expect(extractSlots('What’s the termination notice in CloudDesk?').term).toBeUndefined();
   });
 
+  it('negotiation summary questions route to negotiation_summary (walkthrough brief B6)', () => {
+    for (const q of ['summarise the negotiation', 'where are we with CloudDesk', 'negotiation so far', 'Summarise the CloudDesk negotiation so far']) {
+      expect(intentOf(q)).toBe('negotiation_summary');
+    }
+    expect(intentOf('Summarise the CloudDesk MSA')).toBe('contract_summary');
+  });
+
   it('off-topic questions get the fallback', () => {
     expect(intentOf('What is the weather in Pune?')).toBe('fallback');
     expect(intentOf('Tell me a joke')).toBe('fallback');

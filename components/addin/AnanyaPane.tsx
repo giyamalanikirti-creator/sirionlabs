@@ -181,6 +181,9 @@ export function AnanyaPane({
         <summary>All {rows.length} terms on this deal</summary>
         <LedgerList rows={rows} />
       </details>
+      <p style={{ margin: '2px 2px 8px', fontSize: 12.5 }}>
+        <Link href="/deals/D-CLOUDDESK" style={{ color: '#0C5E69', fontWeight: 600 }}>Negotiation so far →</Link>
+      </p>
 
       <p className={s.note}>
         Estimates use invoice and renewal history. A renewal-notice cost is counted once per

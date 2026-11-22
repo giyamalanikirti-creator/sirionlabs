@@ -29,6 +29,9 @@ export function toAskState(): AskState {
     contract: s.contract,
     invoices: s.invoices,
     invoiceFastForward: s.invoiceFastForward,
+    sendOutcomes: s.sendOutcomes,
+    approvals: s.approvals,
+    termHolds: s.termHolds,
   };
 }
 
