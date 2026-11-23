@@ -109,8 +109,11 @@ export function nextAction(s: GuideStateInput): { step: GuideStep; action: Scrip
 }
 
 /** Has the walkthrough started (anything beyond the opening state)? */
+/** Recorded when the viewer presses Start the full walkthrough (or jumps to step 1). */
+export const WALKTHROUGH_STARTED = 'guide:started';
+
 export function started(s: GuideStateInput): boolean {
-  return s.clock > STEP_CLOCK[0] || actionsDone(1, s).some(Boolean) || actionsDone(2, s).some(Boolean);
+  return s.tourClicks.includes(WALKTHROUGH_STARTED) || s.clock > STEP_CLOCK[0] || actionsDone(1, s).some(Boolean) || actionsDone(2, s).some(Boolean);
 }
 
 /** What the in-app guidance points at now: the quick path's next action while it runs, otherwise the walkthrough's. */

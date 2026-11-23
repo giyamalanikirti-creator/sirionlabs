@@ -319,7 +319,10 @@ function HomeHero() {
                 useDemo.getState().setQuickPath(false);
                 g.jumpTo(1);
               }}
-              className="rounded-lg border border-line bg-white px-4 py-3 text-[15px] font-semibold text-teal-900 transition hover:border-teal-900/40 hover:bg-page"
+              /* Until the walkthrough has started, this is where to begin: it comes out of the screen and settles back. */
+              className={`rounded-lg border bg-white px-4 py-3 text-[15px] font-semibold text-teal-900 transition hover:bg-page ${
+                g.hydrated && !g.started ? 'guide-bob border-[#1F6FD1]' : 'border-line hover:border-teal-900/40'
+              }`}
             >
               Start the full walkthrough
             </button>

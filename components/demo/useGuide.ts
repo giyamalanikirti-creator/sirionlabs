@@ -21,6 +21,7 @@ import {
   momentOf,
   SETUP_STEP,
   SETUP_MOVED_ON,
+  WALKTHROUGH_STARTED,
   AFTER_STEP,
   ALL_DONE,
   type GuideStateInput,
@@ -136,6 +137,7 @@ export function useGuide() {
     if (step === SETUP_STEP) {
       demo.advanceTo(0);
       demo.resetSetup();
+      useDemo.getState().markTour(WALKTHROUGH_STARTED);
     } else {
       ensureSetup();
       if (step === AFTER_STEP) {
